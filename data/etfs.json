@@ -1,0 +1,143 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-18",
+  "agent": "agent_etfs",
+  "etfs": [
+    {
+      "symbol": "XLK",
+      "name": "Technology Select Sector SPDR",
+      "isin": "US81369Y8030",
+      "sector_id": "technology",
+      "sector_name": "Tecnología",
+      "sector_color": "#7c3aed",
+      "rationale": "El ETF sectorial más grande y líquido de tecnología US"
+    },
+    {
+      "symbol": "SMH",
+      "name": "VanEck Semiconductors",
+      "isin": "US92189F6875",
+      "sector_id": "technology",
+      "sector_name": "Tecnología",
+      "sector_color": "#7c3aed",
+      "rationale": "Foco puro en semiconductores, el subsector más caliente de la era IA"
+    },
+    {
+      "symbol": "QQQ",
+      "name": "Invesco Nasdaq 100",
+      "isin": "US46090E1038",
+      "sector_id": "technology",
+      "sector_name": "Tecnología",
+      "sector_color": "#7c3aed",
+      "rationale": "Nasdaq 100 amplio, tech-heavy pero incluye consumer y health"
+    },
+    {
+      "symbol": "XLE",
+      "name": "Energy Select Sector SPDR",
+      "isin": "US81369Y5069",
+      "sector_id": "energy",
+      "sector_name": "Energía",
+      "sector_color": "#c2410c",
+      "rationale": "Sector energético tradicional (oil & gas majors)"
+    },
+    {
+      "symbol": "ICLN",
+      "name": "iShares Global Clean Energy",
+      "isin": "US46434V7385",
+      "sector_id": "energy",
+      "sector_name": "Energía",
+      "sector_color": "#c2410c",
+      "rationale": "Energía limpia global, contrapunto a XLE"
+    },
+    {
+      "symbol": "URA",
+      "name": "Global X Uranium",
+      "isin": "US37954Y8553",
+      "sector_id": "energy",
+      "sector_name": "Energía",
+      "sector_color": "#c2410c",
+      "rationale": "Nuclear/uranio, la energía de transición que más crece"
+    },
+    {
+      "symbol": "XLF",
+      "name": "Financial Select Sector SPDR",
+      "isin": "US81369Y8188",
+      "sector_id": "financials",
+      "sector_name": "Financieros",
+      "sector_color": "#0369a1",
+      "rationale": "Sector financiero amplio (grandes bancos + seguros + asset mgmt)"
+    },
+    {
+      "symbol": "KRE",
+      "name": "SPDR S&P Regional Banking",
+      "isin": "US78464A6982",
+      "sector_id": "financials",
+      "sector_name": "Financieros",
+      "sector_color": "#0369a1",
+      "rationale": "Banca regional US, termómetro de la economía real"
+    },
+    {
+      "symbol": "KBE",
+      "name": "SPDR S&P Bank ETF",
+      "isin": "US78464A5505",
+      "sector_id": "financials",
+      "sector_name": "Financieros",
+      "sector_color": "#0369a1",
+      "rationale": "Bancario puro (equal weight), sin seguros ni asset managers"
+    },
+    {
+      "symbol": "XLV",
+      "name": "Health Care Select Sector SPDR",
+      "isin": "US81369Y2090",
+      "sector_id": "healthcare",
+      "sector_name": "Salud",
+      "sector_color": "#15803d",
+      "rationale": "Salud amplio: farma grandes + dispositivos + servicios"
+    },
+    {
+      "symbol": "IBB",
+      "name": "iShares Biotechnology",
+      "isin": "US4642875235",
+      "sector_id": "healthcare",
+      "sector_name": "Salud",
+      "sector_color": "#15803d",
+      "rationale": "Biotech large/mid cap, más estable que XBI"
+    },
+    {
+      "symbol": "XBI",
+      "name": "SPDR S&P Biotech",
+      "isin": "US78464A8707",
+      "sector_id": "healthcare",
+      "sector_name": "Salud",
+      "sector_color": "#15803d",
+      "rationale": "Biotech equal weight, más especulativo, captura small caps"
+    },
+    {
+      "symbol": "SPY",
+      "name": "SPDR S&P 500",
+      "isin": "US78462F1030",
+      "sector_id": "reference",
+      "sector_name": "Referencias",
+      "sector_color": "#78716c",
+      "rationale": "Benchmark del mercado US amplio"
+    },
+    {
+      "symbol": "IWM",
+      "name": "iShares Russell 2000",
+      "isin": "US4642876555",
+      "sector_id": "reference",
+      "sector_name": "Referencias",
+      "sector_color": "#78716c",
+      "rationale": "Small caps US, indicador de apetito por riesgo"
+    },
+    {
+      "symbol": "GLD",
+      "name": "SPDR Gold Shares",
+      "isin": "US78463V1070",
+      "sector_id": "reference",
+      "sector_name": "Referencias",
+      "sector_color": "#78716c",
+      "rationale": "Oro como refugio, contrapeso a equity"
+    }
+  ],
+  "total": 15
+}

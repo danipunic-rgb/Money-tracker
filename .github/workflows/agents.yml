@@ -1,0 +1,50 @@
+name: Money Tracker Agents
+
+on:
+  schedule:
+    # Cada lunes a las 04:00 UTC (06:00 CEST)
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    # Permite ejecutar manualmente desde GitHub UI
+
+jobs:
+  run-agents:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install anthropic httpx supabase
+
+      - name: Agent 1 — Sector Analyst
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python agents/agent_sectors.py
+
+      - name: Agent 2 — ETF Curator
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python agents/agent_etfs.py
+
+      - name: Agent 3 — Holdings Tracker
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python agents/agent_holdings.py
+
+      - name: Commit updated data files
+        run: |
+          git config user.name "money-tracker-bot"
+          git config user.email "bot@money-tracker.app"
+          git add data/
+          git diff --cached --quiet || git commit -m "chore: update sector/etf data [bot]"
+          git push

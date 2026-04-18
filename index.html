@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f9f7f4;
+    --card: #ffffff;
+    --border: #e7e5e4;
+    --border-soft: #f1efec;
+    --text: #1c1917;
+    --text-muted: #78716c;
+    --text-dim: #a8a29e;
+    --patrimonio: #0369a1;
+    --carrera: #c2410c;
+    --up-strong: #15803d;
+    --down-strong: #b91c1c;
+    --font-serif: 'Fraunces', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body {
+    color: var(--text); font-family: var(--font-sans);
+    font-size: 14px; line-height: 1.5; min-height: 100vh;
+    padding: 36px 28px 64px; -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(3,105,161,0.025), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(194,65,12,0.02), transparent 40%);
+  }
+  .container { max-width: 1440px; margin: 0 auto; }
+
+  /* ——— DATELINE ——— */
+  .dateline {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 10px;
+    display: flex; justify-content: space-between;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+
+  /* ——— HEADER ——— */
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 28px 0 22px; border-bottom: 2px solid var(--text); margin-bottom: 24px;
+  }
+  .header-left h1 {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: clamp(44px, 7vw, 84px); letter-spacing: -0.035em;
+    line-height: 0.95; font-variation-settings: "opsz" 144;
+  }
+  .header-left h1 em {
+    font-style: italic; font-weight: 400; color: var(--patrimonio);
+    font-variation-settings: "opsz" 144;
+  }
+  .header-left .subtitle {
+    font-family: var(--font-serif); font-style: italic;
+    color: var(--text-muted); margin-top: 10px; font-size: 17px; max-width: 520px;
+  }
+  .header-right {
+    display: flex; flex-direction: column; gap: 12px;
+    align-items: flex-end; min-width: 260px;
+  }
+  .status-line {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-muted); letter-spacing: 0.1em;
+    text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--up-strong); animation: pulse 2.4s infinite;
+  }
+  .status-dot.stale { background: var(--carrera); }
+  .status-dot.loading { background: var(--patrimonio); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .btn {
+    font-family: var(--font-sans); background: var(--text);
+    color: var(--bg); border: 1px solid var(--text);
+    padding: 9px 18px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border-radius: 2px; letter-spacing: 0.04em;
+    text-transform: uppercase; transition: all 0.15s;
+  }
+  .btn:hover { background: #404040; border-color: #404040; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent; color: var(--text); border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: white; border-color: var(--text-muted); }
+
+  /* ——— INFO BAR ——— */
+  .info-bar {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 12px 18px; border-radius: 2px; margin-bottom: 28px;
+    font-size: 12px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  .info-bar .left {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+  }
+  .info-bar .right {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .info-bar .right strong { color: var(--up-strong); font-weight: 500; }
+  .info-bar .right.stale strong { color: var(--carrera); }
+
+  /* ——— HIGHLIGHTS ——— */
+  .highlights {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-bottom: 44px;
+  }
+  .highlight-card {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 20px 22px; border-radius: 2px; position: relative;
+  }
+  .highlight-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 32px; height: 2px; background: var(--text);
+  }
+  .highlight-label {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 14px;
+  }
+  .highlight-sublabel {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 11px; color: var(--text-muted); margin-bottom: 4px;
+  }
+  .highlight-subsection + .highlight-subsection {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+  .highlight-row {
+    display: flex; justify-content: space-between;
+    align-items: baseline; padding: 3px 0;
+  }
+  .highlight-row .symbol { font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+  .highlight-row .pct   { font-family: var(--font-mono); font-weight: 500; font-size: 13px; }
+  .pct.up   { color: var(--up-strong); }
+  .pct.down { color: var(--down-strong); }
+
+  /* ——— SECTORS ——— */
+  .sector { margin-bottom: 48px; opacity: 0; animation: fadeUp 0.5s ease-out forwards; }
+  .sector:nth-child(1) { animation-delay: 0.05s; }
+  .sector:nth-child(2) { animation-delay: 0.12s; }
+  .sector:nth-child(3) { animation-delay: 0.19s; }
+  .sector:nth-child(4) { animation-delay: 0.26s; }
+  .sector:nth-child(5) { animation-delay: 0.33s; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .sector-header {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sector-title { font-family: var(--font-serif); font-weight: 500; font-size: 28px; letter-spacing: -0.015em; }
+  .sector-desc { font-family: var(--font-serif); font-style: italic; font-size: 14px; color: var(--text-muted); flex: 1; }
+  .sector-badge { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ——— TABLE ——— */
+  .etf-table {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border); border-radius: 2px;
+    border-collapse: collapse; table-layout: fixed;
+  }
+  .etf-table thead th {
+    font-family: var(--font-mono); font-weight: 500;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); padding: 12px 10px;
+    text-align: right; border-bottom: 1px solid var(--border);
+    background: #fafaf9;
+  }
+  .etf-table thead th.al { text-align: left; }
+  .etf-table tbody tr {
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.12s;
+  }
+  .etf-table tbody tr:last-child { border-bottom: none; }
+  .etf-table tbody tr:hover { background: #fafaf9; }
+  .etf-table td {
+    padding: 14px 10px; font-family: var(--font-mono);
+    font-size: 13px; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .col-sym { width: 72px; } .col-name { width: 22%; }
+  .col-price { width: 80px; } .col-tf { width: auto; }
+  .etf-symbol { font-weight: 600; text-align: left !important; font-size: 14px; }
+  .etf-name { text-align: left !important; font-family: var(--font-sans) !important; color: var(--text-muted); font-size: 13px; }
+
+  .pct-cell { font-weight: 500; }
+  .pct-cell.up   { color: var(--up-strong); }
+  .pct-cell.down { color: var(--down-strong); }
+  .pct-cell.flat { color: var(--text-dim); }
+  .pct-cell[data-mag="strong"] { font-weight: 600; }
+  .pct-cell.up-bg-1   { background: rgba(34,197,94,0.06); }
+  .pct-cell.up-bg-2   { background: rgba(34,197,94,0.12); }
+  .pct-cell.up-bg-3   { background: rgba(34,197,94,0.20); }
+  .pct-cell.down-bg-1 { background: rgba(239,68,68,0.06); }
+  .pct-cell.down-bg-2 { background: rgba(239,68,68,0.12); }
+  .pct-cell.down-bg-3 { background: rgba(239,68,68,0.20); }
+
+  .skeleton {
+    display: inline-block; height: 12px; width: 52px;
+    background: linear-gradient(90deg, #f3f4f6, #e5e7eb, #f3f4f6);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite;
+    border-radius: 2px; vertical-align: middle;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .footer {
+    margin-top: 56px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 13px; color: var(--text-muted); text-align: center;
+  }
+  .footer a { color: var(--patrimonio); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 960px) {
+    body { padding: 24px 16px 48px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .header-right { align-items: flex-start; min-width: unset; width: 100%; }
+    .btn-group { justify-content: flex-start; }
+    .highlights { grid-template-columns: 1fr; }
+    .sector-desc { display: none; }
+    .etf-table { display: block; overflow-x: auto; }
+    .col-name, .etf-table thead .col-name, .etf-table tbody .etf-name { display: none; }
+    .info-bar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="dateline">
+      <span id="dateline-date">—</span>
+      <span>Money Tracker · v2 · Supabase backend</span>
+    </div>
+
+    <header class="header">
+      <div class="header-left">
+        <h1>Money <em>Tracker</em></h1>
+        <div class="subtitle">Dónde se está moviendo el capital — hoy, esta semana, este mes, este trimestre.</div>
+      </div>
+      <div class="header-right">
+        <div class="status-line">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Iniciando</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-ghost" id="fetchBtn" title="Lanza la Edge Function para traer datos frescos de Yahoo y actualizar la BBDD">Forzar fetch</button>
+          <button class="btn" id="refreshBtn" title="Re-lee los datos ya guardados en Supabase">Actualizar vista</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="infoBar" class="info-bar" style="display:none;">
+      <div class="left" id="infoLeft"></div>
+      <div class="right" id="infoRight"></div>
+    </div>
+
+    <section class="highlights">
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Hoy</div>
+        <div id="topDaily"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Esta semana</div>
+        <div id="topWeekly"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Este mes</div>
+        <div id="topMonthly"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+    </section>
+
+    <div id="sectorsContainer"></div>
+
+    <footer class="footer">
+      Backend: <a href="https://supabase.com/dashboard/project/rieyywfkpprgkenljilm" target="_blank">Supabase money-tracker</a> ·
+      Cron activo 22:30 UTC L-V · Datos vía Yahoo Finance (adj. close)
+    </footer>
+  </div>
+
+<script>
+// ================================================================
+// SUPABASE CONFIG
+// ================================================================
+const SB_URL = 'https://rieyywfkpprgkenljilm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2ZrcHByZ2tlbmxqaWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzQ5NDgsImV4cCI6MjA5MTk1MDk0OH0.d4H4QW_BeBc6axpgmevLKNdMb0gJ-U6hQ15Rk9Bn-20';
+const EDGE_FN = `${SB_URL}/functions/v1/fetch-etfs`;
+
+const HEADERS = {
+  'apikey': SB_KEY,
+  'Authorization': `Bearer ${SB_KEY}`,
+  'Content-Type': 'application/json',
+};
+
+const TIMEFRAMES = [
+  { key: 'd1', label: '1D', days: 1 },
+  { key: 'w1', label: '1S', days: 5 },
+  { key: 'm1', label: '1M', days: 21 },
+  { key: 'm3', label: '3M', days: 63 },
+  { key: 'm6', label: '6M', days: 126 },
+  { key: 'y1', label: '1A', days: 252 },
+  { key: 'y2', label: '2A', days: 504 },
+];
+
+// ================================================================
+// DATA LAYER — Supabase REST API
+// ================================================================
+async function sbGet(path) {
+  const res = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: HEADERS });
+  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
+async function fetchMetadata() {
+  return sbGet('etf_metadata?select=symbol,name,sector,sector_color,sector_desc,display_order&enabled=eq.true&order=display_order');
+}
+
+async function fetchPrices(symbol) {
+  return sbGet(`etf_daily?symbol=eq.${symbol}&select=date,adj_close&order=date.asc&limit=600`);
+}
+
+function calculateChanges(rows) {
+  const prices = rows.map(r => Number(r.adj_close)).filter(v => !isNaN(v));
+  const n = prices.length;
+  if (n < 2) return null;
+  const latest = prices[n - 1];
+  const changes = {};
+  for (const tf of TIMEFRAMES) {
+    const idx = Math.max(0, n - 1 - tf.days);
+    const past = prices[idx];
+    changes[tf.key] = (past && past > 0) ? ((latest - past) / past) * 100 : null;
+  }
+  return { price: latest, changes, latestDate: rows[rows.length - 1].date };
+}
+
+function groupBySector(metadata) {
+  const sectors = [];
+  const seen = new Set();
+  for (const m of metadata) {
+    if (!seen.has(m.sector)) {
+      seen.add(m.sector);
+      sectors.push({
+        name: m.sector,
+        color: m.sector_color || '#78716c',
+        desc: m.sector_desc || '',
+        etfs: [],
+      });
+    }
+    sectors.find(s => s.name === m.sector).etfs.push({ symbol: m.symbol, name: m.name });
+  }
+  return sectors;
+}
+
+// ================================================================
+// FORMATTERS
+// ================================================================
+function fmtPct(v) {
+  if (v == null || isNaN(v)) return '—';
+  return `${v > 0 ? '+' : ''}${v.toFixed(2)}%`;
+}
+function fmtPrice(v) { return v == null ? '—' : v.toFixed(2); }
+function cls(v) {
+  if (v == null || Math.abs(v) < 0.1) return 'flat';
+  return v > 0 ? 'up' : 'down';
+}
+function mag(v) {
+  if (v == null) return '';
+  const a = Math.abs(v);
+  return a >= 5 ? 'strong' : a >= 2 ? 'medium' : 'light';
+}
+function bg(v) {
+  if (v == null) return '';
+  const a = Math.abs(v); const d = v > 0 ? 'up' : 'down';
+  if (a < 0.5) return '';
+  if (a < 2) return `${d}-bg-1`;
+  if (a < 5) return `${d}-bg-2`;
+  return `${d}-bg-3`;
+}
+
+// ================================================================
+// RENDER
+// ================================================================
+function renderSectors(sectors) {
+  const container = document.getElementById('sectorsContainer');
+  container.innerHTML = '';
+  for (const sector of sectors) {
+    const section = document.createElement('section');
+    section.className = 'sector';
+    section.innerHTML = `
+      <div class="sector-header">
+        <span class="sector-badge" style="background:${sector.color}"></span>
+        <h2 class="sector-title">${sector.name}</h2>
+        <span class="sector-desc">— ${sector.desc}</span>
+      </div>
+      <table class="etf-table">
+        <thead><tr>
+          <th class="col-sym al">Ticker</th>
+          <th class="col-name al">Nombre</th>
+          <th class="col-price">Precio</th>
+          ${TIMEFRAMES.map(tf => `<th class="col-tf">${tf.label}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${sector.etfs.map(etf => `
+            <tr id="row-${etf.symbol}">
+              <td class="etf-symbol">${etf.symbol}</td>
+              <td class="etf-name">${etf.name}</td>
+              <td><div class="skeleton"></div></td>
+              ${TIMEFRAMES.map(() => `<td><div class="skeleton"></div></td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+    container.appendChild(section);
+  }
+}
+
+function updateRow(symbol, name, data) {
+  const row = document.getElementById(`row-${symbol}`);
+  if (!row) return;
+  if (!data) {
+    row.innerHTML = `<td class="etf-symbol">${symbol}</td><td class="etf-name">${name}</td>
+      <td colspan="${TIMEFRAMES.length + 1}" style="text-align:center;color:var(--text-dim);font-style:italic;font-family:var(--font-serif);">sin datos</td>`;
+    return;
+  }
+  row.innerHTML = `
+    <td class="etf-symbol">${symbol}</td>
+    <td class="etf-name">${name}</td>
+    <td>${fmtPrice(data.price)}</td>
+    ${TIMEFRAMES.map(tf => {
+      const v = data.changes[tf.key];
+      return `<td class="pct-cell ${cls(v)} ${bg(v)}" data-mag="${mag(v)}">${fmtPct(v)}</td>`;
+    }).join('')}`;
+}
+
+function updateHighlights(allData) {
+  const valid = Object.entries(allData).filter(([_, v]) => v?.changes);
+  const rank = (key, desc) => valid
+    .map(([sym, d]) => ({ symbol: sym, pct: d.changes[key] }))
+    .filter(x => x.pct != null)
+    .sort((a, b) => desc ? b.pct - a.pct : a.pct - b.pct);
+
+  function render(elId, key) {
+    const top = rank(key, true).slice(0, 3);
+    const bot = rank(key, false).slice(0, 3);
+    const el = document.getElementById(elId);
+    if (!top.length) { el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-family:var(--font-serif);font-size:12px;">sin datos</div>'; return; }
+    el.innerHTML = `
+      <div class="highlight-subsection">
+        <div class="highlight-sublabel">▲ Entrada de capital</div>
+        ${top.map(x => `<div class="highlight-row"><span class="symbol">${x.symbol}</span><span class="pct up">${fmtPct(x.pct)}</span></div>`).join('')}
+      </div>
+      <div class="highlight-subsection">
+        <div class="highlight-sublabel">▼ Salida de capital</div>
+        ${bot.map(x => `<div class="highlight-row"><span class="symbol">${x.symbol}</span><span class="pct down">${fmtPct(x.pct)}</span></div>`).join('')}
+      </div>`;
+  }
+  render('topDaily', 'd1');
+  render('topWeekly', 'w1');
+  render('topMonthly', 'm1');
+}
+
+function setStatus(text, state) {
+  document.getElementById('statusText').textContent = text;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (state === 'stale' ? ' stale' : state === 'loading' ? ' loading' : '');
+}
+
+function updateInfoBar(totalSymbols, loadedSymbols, latestDate) {
+  const bar = document.getElementById('infoBar');
+  bar.style.display = 'flex';
+  document.getElementById('infoLeft').textContent = `${loadedSymbols}/${totalSymbols} ETFs · ${totalSymbols * 501} filas en BBDD`;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const daysOld = Math.round((new Date(today) - new Date(latestDate)) / 86400000);
+  const right = document.getElementById('infoRight');
+  const isStale = daysOld > 3;
+  right.className = 'right' + (isStale ? ' stale' : '');
+  right.innerHTML = daysOld === 0
+    ? 'Datos de <strong>hoy</strong>'
+    : daysOld === 1
+    ? 'Datos de <strong>ayer</strong>'
+    : `Datos de hace <strong>${daysOld} días</strong> (${latestDate})`;
+}
+
+// ================================================================
+// MAIN
+// ================================================================
+let currentSectors = [];
+
+async function loadAll() {
+  const refreshBtn = document.getElementById('refreshBtn');
+  refreshBtn.disabled = true;
+  setStatus('Cargando', 'loading');
+
+  try {
+    // 1. Metadata
+    const metadata = await fetchMetadata();
+    currentSectors = groupBySector(metadata);
+    renderSectors(currentSectors);
+
+    // 2. Prices — parallel fetch per symbol
+    const allData = {};
+    let newestDate = '2000-01-01';
+    let loadedCount = 0;
+
+    const results = await Promise.allSettled(
+      metadata.map(m => fetchPrices(m.symbol).then(rows => ({ symbol: m.symbol, name: m.name, rows })))
+    );
+
+    for (const r of results) {
+      if (r.status === 'fulfilled') {
+        const { symbol, name, rows } = r.value;
+        const data = calculateChanges(rows);
+        allData[symbol] = data;
+        if (data) {
+          loadedCount++;
+          if (data.latestDate > newestDate) newestDate = data.latestDate;
+        }
+        updateRow(symbol, name, data);
+      } else {
+        // Find the original symbol from rejection
+        console.error(r.reason);
+      }
+    }
+
+    // 3. Highlights
+    updateHighlights(allData);
+
+    // 4. Info bar
+    updateInfoBar(metadata.length, loadedCount, newestDate);
+
+    // 5. Status
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    document.getElementById('dateline-date').textContent = dateStr.toUpperCase();
+
+    const today = new Date().toISOString().slice(0, 10);
+    const daysOld = Math.round((new Date(today) - new Date(newestDate)) / 86400000);
+    setStatus(`Vista · ${timeStr}`, daysOld > 3 ? 'stale' : 'ok');
+
+  } catch (err) {
+    setStatus('Error: ' + err.message, 'stale');
+    console.error(err);
+  } finally {
+    refreshBtn.disabled = false;
+  }
+}
+
+async function forceFetch() {
+  const fetchBtn = document.getElementById('fetchBtn');
+  fetchBtn.disabled = true;
+  fetchBtn.textContent = 'Fetching...';
+  setStatus('Edge function ejecutándose...', 'loading');
+
+  try {
+    // Trigger edge function (fetches last 7 days from Yahoo into DB)
+    const res = await fetch(`${EDGE_FN}?days=7`);
+    const result = await res.json();
+    const ok = result.ok?.length || 0;
+    const failed = result.failed?.length || 0;
+    setStatus(`Fetch done: ${ok} ok, ${failed} fail`, failed > 0 ? 'stale' : 'ok');
+
+    // Reload view
+    await loadAll();
+  } catch (err) {
+    setStatus('Fetch error: ' + err.message, 'stale');
+    console.error(err);
+  } finally {
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = 'Forzar fetch';
+  }
+}
+
+// ——— INIT ———
+document.getElementById('refreshBtn').addEventListener('click', loadAll);
+document.getElementById('fetchBtn').addEventListener('click', forceFetch);
+loadAll();
+</script>
+</body>
+</html>
