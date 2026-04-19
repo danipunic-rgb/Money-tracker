@@ -60,14 +60,16 @@ Lo que mostramos como "entrada/salida de capital" es un PROXY basado en rendimie
 | 3b | Disclaimer visible "proxy precio vs. flujos reales" | 0 | ✅ HECHO |
 | 3c | Vercel Analytics activado | 0 | ✅ HECHO |
 | 3d | Publicación diaria automática en X (inglés) | 0 | ✅ HECHO |
-| 4 | Drill-down ETF → Holdings (UI lista, tablas pendientes) | 1 | 🟡 PARCIAL |
+| 3e | Sparklines 1M por fila de ETF | 0 | ✅ HECHO |
+| 3f | Heatmap de ETFs (color por rendimiento, sync TF) | 1 | ✅ HECHO |
+| 3g | Gráfico de precio en modal + selector TF | 1 | ✅ HECHO |
+| 4 | Drill-down ETF → Holdings (tablas Supabase creadas, datos pendientes) | 1 | 🟡 PARCIAL |
 | 5 | Daily Brief objetivo (sin LLM, con datos puros) | 1 | 🔲 PENDIENTE |
 | 6 | OAuth Google + tabla profiles | 2 | 🔲 PENDIENTE |
 | 7 | Watchlist + "Mi Flujo" | 2 | 🔲 PENDIENTE |
 | 8 | Snapshot compartible | 2 | 🔲 PENDIENTE |
-| 9 | Heatmap sectores/empresas | 2 | 🔲 PENDIENTE |
-| 10 | Trending / "Lo más buscado" | 3 | 🔲 PENDIENTE |
-| 11 | Monetización Stripe | 4 | 🔲 PENDIENTE |
+| 9 | Trending / "Lo más buscado" | 3 | 🔲 PENDIENTE |
+| 10 | Monetización Stripe | 4 | 🔲 PENDIENTE |
 
 ### Features RECHAZADAS (no implementar)
 
@@ -370,9 +372,11 @@ Tú describes la feature → Cowork implementa → tú revisas → push
 - [ ] Comprar dominio propio
 
 ### FASE 1 — Holdings + Drill-down
-- [ ] Tablas etf_holdings + stock_metadata + stock_daily en Supabase
-- [ ] GitHub Actions workflow para descargar holdings (sin LLM)
-- [ ] UI: click en ETF → modal con top holdings
+- [x] Tablas etf_holdings + stock_metadata + stock_daily en Supabase (migración 001 aplicada)
+- [x] GitHub Actions workflow update-holdings con --write-supabase
+- [x] UI: heatmap ETF con color por rendimiento (sincronizado con TF del flow)
+- [x] UI: modal con gráfico de precio SVG + selector de TF
+- [ ] Poblar holdings reales (ejecutar update-holdings workflow manualmente la 1ª vez)
 - [ ] Daily Brief objetivo (generado con datos puros)
 
 ### FASE 2 — Auth + Watchlist + Snapshot
