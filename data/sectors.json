@@ -1,6 +1,7 @@
 {
   "version": "1.0",
   "last_updated": "2026-04-19",
+
   "curated_by": "founder",
   "sectors": [
     {
@@ -85,6 +86,7 @@
       "display_order": 9
     }
   ],
+
   "candidates_for_review": [
     "defense_aerospace",
     "real_estate_reits",

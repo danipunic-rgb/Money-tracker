@@ -277,6 +277,13 @@
   .hm-name { font-family: var(--font-sans); font-size: 10px; opacity: 0.75; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .hm-pct { font-family: var(--font-mono); font-weight: 600; font-size: 15px; margin-top: 8px; }
   .hm-tile.loading { background: var(--border-soft); animation: shimmer 1.4s infinite; }
+  .hm-sector-label {
+    grid-column: 1 / -1; font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);
+    padding: 10px 2px 4px; display: flex; align-items: center; gap: 8px;
+  }
+  .hm-sector-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .hm-sector-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
   /* ——— MODAL CHART ——— */
   .modal-chart { margin: 14px 0 20px; background: #fafaf9; border-radius: 2px; border: 1px solid var(--border); padding: 12px 16px; }
@@ -775,28 +782,22 @@ function heatmapColor(pct) {
 function renderHeatmap(sectors, allData, tfKey) {
   const grid = document.getElementById('heatmapGrid');
   if (!grid) return;
-  const tiles = sectors.flatMap(s =>
-    s.etfs.map(e => {
+  let html = '';
+  for (const s of sectors) {
+    html += `<div class="hm-sector-label"><span class="hm-sector-dot" style="background:${s.color}"></span>${s.name}</div>`;
+    for (const e of s.etfs) {
       const d = allData[e.symbol];
       const pct = d?.changes?.[tfKey] ?? null;
       const { bg, text } = heatmapColor(pct);
-      return { symbol: e.symbol, name: e.name, pct, bg, text };
-    })
-  );
-  grid.innerHTML = tiles.map(t => `
-    <div class="hm-tile" style="background:${t.bg};color:${t.text}"
-         data-symbol="${t.symbol}" data-name="${t.name}">
-      <div>
-        <div class="hm-sym">${t.symbol}</div>
-        <div class="hm-name">${t.name}</div>
-      </div>
-      <div class="hm-pct">${fmtPct(t.pct)}</div>
-    </div>`).join('');
-
-  grid.querySelectorAll('.hm-tile').forEach(tile => {
-    tile.addEventListener('click', () =>
-      openModal(tile.dataset.symbol, tile.dataset.name));
-  });
+      html += `<div class="hm-tile" style="background:${bg};color:${text}" data-symbol="${e.symbol}" data-name="${e.name}">
+        <div><div class="hm-sym">${e.symbol}</div><div class="hm-name">${e.name}</div></div>
+        <div class="hm-pct">${fmtPct(pct)}</div>
+      </div>`;
+    }
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('.hm-tile').forEach(tile =>
+    tile.addEventListener('click', () => openModal(tile.dataset.symbol, tile.dataset.name)));
 }
 
 // ================================================================

@@ -67,6 +67,10 @@ SECTOR_EN = {
     "Energía": "Energy",
     "Financieros": "Financials",
     "Salud": "Healthcare",
+    "Defensa": "Defense",
+    "Inmobiliario": "Real Estate",
+    "Consumo": "Consumer",
+    "Crypto": "Crypto",
     "Referencias": "Reference",
 }
 
