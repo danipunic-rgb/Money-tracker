@@ -1,7 +1,8 @@
 # Money Tracker — Documento de Arquitectura
 
-> Este documento es la fuente de verdad del proyecto. Cualquier agente (Cowork, Claude Code, o un humano) que trabaje en el repo DEBE leer esto primero.
-> Última actualización: 18 abril 2026
+> Este documento es la fuente de verdad del proyecto.
+> Cualquier agente (Cowork, Claude Code, o un humano) DEBE leer esto primero.
+> Última actualización: 19 abril 2026
 
 ---
 
@@ -9,163 +10,233 @@
 
 **Money Tracker es el mejor tracker objetivo del flujo de dinero del mundo.**
 
-El usuario entra en la web y ve al instante: de dónde sale el dinero, hacia dónde va, en qué sectores, en qué ETFs, y en qué empresas. Solo datos objetivos. Sin opiniones, sin noticias, sin sentiment.
+El usuario entra y ve al instante: de dónde sale el capital, hacia dónde va, en qué sectores, ETFs y empresas. Solo datos objetivos. Sin opiniones, sin noticias, sin sentiment.
 
 ### Qué somos
 - Un tracker de flujo de capital basado en datos puros (precios, volumen, pesos de holdings)
 - Una herramienta visual para ver dónde se mueve el dinero: sector → ETF → empresa
-- Una plataforma que se actualiza sola y requiere mínimo mantenimiento
+- Una plataforma que se actualiza sola con mínimo mantenimiento
 
-### Qué NO somos (decisiones firmes)
-- **NO somos un noticiero.** No mostramos noticias, no explicamos "por qué" sube o baja algo. Cero noticias, cero artículos, cero sentiment analysis.
-- **NO damos alertas.** El usuario tiene TradingView y otros servicios mucho más reputados para eso. Nosotros mostramos datos.
-- **NO tenemos gamificación.** Ni rachas, ni badges, ni leaderboards. Es una herramienta profesional de datos, no Duolingo.
-- **NO damos consejo financiero.** Solo datos objetivos, el usuario decide.
+### Qué NO somos (decisiones firmes, no negociables)
+- **NO somos un noticiero.** Cero noticias, cero artículos, cero "por qué sube X"
+- **NO damos alertas.** El usuario tiene TradingView para eso
+- **NO tenemos gamificación.** Ni rachas, ni badges, ni leaderboards
+- **NO damos consejo financiero.** Solo datos objetivos
+- **NO hacemos sentiment analysis.** Es subjetivo y contradice la visión
 
-### Nota importante: "Flujo de dinero" ≠ precio
-Lo que mostramos como "entrada/salida de capital" es un PROXY basado en rendimiento (si el ETF sube, asumimos entrada de capital). Los flujos reales de un ETF (aportaciones/reembolsos netos) requieren datos de pago (Bloomberg, FactSet). Para el MVP es una simplificación aceptable, pero debemos ser transparentes con el usuario añadiendo un disclaimer tipo "basado en rendimiento de precio, no en flujos netos reales".
+### Nota sobre "flujo de dinero"
+Lo que mostramos como "entrada/salida de capital" es un PROXY basado en rendimiento de precio. Los flujos reales de un ETF (aportaciones netas) requieren datos de pago (Bloomberg, FactSet). Para el MVP es una simplificación aceptable pero debemos mostrar un disclaimer al usuario.
 
 ---
 
 ## 2. NIVELES DE PROFUNDIDAD
 
-### Nivel 1 — Vista de pájaro (lo que ve el usuario nada más entrar)
-- **Recuadro "Flujo del Dinero"** en la parte superior: dos columnas (rojo = salida, verde = entrada) con los sectores/ETFs que más se mueven
-- **Selector de timeframe**: 1D, 1S, 1M, 3M, 6M (arriba a la derecha del recuadro)
-- **Resumen objetivo**: frase generada automáticamente tipo "Esta semana el capital sale de Tecnología (-1.8%) y entra en Energía (+2.4%)"
-- **Heatmap de sectores/ETFs**: cuadrícula de colores donde cada celda = sector o ETF, color = flujo neto, tamaño proporcional a relevancia
-- Debajo: las tablas por sector que ya tenemos (ETFs con % cambio en todos los timeframes)
+### Nivel 1 — Vista de pájaro (nada más entrar)
+- Recuadro "Flujo del Dinero" arriba: dos columnas (rojo = salida, verde = entrada)
+- Selector de timeframe: 1D, 1S, 1M, 3M, 6M
+- Resumen objetivo automático: "Esta semana el capital sale de Tecnología (-1.8%) y entra en Energía (+2.4%)"
+- Heatmap de sectores/ETFs
+- Tablas por sector con % cambio en todos los timeframes
 
-### Nivel 2 — Drill-down (click en un ETF o sector)
-- Modal o sección expandible con:
-  - Top 10-15 holdings del ETF (empresa, peso %, rendimiento 1D/1S/1M/3M)
-  - Las 2-3 empresas más relevantes del sector (por peso o por movimiento)
-  - Flujo detallado del sector
+### Nivel 2 — Drill-down (click en ETF o sector)
+- Top 10-15 holdings del ETF (empresa, peso %, rendimiento)
+- Empresas más relevantes del sector por movimiento
 
 ### Nivel 3 — Empresa individual + Popularidad
-- Barra de búsqueda global (ETFs y empresas)
-- **Sistema de popularidad automática**: cada búsqueda se registra en `search_logs`. Si una empresa supera un umbral de búsquedas → se marca como "trending" y aparece en el Flujo del Dinero y en su sector
-- Vista de empresa: rendimiento por timeframes + en qué ETFs aparece + peso
+- Barra de búsqueda global
+- Sistema de popularidad: búsquedas registradas → "trending" automático
+- Vista de empresa: rendimiento + en qué ETFs aparece
 
 ---
 
-## 3. FEATURES APROBADAS (por orden de prioridad)
+## 3. FEATURES APROBADAS
 
-| # | Feature | Fase | Descripción |
-|---|---------|------|-------------|
-| 1 | Dashboard sector → ETF con % cambio | 0 (HECHO) | Ya funciona con 15 ETFs y 2 años de histórico |
-| 2 | Sección "Flujo del Dinero" visual | 0 | Entrada/salida por sector con selector de timeframe |
-| 3 | Deploy público en Vercel | 0 | URL pública accesible desde cualquier dispositivo |
-| 4 | Drill-down ETF → Holdings | 1 | Click en ETF → top empresas con rendimiento |
-| 5 | Daily Brief objetivo | 1 | Resumen matutino generado con datos puros (sin noticias) |
-| 6 | OAuth Google + tabla profiles | 2 | Usuarios identificados, preparación para monetización |
-| 7 | Watchlist + "Mi Flujo" | 2 | Usuarios logueados guardan ETFs/empresas favoritas |
-| 8 | Snapshot compartible | 2 | Botón que genera URL/imagen del estado actual del flujo |
-| 9 | Heatmap sectores/empresas | 2 | Cuadrícula visual con color = flujo neto |
-| 10 | Trending / "Lo más buscado" | 3 | Basado en búsquedas reales de usuarios |
-| 11 | Monetización Stripe (Free/Pro/Ultra) | 4 | Solo cuando haya >1.000 usuarios recurrentes |
+| # | Feature | Fase | Estado |
+|---|---------|------|--------|
+| 1 | Dashboard sector → ETF con % cambio | 0 | ✅ HECHO |
+| 2 | Deploy público en Vercel | 0 | ✅ HECHO |
+| 3 | Sección "Flujo del Dinero" visual | 0 | 🔲 PENDIENTE |
+| 4 | Drill-down ETF → Holdings | 1 | 🔲 PENDIENTE |
+| 5 | Daily Brief objetivo (sin LLM, con datos puros) | 1 | 🔲 PENDIENTE |
+| 6 | OAuth Google + tabla profiles | 2 | 🔲 PENDIENTE |
+| 7 | Watchlist + "Mi Flujo" | 2 | 🔲 PENDIENTE |
+| 8 | Snapshot compartible | 2 | 🔲 PENDIENTE |
+| 9 | Heatmap sectores/empresas | 2 | 🔲 PENDIENTE |
+| 10 | Trending / "Lo más buscado" | 3 | 🔲 PENDIENTE |
+| 11 | Monetización Stripe | 4 | 🔲 PENDIENTE |
 
-### Features RECHAZADAS (no implementar nunca)
+### Features RECHAZADAS (no implementar)
 
-| Feature | Motivo del rechazo |
-|---------|-------------------|
-| Noticias / News tracker | No somos un noticiero. Complica la web y riesgo de información mala |
-| Sentiment analysis | Subjetivo, contradice la visión de "solo datos objetivos" |
-| Alertas (push/email/WhatsApp) | El usuario tiene herramientas mejores (TradingView). No competimos ahí |
-| Gamificación (rachas, badges) | No encaja con el tono profesional de la herramienta |
-| Consejo financiero / recomendaciones | Riesgo legal, fuera de scope |
+| Feature | Motivo |
+|---------|--------|
+| Noticias / News tracker | No somos noticiero, riesgo de info mala |
+| Sentiment analysis | Subjetivo, contradice visión |
+| Alertas push/email | El usuario tiene herramientas mejores |
+| Gamificación | No encaja con tono profesional |
+| Consejo financiero | Riesgo legal |
 
 ---
 
 ## 4. STACK TÉCNICO
 
 ```
-Frontend:  HTML/JS estático (single file por ahora) → servido por Vercel
-Backend:   Supabase (PostgreSQL + Edge Functions + Auth + RLS)
-Hosting:   Vercel (auto-deploy desde GitHub, analytics gratuito)
-Repo:      GitHub (danipunic-rgb/Money-tracker)
-Agentes:   GitHub Actions (cron semanal) + API de Anthropic
-Datos:     Yahoo Finance (gratis, via Edge Functions server-side)
-Dominio:   moneytracker.vercel.app (temporal) → dominio propio cuando esté listo
+Frontend:   HTML/JS estático → Vercel (auto-deploy desde GitHub)
+Backend:    Supabase (PostgreSQL + Edge Functions + Auth + RLS)
+Repo:       github.com/danipunic-rgb/Money-tracker
+Automación: GitHub Actions (cron, scripts Python puros, SIN API de LLM)
+Datos:      Yahoo Finance (gratis, server-side via Edge Functions)
+Curación:   Cowork / Claude Code (sesiones manuales del fundador)
 ```
 
-### ¿Por qué esta stack?
-- **Todo serverless**: no hay servidor que mantener, pagas $0 hasta que crezcas mucho
-- **Supabase ya existe y funciona**: proyecto `money-tracker` (ID: `rieyywfkpprgkenljilm`) en eu-west-2
-- **Vercel**: deploy en 1 click, preview branches, analytics gratis, CDN global
-- **GitHub Actions para agentes**: corren en la nube sin tu ordenador, 2.000 min/mes gratis
-- **HTML puro por ahora**: cuando necesitemos routing (URLs por sector, por ETF), migramos a Next.js. No antes.
+### URLs activas
+- **Web producción**: https://money-tracker-new-app.vercel.app
+- **Supabase**: https://rieyywfkpprgkenljilm.supabase.co
+- **Repo**: https://github.com/danipunic-rgb/Money-tracker
 
 ---
 
 ## 5. SUPABASE — Estado actual
 
 ### Proyecto
-- **Nombre**: money-tracker
 - **ID**: `rieyywfkpprgkenljilm`
-- **Región**: eu-west-2 (London)
-- **URL**: `https://rieyywfkpprgkenljilm.supabase.co`
-- **Organización**: Dani (ybahlmdwofhddgkqbcdk), plan Free
-- **Anon key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2ZrcHByZ2tlbmxqaWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzQ5NDgsImV4cCI6MjA5MTk1MDk0OH0.d4H4QW_BeBc6axpgmevLKNdMb0gJ-U6hQ15Rk9Bn-20`
+- **Región**: eu-west-2
+- **Plan**: Free
+- **Organización**: Dani (ybahlmdwofhddgkqbcdk)
 
-> NOTA: Este proyecto es SEPARADO del dashboard personal (fhufubhakkxwxhusejou). No tocar el otro proyecto.
+> IMPORTANTE: proyecto SEPARADO del dashboard personal (fhufubhakkxwxhusejou)
+
+### Anon key (pública, segura por RLS)
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2ZrcHByZ2tlbmxqaWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzQ5NDgsImV4cCI6MjA5MTk1MDk0OH0.d4H4QW_BeBc6axpgmevLKNdMb0gJ-U6hQ15Rk9Bn-20
+```
 
 ### Tablas existentes
 
 **etf_metadata** — Qué ETFs rastreamos
-```
+```sql
 symbol (PK), name, sector, sector_color, sector_desc, display_order, enabled, created_at
+-- 15 ETFs: XLK, SMH, QQQ, XLE, ICLN, URA, XLF, KRE, KBE, XLV, IBB, XBI, SPY, IWM, GLD
 ```
-15 ETFs cargados: XLK, SMH, QQQ, XLE, ICLN, URA, XLF, KRE, KBE, XLV, IBB, XBI, SPY, IWM, GLD
 
 **etf_daily** — Precios históricos
-```
+```sql
 symbol (FK), date, close, adj_close, volume, fetched_at
-PK: (symbol, date)
+-- PK: (symbol, date). ~7.515 filas. Rango: 17-abr-2024 → 16-abr-2026
 ```
-~7.515 filas. Rango: 17-abr-2024 → 16-abr-2026 (2 años)
 
-### RLS activo
-- `anon` puede SELECT en ambas tablas
-- Solo `service_role` puede INSERT/UPDATE/DELETE
+### RLS: anon = SELECT. Solo service_role puede escribir.
 
-### Edge Functions desplegadas
-- **fetch-etfs**: trae precios de Yahoo Finance (con fallback a Stooq), upsert en etf_daily
-  - Parámetro: `?days=N` (por defecto 7)
-  - Acepta llamadas sin JWT (verify_jwt=false) para poder ser invocada por pg_cron
+### Edge Functions
+- **fetch-etfs**: Yahoo Finance → upsert en etf_daily. Param: `?days=N`
 
-### Cron jobs activos
-- **fetch-etfs-daily**: `30 22 * * 1-5` (22:30 UTC lunes-viernes, = 00:30 CEST)
-  - Llama a la Edge Function con `?days=7`
-  - Ya funcionó correctamente en el backfill inicial
+### Cron activo
+- **fetch-etfs-daily**: `30 22 * * 1-5` (22:30 UTC L-V = 00:30 CEST)
 
-### Tablas PENDIENTES (crear en fases posteriores)
+### Tablas PENDIENTES
 
 ```sql
--- Fase 1: Holdings
-etf_holdings (etf_symbol, stock_symbol, stock_isin, weight, shares, as_of_date)
-stock_metadata (symbol, isin, name, sector, industry, country)
+-- Fase 1
+etf_holdings (etf_symbol, stock_symbol, stock_isin, weight, as_of_date)
+stock_metadata (symbol, isin, name, sector, industry, country, search_count, is_trending)
 stock_daily (symbol, date, close, adj_close, volume)
 
--- Fase 2: Auth + Watchlist
+-- Fase 2
 profiles (id uuid → auth.users, tier, created_at)
 user_watchlist (user_id, symbol, symbol_type, added_at)
 
--- Fase 3: Popularidad
+-- Fase 3
 search_logs (id, user_id, symbol, searched_at)
--- + trigger: incrementar search_count en stock_metadata, marcar trending si > umbral
 ```
 
 ---
 
-## 6. DISEÑO VISUAL
+## 6. SISTEMA DE AUTOMATIZACIÓN (sin API de pago)
+
+### Principio clave
+La automatización se divide en dos tipos:
+
+**TIPO A — Ejecución repetitiva (100% automática, 100% gratis)**
+Scripts Python puros que descargan datos de APIs gratuitas y los escriben en Supabase.
+No necesitan LLM. Corren solos vía GitHub Actions o Supabase cron.
+
+**TIPO B — Investigación y curación (manual, con Cowork)**
+Decidir qué sectores rastrear, qué ETFs añadir, cómo estructurar los datos.
+Esto lo hace el fundador en sesiones de Cowork/Claude Code cuando quiera.
+Ocurre 1-2 veces al mes, no diariamente.
+
+### Lo que corre SOLO (Tipo A)
+
+| Qué | Cómo | Frecuencia | Coste |
+|-----|------|------------|-------|
+| Precios de ETFs | Supabase pg_cron → Edge Function → Yahoo Finance | Diario 22:30 UTC L-V | $0 |
+| Holdings de ETFs | GitHub Actions → Python → Yahoo Finance → Supabase | Semanal (lunes 06:00 CEST) | $0 |
+| Precios de acciones | GitHub Actions → Python → Yahoo Finance → Supabase | Diario (cuando Fase 1 esté lista) | $0 |
+
+### Lo que haces TÚ con Cowork (Tipo B)
+
+| Qué | Cuándo | Cómo |
+|-----|--------|------|
+| Añadir/quitar sectores | Cuando quieras | Abres Cowork → "añade sector Defensa con ETFs ITA y XAR" → push |
+| Añadir/quitar ETFs | Cuando quieras | Abres Cowork → "añade ARKK al sector Tecnología" → push |
+| Diseñar nuevas features | Cuando quieras | Abres Cowork → "implementa el heatmap" → push |
+| Generar ARCHITECTURE.md actualizado | Tras cambios grandes | Abres Cowork → "actualiza ARCHITECTURE.md con los cambios" |
+
+### Flujo completo
+
+```
+TÚ (con Cowork, cuando quieras):
+  1. Decides qué sectores/ETFs rastrear
+  2. Editas data/sectors.json y data/etfs.json
+  3. git push → Vercel redeploya la web
+
+GITHUB ACTIONS (solo, cada lunes):
+  1. Lee data/etfs.json
+  2. Para cada ETF, descarga holdings de Yahoo Finance
+  3. Escribe holdings en Supabase
+  4. Commitea data/holdings.json actualizado
+
+SUPABASE CRON (solo, cada día laborable):
+  1. pg_cron dispara Edge Function fetch-etfs
+  2. Edge Function pide precios a Yahoo
+  3. Upsert en etf_daily
+```
+
+### ¿Por qué esto es más profesional que agentes con LLM?
+En sistemas reales de datos financieros (Bloomberg, FactSet, Morningstar), la curación de datos SIEMPRE tiene supervisión humana. Un LLM decidiendo solo qué ETFs añadir a un tracker financiero es un riesgo: puede añadir ETFs delisted, confundir tickers, o incluir productos que no existen. La investigación con Cowork + ejecución automática es exactamente cómo lo haría un equipo profesional de 2-3 personas, pero con una sola persona.
+
+---
+
+## 7. PIPELINE DE GITHUB ACTIONS
+
+### Workflow: update-holdings (semanal)
+```
+Cada lunes 06:00 CEST:
+  1. Checkout repo
+  2. Lee data/etfs.json (curado por el fundador)
+  3. Para cada ETF:
+     - Llama a Yahoo Finance API (server-side, sin CORS)
+     - Descarga top 15 holdings
+     - Parsea: empresa, peso %, ISIN si disponible
+  4. Genera data/holdings.json actualizado
+  5. Si hay tablas en Supabase: upsert en etf_holdings + stock_metadata
+  6. Commit + push del JSON actualizado
+```
+
+### Secrets de GitHub configurados
+- `SUPABASE_URL` ✅
+- `SUPABASE_SERVICE_ROLE_KEY` ✅
+- `ANTHROPIC_API_KEY` ❌ (no necesario para automatización Tipo A)
+
+---
+
+## 8. DISEÑO VISUAL
 
 ### Principios
-- Fondo claro `#f9f7f4` con radial gradients sutiles
-- Tipografía: Fraunces (serif, títulos) + Plus Jakarta Sans (cuerpo) + JetBrains Mono (datos/números)
-- Estilo editorial/periódico: dateline, bordes finos, minimalismo controlado
-- Verde fuerte (#15803d) para subidas, rojo fuerte (#b91c1c) para bajadas
-- Celdas con tinte de color proporcional al cambio (cuanto más fuerte, más saturado)
+- Fondo `#f9f7f4` con radial gradients sutiles
+- Fraunces (serif, títulos) + Plus Jakarta Sans (cuerpo) + JetBrains Mono (datos)
+- Estilo editorial/periódico
+- Verde #15803d subidas, rojo #b91c1c bajadas
+- Celdas con tinte proporcional al cambio
 
 ### Colores de sectores
 | Sector | Color |
@@ -178,187 +249,129 @@ search_logs (id, user_id, symbol, searched_at)
 
 ---
 
-## 7. PIPELINE DE AGENTES
+## 9. SECTORES Y ETFs ACTUALES
 
-### Concepto
-Tres agentes en cadena que se ejecutan semanalmente vía GitHub Actions. Cada agente genera un archivo JSON que alimenta al siguiente. El último agente escribe directamente en Supabase.
+| Sector | ETFs | Justificación |
+|--------|------|---------------|
+| Tecnología | XLK, SMH, QQQ | Software + semis + Nasdaq amplio |
+| Energía | XLE, ICLN, URA | Fósiles + renovables + nuclear |
+| Financieros | XLF, KRE, KBE | Grandes bancos + regionales + bancario puro |
+| Salud | XLV, IBB, XBI | Farma + biotech grande + biotech especulativo |
+| Referencias | SPY, IWM, GLD | Mercado amplio + small caps + oro |
 
-```
-┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
-│  Agent 1: Sectors   │────▶│  Agent 2: ETFs      │────▶│  Agent 3: Holdings  │
-│                     │     │                     │     │                     │
-│  Input: conocimiento│     │  Input: sectors.json│     │  Input: etfs.json   │
-│  Output: sectors.json│    │  Output: etfs.json  │     │  Output: → Supabase │
-│  Frecuencia: 1x/sem │     │  Frecuencia: 1x/sem │     │  Frecuencia: 1x/sem │
-└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
-```
-
-### Agent 1 — Sector Analyst
-- **Qué hace**: Investiga los sectores clave de la economía global (EEUU + resto del mundo), define el alcance exacto de cada sector (qué incluye y qué no), detecta sectores emergentes
-- **Output**: `data/sectors.json` con la clasificación actualizada
-- **Usa**: API de Anthropic (Claude) con web search para investigar consenso actual
-
-### Agent 2 — ETF Curator
-- **Qué hace**: Lee `sectors.json`, investiga los mejores ETFs dentro de cada sector (por AUM, liquidez, tracking error), obtiene ISINs, confirma solapamientos
-- **Output**: `data/etfs.json` con el detalle completo de ETFs por sector
-- **Usa**: API de Anthropic + Yahoo Finance para verificar que los ETFs existen y están activos
-
-### Agent 3 — Holdings Tracker
-- **Qué hace**: Lee `etfs.json`, descarga holdings reales de cada ETF (top 10-15 posiciones), identifica empresas, su peso, sector, país
-- **Output**: Upsert directo en Supabase (tablas etf_holdings, stock_metadata)
-- **Usa**: Yahoo Finance / FMP API para holdings reales
-
-### Actualización de precios (separado de los agentes)
-- Los precios de ETFs se actualizan diariamente vía pg_cron + Edge Function (ya funciona)
-- Los precios de acciones individuales (stock_daily) se añadirán cuando tengamos la tabla de holdings
-
-### Dónde corren los agentes
-- **GitHub Actions** (gratis, 2.000 min/mes)
-- Cron: `0 4 * * 1` = cada lunes a las 04:00 UTC (06:00 CEST)
-- Necesita: secret `ANTHROPIC_API_KEY` en el repo de GitHub
-- Necesita: secret `SUPABASE_SERVICE_ROLE_KEY` en el repo de GitHub
-
-### Dónde NO corren los agentes
-- NO en Cowork (Cowork es para desarrollar, no para crons)
-- NO en Edge Functions (timeout de 400s, insuficiente para investigación profunda)
-- NO en el navegador del usuario
+### Sectores candidatos (para investigar con Cowork)
+- Defensa/Aerospace (ITA, XAR)
+- Inmobiliario/REITs (VNQ, XLRE)
+- Consumo discrecional/staples (XLY, XLP)
+- Mercados emergentes (EEM, VWO)
+- China (KWEB, FXI)
+- Commodities (DBC, GSG)
+- Bonos (TLT, BND)
+- Crypto (BITO, IBIT)
 
 ---
 
-## 8. FLUJO DE TRABAJO PARA DESARROLLO
+## 10. FLUJO DE TRABAJO CON COWORK
 
-### Desarrollo con Cowork / Claude Code
-1. Abrir Cowork en la carpeta del repo clonado
-2. Decirle: "Lee ARCHITECTURE.md antes de hacer nada"
-3. Pedir los cambios que quieras
-4. Cowork edita los archivos localmente
-5. Tú revisas y haces `git add . && git commit -m "descripción" && git push`
-6. Vercel auto-deploya en ~30 segundos
-7. Verificas en la URL pública
+### Primer uso
+```
+1. Abre Cowork apuntando a la carpeta Money-tracker/
+2. Di: "Lee ARCHITECTURE.md completo antes de hacer nada"
+3. Luego pide lo que necesites:
+   - "Implementa la sección Flujo del Dinero en index.html"
+   - "Añade el sector Defensa con los ETFs ITA y XAR"
+   - "Crea las tablas de holdings en Supabase"
+```
 
-### Añadir un nuevo ETF o sector
-1. Si es manual: INSERT directo en Supabase (etf_metadata) + disparar Edge Function
-2. Si es automático: los agentes lo detectan y lo añaden solos
+### Para cambios de código
+```
+Cowork edita → tú revisas → git push → Vercel deploya en 30s
+```
 
-### Probar cambios antes de publicar
-- Vercel crea "preview deployments" para cada branch que no sea `main`
-- Flujo: crear branch → hacer cambios → push → Vercel te da URL temporal → verificar → merge a main → producción
+### Para investigación de sectores/ETFs
+```
+Tú le preguntas a Cowork → Claude investiga → sugiere cambios a los JSON → tú apruebas → push
+```
+
+### Para features nuevas
+```
+Tú describes la feature → Cowork implementa → tú revisas → push
+```
 
 ---
 
-## 9. MONETIZACIÓN (preparar, no activar)
+## 11. MONETIZACIÓN (preparar, no activar)
 
 ### Modelo futuro: Freemium
 | Tier | Precio | Acceso |
 |------|--------|--------|
-| Free | 0€ | Dashboard público, top 3 en flujo, top 5 holdings |
-| Pro | ~6.99€/mes | Todo ilimitado + heatmap + Daily Brief completo + snapshots |
-| Ultra | ~19€/mes | + API access + datos exportables |
+| Free | 0€ | Dashboard público, top 3 flujo, top 5 holdings |
+| Pro | ~6.99€/mes | Todo ilimitado + heatmap + Daily Brief + snapshots |
 
-### Qué preparar AHORA (Fase 2)
+### Preparar en Fase 2
 - Supabase Auth (Google OAuth)
-- Tabla `profiles` con columna `tier` (default: 'free')
-- Feature flags en el frontend: `if (tier === 'pro') { ... }`
-- Botones "Mejora a Pro" discretos en los drill-downs profundos
+- Tabla profiles con tier
+- Feature flags en frontend
 
-### Qué preparar DESPUÉS (Fase 4+, solo cuando haya tráfico)
-- Stripe integration + webhook que actualiza tier en profiles
-- Links de afiliados de brokers (eToro, IBKR, Degiro) en cada ETF/empresa
-- Google AdSense (solo si hay volumen significativo)
-
-### Lo que dijo Grok que era correcto
-- Dominio propio (moneytracker.com o .es) lo antes posible para confianza
-- OAuth desde ya es barato y prepara todo
-- Vercel es perfecto para monetizar, la gente paga en .vercel.app si el producto es bueno
+### Fuentes de ingreso adicionales (futuro)
+- Afiliados de brokers (eToro, IBKR, Degiro) en cada ETF/empresa
+- Google AdSense (solo con volumen significativo)
 
 ---
 
-## 10. VERCEL — Configuración
+## 12. MÉTRICAS
 
-- **Repo conectado**: github.com/danipunic-rgb/Money-tracker
-- **URL temporal**: money-tracker-app-rust-eta.vercel.app
-- **Framework**: Other (static HTML)
-- **Build**: no build step (archivos estáticos directos)
-- **Analytics**: activar Vercel Analytics (gratis, da pageviews, países, dispositivos)
-- **Dominio propio**: pendiente de comprar y configurar
-
----
-
-## 11. SECTORES Y ETFs ACTUALES
-
-### Sectores configurados (v1)
-| Sector | ETFs | Color | Justificación |
-|--------|------|-------|---------------|
-| Tecnología | XLK, SMH, QQQ | #7c3aed | Epicentro del capital en era IA. Cubre software (XLK), semiconductores (SMH) y Nasdaq amplio (QQQ) |
-| Energía | XLE, ICLN, URA | #c2410c | Cubre fósiles (XLE), renovables (ICLN) y nuclear/uranio (URA) |
-| Financieros | XLF, KRE, KBE | #0369a1 | Termómetro macro. Cubre grandes bancos (XLF), regionales (KRE) y bancario puro (KBE) |
-| Salud | XLV, IBB, XBI | #15803d | Cubre farma+dispositivos (XLV), biotech grande (IBB) y biotech especulativo (XBI) |
-| Referencias | SPY, IWM, GLD | #78716c | Benchmarks: mercado amplio (SPY), small caps (IWM), oro/refugio (GLD) |
-
-### Sectores a considerar en el futuro (Agent 1 investigará)
-- Defensa / Aerospace (ITA, XAR)
-- Inmobiliario / REITs (VNQ, XLRE)
-- Consumo discrecional vs staples (XLY, XLP)
-- Mercados emergentes (EEM, VWO)
-- China específico (KWEB, FXI)
-- Commodities amplio (DBC, GSG)
-- Bonos / Renta fija (TLT, BND) — para contexto macro
-- Crypto (BITO, IBIT) — si hay demanda
-
----
-
-## 12. MÉTRICAS A TRACKEAR
-
-### Desde el día 1 (Vercel Analytics gratuito)
-- Pageviews diarios / semanales
-- Usuarios únicos
-- Países de origen
-- Dispositivos (móvil vs desktop)
-- Páginas más visitadas (cuando tengamos routing)
+### Desde día 1 (Vercel Analytics, gratis)
+- Pageviews, usuarios únicos, países, dispositivos
 
 ### Desde Fase 2 (con Auth)
-- Usuarios registrados vs anónimos
-- Tasa de registro
-- Búsquedas realizadas (tabla search_logs)
-- ETFs/empresas más vistos
-
-### Desde Fase 4 (con monetización)
-- Tasa de conversión Free → Pro
-- Revenue mensual
-- Churn rate
+- Usuarios registrados, tasa de registro, búsquedas
 
 ---
 
-## 13. CREDENCIALES Y SECRETS
+## 13. ROADMAP POR FASES
 
-### En el código (público, seguro)
-- Supabase URL: `https://rieyywfkpprgkenljilm.supabase.co`
-- Supabase anon key: en el HTML (es pública por diseño, RLS la protege)
+### FASE 0 — MVP público (ACTUAL)
+- [x] Supabase con 15 ETFs × 501 días de histórico
+- [x] Edge Function fetch-etfs + cron diario
+- [x] HTML funcional leyendo de Supabase
+- [x] Deploy en Vercel (money-tracker-new-app.vercel.app)
+- [x] Repo en GitHub con estructura de agentes
+- [ ] Sección "Flujo del Dinero" visual (siguiente tarea con Cowork)
+- [ ] Activar Vercel Analytics
+- [ ] Comprar dominio propio
 
-### En GitHub Secrets (privado, NUNCA en el código)
-- `ANTHROPIC_API_KEY`: para los agentes de GitHub Actions
-- `SUPABASE_SERVICE_ROLE_KEY`: para que los agentes escriban en la BBDD
-- `SUPABASE_URL`: redundante pero mejor tenerlo como secret
+### FASE 1 — Holdings + Drill-down
+- [ ] Tablas etf_holdings + stock_metadata + stock_daily en Supabase
+- [ ] GitHub Actions workflow para descargar holdings (sin LLM)
+- [ ] UI: click en ETF → modal con top holdings
+- [ ] Daily Brief objetivo (generado con datos puros)
 
-### Cómo añadir secrets en GitHub
-1. Ir al repo → Settings → Secrets and variables → Actions
-2. "New repository secret"
-3. Añadir cada una con su nombre exacto
+### FASE 2 — Auth + Watchlist + Snapshot
+- [ ] Supabase Auth (Google OAuth)
+- [ ] Tabla profiles + tier
+- [ ] Watchlist: "Mi Flujo" filtrado
+- [ ] Snapshot compartible (URL/imagen)
+- [ ] Heatmap visual
+
+### FASE 3 — Trending + Popularidad
+- [ ] search_logs + triggers de trending
+- [ ] "Lo más buscado hoy"
+
+### FASE 4 — Monetización
+- [ ] Stripe + webhook
+- [ ] Feature flags Free/Pro
+- [ ] Links de afiliados
 
 ---
 
 ## 14. HISTORIAL DE DECISIONES
 
-| Fecha | Decisión | Contexto |
-|-------|----------|----------|
-| 18-abr-2026 | Crear proyecto Supabase separado | Para no arriesgar el dashboard personal existente |
-| 18-abr-2026 | Yahoo Finance como fuente de datos | Gratis, suficiente para MVP. Edge Function server-side evita CORS |
-| 18-abr-2026 | No usar Stooq/proxies CORS | Probamos y fallaron. El problema era CORS del navegador, no la fuente |
-| 18-abr-2026 | Descartar noticias/sentiment | Decisión firme del fundador. Solo datos objetivos |
-| 18-abr-2026 | Descartar alertas | El usuario tiene TradingView para eso |
-| 18-abr-2026 | Descartar gamificación | No encaja con el tono profesional |
-| 18-abr-2026 | GitHub Actions para agentes | Cowork/Claude Code no corren 24/7. GitHub Actions sí, gratis |
-| 18-abr-2026 | Vercel para hosting | Auto-deploy, analytics gratis, CDN, preview deploys |
-| 18-abr-2026 | HTML puro por ahora, Next.js después | No migrar hasta que necesitemos routing real |
-| 18-abr-2026 | Snapshot compartible SÍ | Viralidad brutal, solo datos objetivos |
-| 18-abr-2026 | Daily Brief SÍ | Pero 100% objetivo, generado con datos, sin IA opinando |
+| Fecha | Decisión | Motivo |
+|-------|----------|--------|
+| 18-abr-2026 | Supabase separado del dashboard personal | Cero riesgo al proyecto existente |
+| 18-abr-2026 | Yahoo Finance como fuente de datos | Gratis, Edge Function evita CORS |
+| 18-abr-2026 | Descartar noticias/sentiment/alertas/gamificación | Decisión firme del fundador |
+| 19-abr-2026 | NO usar API de Anthropic para agentes | Coste innecesario. Scripts Python puros para datos, Cowork para curación |
+| 19-abr-2026 | Vercel URL: money-tracker-new-app.vercel.app | Reconfigurado tras problema con deploy anterior |
+| 19-abr-2026 | Investigación con Cowork, ejecución con GitHub Actions | Más profesional que LLM sin supervisión en datos financieros |

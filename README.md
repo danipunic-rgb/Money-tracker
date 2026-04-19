@@ -6,25 +6,26 @@ Entra → ve al instante de dónde sale el capital y hacia dónde va → sectore
 
 Solo datos puros. Sin noticias. Sin opiniones. Sin sentiment.
 
+**Web**: [money-tracker-new-app.vercel.app](https://money-tracker-new-app.vercel.app)
+
 ## Stack
 
 - **Frontend**: HTML/JS estático en Vercel
 - **Backend**: Supabase (PostgreSQL + Edge Functions)
-- **Agentes**: GitHub Actions + API de Anthropic (cron semanal)
-- **Datos**: Yahoo Finance (precios diarios automáticos)
+- **Automatización**: GitHub Actions (Python puro, sin API de pago)
+- **Datos**: Yahoo Finance
 
 ## Desarrollo
 
 ```bash
-# Clonar el repo
 git clone https://github.com/danipunic-rgb/Money-tracker.git
 cd Money-tracker
 
-# Editar archivos (o usar Cowork/Claude Code)
-# Luego push para deploy automático en Vercel
+# Editar con Cowork/Claude Code, luego:
 git add . && git commit -m "cambios" && git push
 ```
 
 ## Documentación
 
-Lee [`ARCHITECTURE.md`](./ARCHITECTURE.md) antes de hacer cualquier cambio.
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — Visión completa, decisiones, estado, roadmap
+- [`COWORK_QUICKSTART.md`](./COWORK_QUICKSTART.md) — Guía rápida para Cowork
