@@ -191,6 +191,49 @@
   .col-sym { width: 72px; } .col-name { width: 22%; }
   .col-price { width: 80px; } .col-spark { width: 96px; } .col-tf { width: auto; }
   .sparkline-cell { padding: 0 10px !important; vertical-align: middle; text-align: center !important; }
+
+  /* ——— HEATMAP ——— */
+  .heatmap {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 28px 30px; border-radius: 2px; margin-bottom: 40px;
+    position: relative;
+  }
+  .heatmap::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 48px; height: 3px; background: var(--text);
+  }
+  .heatmap-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 6px;
+  }
+  .hm-tile {
+    border-radius: 2px; padding: 10px 12px; cursor: pointer;
+    transition: filter 0.12s, transform 0.1s; border: 1px solid rgba(0,0,0,0.06);
+    min-height: 68px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .hm-tile:hover { filter: brightness(0.92); transform: translateY(-1px); }
+  .hm-sym { font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+  .hm-name { font-family: var(--font-sans); font-size: 10px; opacity: 0.75; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hm-pct { font-family: var(--font-mono); font-weight: 600; font-size: 15px; margin-top: 8px; }
+  .hm-tile.loading { background: var(--border-soft); animation: shimmer 1.4s infinite; }
+
+  /* ——— MODAL CHART ——— */
+  .modal-chart { margin: 14px 0 20px; background: #fafaf9; border-radius: 2px; border: 1px solid var(--border); padding: 12px 16px; }
+  .modal-chart svg { display: block; width: 100%; overflow: visible; }
+  .modal-tf-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .modal-tf-btn {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+    padding: 4px 9px; border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); cursor: pointer; border-radius: 2px; letter-spacing: 0.06em;
+    transition: all 0.1s;
+  }
+  .modal-tf-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .modal-tf-btn:hover:not(.active) { border-color: var(--text-muted); color: var(--text); }
   .etf-symbol { font-weight: 600; text-align: left !important; font-size: 14px; }
   .etf-name { text-align: left !important; font-family: var(--font-sans) !important; color: var(--text-muted); font-size: 13px; }
 
@@ -457,6 +500,17 @@
       </div>
     </section>
 
+    <section class="heatmap" id="heatmapSection">
+      <div class="heatmap-header">
+        <div>
+          <span class="flow-eyebrow">Mapa de calor</span>
+          <h2 style="font-family:var(--font-serif);font-weight:500;font-size:22px;letter-spacing:-0.015em">Rendimiento por ETF</h2>
+        </div>
+        <span style="font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--text-muted)">Mismo timeframe que Flujo del Dinero · click para detalle</span>
+      </div>
+      <div class="heatmap-grid" id="heatmapGrid"></div>
+    </section>
+
     <section class="highlights">
       <div class="highlight-card">
         <div class="highlight-label">▸ Hoy</div>
@@ -612,8 +666,92 @@ function bg(v) {
 }
 
 // ================================================================
+// HEATMAP
+// ================================================================
+function heatmapColor(pct) {
+  if (pct == null || isNaN(pct)) return { bg: '#f1efec', text: '#a8a29e' };
+  const v = Math.max(-8, Math.min(8, pct));
+  const t = Math.abs(v) / 8;
+  const l = Math.round(96 - t * 54);
+  const hue = v >= 0 ? 142 : 0;
+  const sat = v >= 0 ? 71 : 72;
+  return { bg: `hsl(${hue},${sat}%,${l}%)`, text: t > 0.45 ? '#fff' : '#1c1917' };
+}
+
+function renderHeatmap(sectors, allData, tfKey) {
+  const grid = document.getElementById('heatmapGrid');
+  if (!grid) return;
+  const tiles = sectors.flatMap(s =>
+    s.etfs.map(e => {
+      const d = allData[e.symbol];
+      const pct = d?.changes?.[tfKey] ?? null;
+      const { bg, text } = heatmapColor(pct);
+      return { symbol: e.symbol, name: e.name, pct, bg, text };
+    })
+  );
+  grid.innerHTML = tiles.map(t => `
+    <div class="hm-tile" style="background:${t.bg};color:${t.text}"
+         data-symbol="${t.symbol}" data-name="${t.name}">
+      <div>
+        <div class="hm-sym">${t.symbol}</div>
+        <div class="hm-name">${t.name}</div>
+      </div>
+      <div class="hm-pct">${fmtPct(t.pct)}</div>
+    </div>`).join('');
+
+  grid.querySelectorAll('.hm-tile').forEach(tile => {
+    tile.addEventListener('click', () =>
+      openModal(tile.dataset.symbol, tile.dataset.name));
+  });
+}
+
+// ================================================================
+// MODAL CHART
+// ================================================================
+function modalChart(rows, tfKey) {
+  if (!rows || rows.length < 2) return '';
+  const tf = TIMEFRAMES.find(t => t.key === tfKey);
+  const days = tf?.days ?? 21;
+  const slice = rows.slice(-days - 1);
+  if (slice.length < 2) return '';
+  const vals = slice.map(r => Number(r.adj_close));
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const W = 560, H = 80;
+  const pts = vals.map((v, i) => {
+    const x = ((i / (vals.length - 1)) * W).toFixed(1);
+    const y = (H - ((v - min) / range) * H * 0.85 - H * 0.075).toFixed(1);
+    return `${x},${y}`;
+  }).join(' ');
+  const trend = vals[vals.length - 1] >= vals[0] ? 'var(--up-strong)' : 'var(--down-strong)';
+  const first = vals[0], last = vals[vals.length - 1];
+  const pct = ((last - first) / first * 100).toFixed(2);
+  const sign = last >= first ? '+' : '';
+  return `
+    <div class="modal-chart">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)">${tf?.label ?? ''} rendimiento</span>
+        <span style="font-family:var(--font-mono);font-weight:600;font-size:14px;color:${trend}">${sign}${pct}%</span>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" height="80">
+        <polyline points="${pts}" fill="none" stroke="${trend}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-top:4px">
+        <span>${slice[0]?.date ?? ''}</span><span>${slice[slice.length-1]?.date ?? ''}</span>
+      </div>
+    </div>`;
+}
+
+// ================================================================
 // RENDER
 // ================================================================
+function renderHeatmapSkeleton(sectors) {
+  const grid = document.getElementById('heatmapGrid');
+  if (!grid) return;
+  const count = sectors.reduce((n, s) => n + s.etfs.length, 0) || 15;
+  grid.innerHTML = Array(count).fill('<div class="hm-tile loading" style="min-height:68px"></div>').join('');
+}
+
 function renderSectors(sectors) {
   const container = document.getElementById('sectorsContainer');
   container.innerHTML = '';
@@ -760,6 +898,7 @@ function setupFlowSelector() {
     btn.classList.add('active');
     flowCurrentTf = btn.dataset.tf;
     renderFlow(flowSectors, flowAllData, flowCurrentTf);
+    renderHeatmap(flowSectors, flowAllData, flowCurrentTf);
   });
 }
 
@@ -781,48 +920,69 @@ async function loadHoldingsOnce() {
   return holdingsCache;
 }
 
+let modalCurrentTf = 'm1';
+
 async function openModal(symbol, name) {
   const backdrop = document.getElementById('modalBackdrop');
   document.getElementById('modalSymbol').textContent = symbol;
   document.getElementById('modalName').textContent = name;
   document.getElementById('modalSub').textContent = 'Top holdings · peso % de la cartera';
   const body = document.getElementById('modalBody');
-  body.innerHTML = '<div class="modal-empty">Cargando holdings…</div>';
   backdrop.classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  const data = await loadHoldingsOnce();
-  const list = data?.holdings?.[symbol];
+  const etfData = flowAllData[symbol];
+  const rows = etfData?.rows ?? null;
 
-  if (!list || !list.length) {
-    const lastUpdated = data?.last_updated && data.last_updated !== 'pending'
-      ? `Último intento: ${data.last_updated}`
-      : 'Se poblará automáticamente el próximo lunes (cron semanal).';
-    body.innerHTML = `<div class="modal-empty">
-      Holdings aún no disponibles para <strong>${symbol}</strong>.<br>
-      <span style="font-size:12px;">${lastUpdated}</span>
-    </div>`;
-    return;
+  function renderModalContent(tfKey) {
+    const chart = rows ? modalChart(rows, tfKey) : '';
+    const tfBtns = TIMEFRAMES.map(t =>
+      `<button class="modal-tf-btn${t.key === tfKey ? ' active' : ''}" data-tf="${t.key}">${t.label}</button>`
+    ).join('');
+
+    let holdingsHtml = '<div class="modal-empty" style="padding:12px 0">Cargando holdings…</div>';
+
+    body.innerHTML = `
+      <div class="modal-tf-row">${tfBtns}</div>
+      ${chart}
+      ${holdingsHtml}`;
+
+    body.querySelectorAll('.modal-tf-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        modalCurrentTf = btn.dataset.tf;
+        renderModalContent(modalCurrentTf);
+      });
+    });
+
+    loadHoldingsOnce().then(data => {
+      const list = data?.holdings?.[symbol];
+      const holdingsEl = body.querySelector('.modal-empty');
+      if (!holdingsEl) return;
+
+      if (!list || !list.length) {
+        const lastUpdated = data?.last_updated && data.last_updated !== 'pending'
+          ? `Último intento: ${data.last_updated}`
+          : 'Se poblará automáticamente el próximo lunes (cron semanal).';
+        holdingsEl.innerHTML = `Holdings pendientes para <strong>${symbol}</strong>.<br>
+          <span style="font-size:11px;color:var(--text-dim)">${lastUpdated}</span>`;
+        return;
+      }
+
+      const stocks = data.stocks || {};
+      holdingsEl.outerHTML = `
+        <table class="holdings-table">
+          <thead><tr><th>Ticker</th><th>Empresa</th><th>Peso</th></tr></thead>
+          <tbody>
+            ${list.slice(0, 15).map(h => {
+              const s = stocks[h.symbol] || {};
+              return `<tr><td>${h.symbol}</td><td>${s.name || h.name || '—'}</td><td>${h.weight.toFixed(2)}%</td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    });
   }
 
-  const stocks = data.stocks || {};
-  body.innerHTML = `
-    <table class="holdings-table">
-      <thead><tr>
-        <th>Ticker</th><th>Empresa</th><th>Peso</th>
-      </tr></thead>
-      <tbody>
-        ${list.slice(0, 15).map(h => {
-          const s = stocks[h.symbol] || {};
-          const dispName = s.name || h.name || '—';
-          return `<tr>
-            <td>${h.symbol}</td>
-            <td>${dispName}</td>
-            <td>${h.weight.toFixed(2)}%</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>`;
+  renderModalContent(modalCurrentTf);
 }
 
 function closeModal() {
@@ -914,6 +1074,7 @@ async function loadAll() {
     const metadata = await fetchMetadata();
     currentSectors = groupBySector(metadata);
     renderSectors(currentSectors);
+    renderHeatmapSkeleton(currentSectors);
 
     // 2. Prices — parallel fetch per symbol
     const allData = {};
@@ -940,10 +1101,11 @@ async function loadAll() {
       }
     }
 
-    // 3. Flujo del dinero (agregación por sector)
+    // 3. Flujo del dinero + heatmap
     flowAllData = allData;
     flowSectors = currentSectors;
     renderFlow(flowSectors, flowAllData, flowCurrentTf);
+    renderHeatmap(flowSectors, flowAllData, flowCurrentTf);
 
     // 4. Highlights
     updateHighlights(allData);
