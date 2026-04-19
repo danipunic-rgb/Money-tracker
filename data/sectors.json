@@ -49,13 +49,40 @@
       "display_order": 5
     },
     {
+      "id": "real_estate",
+      "name": "Inmobiliario",
+      "color": "#0f766e",
+      "description": "REITs, inmobiliario diversificado",
+      "scope": ["REITs residenciales", "REITs comerciales", "REITs industriales", "Data centers"],
+      "excludes": [],
+      "display_order": 6
+    },
+    {
+      "id": "consumer",
+      "name": "Consumo",
+      "color": "#a16207",
+      "description": "Consumo discrecional y básico",
+      "scope": ["Retail", "Lujo", "Alimentación", "Bebidas", "Hogar"],
+      "excludes": [],
+      "display_order": 7
+    },
+    {
+      "id": "crypto",
+      "name": "Crypto",
+      "color": "#6d28d9",
+      "description": "ETFs de Bitcoin y exposición cripto",
+      "scope": ["Bitcoin spot ETF", "Mineras crypto", "Exposición blockchain"],
+      "excludes": [],
+      "display_order": 8
+    },
+    {
       "id": "reference",
       "name": "Referencias",
       "color": "#78716c",
       "description": "Benchmarks para contextualizar",
       "scope": ["Mercado amplio US", "Small caps", "Oro"],
       "excludes": [],
-      "display_order": 6
+      "display_order": 9
     }
   ],
   "candidates_for_review": [
