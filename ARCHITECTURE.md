@@ -121,19 +121,35 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2Z
 **etf_metadata** — Qué ETFs rastreamos
 ```sql
 symbol (PK), name, sector, sector_color, sector_desc, display_order, enabled, created_at
--- 15 ETFs: XLK, SMH, QQQ, XLE, ICLN, URA, XLF, KRE, KBE, XLV, IBB, XBI, SPY, IWM, GLD
+-- 22 ETFs en 9 sectores: Tecnología, Energía, Financieros, Salud, Defensa,
+--   Inmobiliario, Consumo, Crypto, Referencias
 ```
 
 **etf_daily** — Precios históricos
 ```sql
 symbol (FK), date, close, adj_close, volume, fetched_at
--- PK: (symbol, date). ~7.515 filas. Rango: 17-abr-2024 → 16-abr-2026
+-- PK: (symbol, date). ~11k filas. Rango: abr-2024 → hoy
+```
+
+**etf_holdings** — Holdings de ETFs (Fase 1, creada 19-abr-2026, pendiente de poblar)
+```sql
+etf_symbol (FK→etf_metadata), stock_symbol, weight, as_of_date | PK: (etf_symbol, stock_symbol, as_of_date)
+```
+
+**stock_metadata** — Metadatos de empresas (Fase 1, creada 19-abr-2026)
+```sql
+symbol (PK), isin, name, sector, industry, country, search_count, is_trending, created_at, updated_at
+```
+
+**stock_daily** — Precios de empresas individuales (Fase 1, creada 19-abr-2026)
+```sql
+symbol (FK→stock_metadata), date, close, adj_close, volume | PK: (symbol, date)
 ```
 
 ### RLS: anon = SELECT. Solo service_role puede escribir.
 
 ### Edge Functions
-- **fetch-etfs**: Yahoo Finance → upsert en etf_daily. Param: `?days=N`
+- **fetch-etfs** v2: Yahoo Finance → upsert en etf_daily. Params: `?days=N` y `?symbols=ITA,XAR` (opcional, filtra símbolos)
 
 ### Cron activo
 - **fetch-etfs-daily**: `30 22 * * 1-5` (22:30 UTC L-V = 00:30 CEST)
@@ -141,11 +157,6 @@ symbol (FK), date, close, adj_close, volume, fetched_at
 ### Tablas PENDIENTES
 
 ```sql
--- Fase 1
-etf_holdings (etf_symbol, stock_symbol, stock_isin, weight, as_of_date)
-stock_metadata (symbol, isin, name, sector, industry, country, search_count, is_trending)
-stock_daily (symbol, date, close, adj_close, volume)
-
 -- Fase 2
 profiles (id uuid → auth.users, tier, created_at)
 user_watchlist (user_id, symbol, symbol_type, added_at)
@@ -283,17 +294,18 @@ Trigger manual: `workflow_dispatch` con inputs `dry_run`, `timeframe`, `intro`, 
 | Energía | XLE, ICLN, URA | Fósiles + renovables + nuclear |
 | Financieros | XLF, KRE, KBE | Grandes bancos + regionales + bancario puro |
 | Salud | XLV, IBB, XBI | Farma + biotech grande + biotech especulativo |
+| Defensa | ITA, XAR | Aerospace & defense — tendencia macro relevante en 2026 |
+| Inmobiliario | VNQ | REITs diversificados — sensible a tipos de interés |
+| Consumo | XLY, XLP | Discrecional + básico — spread indica apetito de riesgo |
+| Crypto | IBIT, BITO | Bitcoin spot + futures — proxy de risk-on extremo |
 | Referencias | SPY, IWM, GLD | Mercado amplio + small caps + oro |
 
 ### Sectores candidatos (para investigar con Cowork)
-- Defensa/Aerospace (ITA, XAR)
-- Inmobiliario/REITs (VNQ, XLRE)
-- Consumo discrecional/staples (XLY, XLP)
 - Mercados emergentes (EEM, VWO)
 - China (KWEB, FXI)
 - Commodities (DBC, GSG)
-- Bonos (TLT, BND)
-- Crypto (BITO, IBIT)
+- Bonos (TLT, BND, TIP)
+- Europa (VGK, EZU)
 
 ---
 
@@ -374,10 +386,14 @@ Tú describes la feature → Cowork implementa → tú revisas → push
 ### FASE 1 — Holdings + Drill-down
 - [x] Tablas etf_holdings + stock_metadata + stock_daily en Supabase (migración 001 aplicada)
 - [x] GitHub Actions workflow update-holdings con --write-supabase
-- [x] UI: heatmap ETF con color por rendimiento (sincronizado con TF del flow)
+- [x] UI: heatmap ETF por sector con color por rendimiento (sincronizado con TF del flow)
 - [x] UI: modal con gráfico de precio SVG + selector de TF
-- [ ] Poblar holdings reales (ejecutar update-holdings workflow manualmente la 1ª vez)
-- [ ] Daily Brief objetivo (generado con datos puros)
+- [x] UI: Daily Brief — sección editorial con mejores/peores ETF del día/semana/mes/trimestre
+- [x] UI: búsqueda global de ETFs en tiempo real
+- [x] UI: highlights 4 columnas (1D/1S/1M/3M), filas clicables abren modal
+- [x] Edge Function v2: soporte ?symbols=X,Y para fetch selectivo
+- [x] Nuevos sectores: Defensa (ITA, XAR), Inmobiliario (VNQ), Consumo (XLY, XLP), Crypto (IBIT, BITO)
+- [ ] Poblar holdings reales (ejecutar update-holdings workflow manualmente la 1ª vez — requiere SUPABASE_SERVICE_ROLE_KEY en GitHub Secrets)
 
 ### FASE 2 — Auth + Watchlist + Snapshot
 - [ ] Supabase Auth (Google OAuth)
