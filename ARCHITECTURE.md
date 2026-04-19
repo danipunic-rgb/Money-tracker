@@ -1,7 +1,8 @@
 # Money Tracker — Documento de Arquitectura
 
 > Este documento es la fuente de verdad del proyecto.
-> Cualquier agente (Cowork, Claude Code, o un humano) DEBE leer esto primero.
+> Cualquier agente (Cowork, Claude Code, o un humano) DEBE leer `CLAUDE.md` primero
+> (resumen operativo) y este archivo en segundo lugar (decisiones y roadmap completos).
 > Última actualización: 19 abril 2026
 
 ---
@@ -55,8 +56,11 @@ Lo que mostramos como "entrada/salida de capital" es un PROXY basado en rendimie
 |---|---------|------|--------|
 | 1 | Dashboard sector → ETF con % cambio | 0 | ✅ HECHO |
 | 2 | Deploy público en Vercel | 0 | ✅ HECHO |
-| 3 | Sección "Flujo del Dinero" visual | 0 | 🔲 PENDIENTE |
-| 4 | Drill-down ETF → Holdings | 1 | 🔲 PENDIENTE |
+| 3 | Sección "Flujo del Dinero" visual (agregado sector) | 0 | ✅ HECHO |
+| 3b | Disclaimer visible "proxy precio vs. flujos reales" | 0 | ✅ HECHO |
+| 3c | Vercel Analytics activado | 0 | ✅ HECHO |
+| 3d | Publicación diaria automática en X (inglés) | 0 | ✅ HECHO |
+| 4 | Drill-down ETF → Holdings (UI lista, tablas pendientes) | 1 | 🟡 PARCIAL |
 | 5 | Daily Brief objetivo (sin LLM, con datos puros) | 1 | 🔲 PENDIENTE |
 | 6 | OAuth Google + tabla profiles | 2 | 🔲 PENDIENTE |
 | 7 | Watchlist + "Mi Flujo" | 2 | 🔲 PENDIENTE |
@@ -222,10 +226,30 @@ Cada lunes 06:00 CEST:
   6. Commit + push del JSON actualizado
 ```
 
-### Secrets de GitHub configurados
+### Workflow: publish-x-daily (diario L-V)
+```
+Cada día laborable 21:05 UTC (tras cierre NYSE):
+  1. Checkout repo
+  2. Instala httpx + tweepy
+  3. Llama a Edge Function fetch-etfs?days=2 (precios frescos)
+  4. Lee metadata + últimos precios de Supabase vía REST anon
+  5. Calcula promedio % cambio por sector (excluye Referencias)
+  6. Renderiza tweet en inglés con emojis + url de la web
+  7. Publica vía X API v2 (OAuth 1.0a User Context, tweepy)
+  8. Guarda artifact con el texto publicado (retention 14d)
+```
+
+Trigger manual: `workflow_dispatch` con inputs `dry_run`, `timeframe`, `intro`, `force_fetch`.
+
+### Secrets de GitHub necesarios
 - `SUPABASE_URL` ✅
-- `SUPABASE_SERVICE_ROLE_KEY` ✅
-- `ANTHROPIC_API_KEY` ❌ (no necesario para automatización Tipo A)
+- `SUPABASE_SERVICE_ROLE_KEY` ✅ (solo para update-holdings)
+- `SUPABASE_ANON_KEY` (opcional, tiene fallback embebido en el script)
+- `X_API_KEY` ✅
+- `X_API_SECRET` ✅
+- `X_ACCESS_TOKEN` ✅
+- `X_ACCESS_TOKEN_SECRET` ✅
+- `ANTHROPIC_API_KEY` ❌ (no necesario, y no lo vamos a usar)
 
 ---
 
@@ -337,8 +361,12 @@ Tú describes la feature → Cowork implementa → tú revisas → push
 - [x] HTML funcional leyendo de Supabase
 - [x] Deploy en Vercel (money-tracker-new-app.vercel.app)
 - [x] Repo en GitHub con estructura de agentes
-- [ ] Sección "Flujo del Dinero" visual (siguiente tarea con Cowork)
-- [ ] Activar Vercel Analytics
+- [x] `CLAUDE.md` como fuente operativa (19-abr)
+- [x] Sección "Flujo del Dinero" visual + selector de timeframe (19-abr)
+- [x] Modal drill-down ETF → holdings (con fallback si no hay datos) (19-abr)
+- [x] Disclaimer visible "proxy precio vs. flujos reales" (19-abr)
+- [x] Vercel Analytics activado (19-abr)
+- [x] Pipeline de publicación diaria en X (21:05 UTC L-V, inglés) (19-abr)
 - [ ] Comprar dominio propio
 
 ### FASE 1 — Holdings + Drill-down
@@ -375,3 +403,7 @@ Tú describes la feature → Cowork implementa → tú revisas → push
 | 19-abr-2026 | NO usar API de Anthropic para agentes | Coste innecesario. Scripts Python puros para datos, Cowork para curación |
 | 19-abr-2026 | Vercel URL: money-tracker-new-app.vercel.app | Reconfigurado tras problema con deploy anterior |
 | 19-abr-2026 | Investigación con Cowork, ejecución con GitHub Actions | Más profesional que LLM sin supervisión en datos financieros |
+| 19-abr-2026 | `CLAUDE.md` al estilo Karpathy, un único agente por sesión | Multi-agente genera overhead y merge conflicts sin valor en un proyecto de 1 persona |
+| 19-abr-2026 | Pipeline X: cron 21:05 UTC L-V | Capta cierre NYSE + prime time Twitter US + Europa tarde + Asia amanece |
+| 19-abr-2026 | Agregación del flujo: promedio simple por sector, excluye Referencias | Sin pesos arbitrarios = más objetivo. Benchmarks fuera del flujo por definición |
+| 19-abr-2026 | X API v2 via tweepy (OAuth 1.0a User Context) | Obligado por la API para `POST /2/tweets`. Free tier 500 posts/mes sobra |

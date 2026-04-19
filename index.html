@@ -213,6 +213,162 @@
   }
   @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+  /* ——— FLUJO DEL DINERO ——— */
+  .flow {
+    background: var(--card); border: 1px solid var(--border);
+    padding: 28px 30px; border-radius: 2px; margin-bottom: 40px;
+    position: relative;
+  }
+  .flow::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 48px; height: 3px; background: var(--text);
+  }
+  .flow-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 22px; flex-wrap: wrap; gap: 16px;
+  }
+  .flow-eyebrow {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-muted); display: block; margin-bottom: 6px;
+  }
+  .flow-title h2 {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 28px; letter-spacing: -0.015em; line-height: 1.1;
+  }
+  .flow-tf-selector {
+    display: inline-flex; border: 1px solid var(--border);
+    border-radius: 2px; overflow: hidden; background: #fafaf9;
+  }
+  .flow-tf-selector button {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    padding: 7px 12px; background: transparent; border: none;
+    color: var(--text-muted); cursor: pointer; letter-spacing: 0.08em;
+    transition: all 0.12s; border-right: 1px solid var(--border);
+  }
+  .flow-tf-selector button:last-child { border-right: none; }
+  .flow-tf-selector button:hover { color: var(--text); background: white; }
+  .flow-tf-selector button.active {
+    background: var(--text); color: var(--bg); font-weight: 600;
+  }
+
+  .flow-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 28px; margin-bottom: 22px;
+  }
+  .flow-col-label {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .flow-col.flow-in .flow-col-label  { color: var(--up-strong); }
+  .flow-col.flow-out .flow-col-label { color: var(--down-strong); }
+  .flow-bar {
+    display: grid; grid-template-columns: 110px 1fr 70px;
+    align-items: center; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--border-soft);
+  }
+  .flow-bar:last-child { border-bottom: none; }
+  .flow-bar .sname {
+    font-family: var(--font-sans); font-size: 13px;
+    font-weight: 500; display: flex; align-items: center; gap: 7px;
+  }
+  .flow-bar .sname .dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .flow-bar .track {
+    height: 10px; background: #f5f5f4; border-radius: 2px;
+    overflow: hidden; position: relative;
+  }
+  .flow-bar .fill {
+    height: 100%; border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .flow-col.flow-in .fill  { background: var(--up-strong); }
+  .flow-col.flow-out .fill { background: var(--down-strong); }
+  .flow-bar .pct {
+    font-family: var(--font-mono); font-size: 13px;
+    font-weight: 600; text-align: right;
+  }
+  .flow-col.flow-in .pct  { color: var(--up-strong); }
+  .flow-col.flow-out .pct { color: var(--down-strong); }
+
+  .flow-summary {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 15px; color: var(--text); line-height: 1.55;
+    padding: 14px 18px; background: #fafaf9;
+    border-left: 2px solid var(--text); margin-bottom: 18px;
+  }
+  .flow-summary strong { font-style: normal; font-weight: 600; }
+  .flow-summary .up   { color: var(--up-strong);   font-style: normal; font-weight: 600; }
+  .flow-summary .down { color: var(--down-strong); font-style: normal; font-weight: 600; }
+
+  .flow-disclaimer {
+    font-family: var(--font-sans); font-size: 11px;
+    color: var(--text-muted); padding: 10px 14px;
+    background: #fefce8; border: 1px solid #fef08a;
+    border-radius: 2px; line-height: 1.5;
+  }
+  .flow-disclaimer strong { color: var(--text); }
+
+  /* ——— MODAL DRILL-DOWN ——— */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(28,25,23,0.55);
+    display: none; align-items: flex-start; justify-content: center;
+    z-index: 1000; padding: 48px 20px; overflow-y: auto;
+    animation: fadeIn 0.15s ease-out;
+  }
+  .modal-backdrop.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 2px; max-width: 640px; width: 100%;
+    padding: 28px 30px; position: relative;
+    animation: slideUp 0.2s ease-out;
+  }
+  @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: transparent; border: none; font-size: 22px;
+    color: var(--text-muted); cursor: pointer; line-height: 1;
+    padding: 4px 8px; border-radius: 2px;
+  }
+  .modal-close:hover { background: #f5f5f4; color: var(--text); }
+  .modal h3 {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 26px; letter-spacing: -0.015em; margin-bottom: 6px;
+  }
+  .modal h3 .sym { font-family: var(--font-mono); color: var(--patrimonio); }
+  .modal .modal-sub {
+    font-family: var(--font-serif); font-style: italic;
+    color: var(--text-muted); margin-bottom: 20px;
+  }
+  .holdings-table { width: 100%; border-collapse: collapse; }
+  .holdings-table th {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); padding: 10px 8px;
+    text-align: right; border-bottom: 1px solid var(--border);
+  }
+  .holdings-table th:first-child,
+  .holdings-table th:nth-child(2) { text-align: left; }
+  .holdings-table td {
+    padding: 11px 8px; font-family: var(--font-mono);
+    font-size: 13px; text-align: right;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .holdings-table td:first-child { font-weight: 600; }
+  .holdings-table td:nth-child(2) {
+    text-align: left; font-family: var(--font-sans);
+    color: var(--text-muted); font-size: 12px;
+  }
+  .etf-table tbody tr { cursor: pointer; }
+  .modal-empty {
+    font-family: var(--font-serif); font-style: italic;
+    color: var(--text-muted); text-align: center; padding: 32px 0;
+  }
+
   .footer {
     margin-top: 56px; padding-top: 20px;
     border-top: 1px solid var(--border);
@@ -264,6 +420,42 @@
       <div class="right" id="infoRight"></div>
     </div>
 
+    <section class="flow" id="flowSection" style="display:none;">
+      <div class="flow-header">
+        <div class="flow-title">
+          <span class="flow-eyebrow">Flujo del dinero · agregado por sector</span>
+          <h2>¿Hacia dónde va el capital?</h2>
+        </div>
+        <div class="flow-tf-selector" id="flowTfSelector">
+          <button data-tf="d1" class="active">1D</button>
+          <button data-tf="w1">1S</button>
+          <button data-tf="m1">1M</button>
+          <button data-tf="m3">3M</button>
+          <button data-tf="m6">6M</button>
+        </div>
+      </div>
+
+      <div id="flowSummary" class="flow-summary"></div>
+
+      <div class="flow-grid">
+        <div class="flow-col flow-in">
+          <div class="flow-col-label">▲ Entrada de capital</div>
+          <div id="flowIn"></div>
+        </div>
+        <div class="flow-col flow-out">
+          <div class="flow-col-label">▼ Salida de capital</div>
+          <div id="flowOut"></div>
+        </div>
+      </div>
+
+      <div class="flow-disclaimer">
+        <strong>Nota metodológica:</strong> el flujo mostrado es un <em>proxy</em> basado
+        en la variación del precio (adjusted close, promedio simple de los ETFs de cada
+        sector). No refleja los flujos reales de capital (creations/redemptions), que
+        requieren datos de pago. Úsalo como señal de dirección, no como cifra contable.
+      </div>
+    </section>
+
     <section class="highlights">
       <div class="highlight-card">
         <div class="highlight-label">▸ Hoy</div>
@@ -286,6 +478,20 @@
       Cron activo 22:30 UTC L-V · Datos vía Yahoo Finance (adj. close)
     </footer>
   </div>
+
+  <!-- Modal drill-down ETF → holdings -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modalClose" aria-label="Cerrar">×</button>
+      <h3><span class="sym" id="modalSymbol">—</span> <span id="modalName">—</span></h3>
+      <div class="modal-sub" id="modalSub">Top holdings</div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Vercel Analytics (0€, zero config) -->
+  <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+  <script defer src="/_vercel/insights/script.js"></script>
 
 <script>
 // ================================================================
@@ -441,6 +647,186 @@ function updateRow(symbol, name, data) {
     }).join('')}`;
 }
 
+// ================================================================
+// FLUJO DEL DINERO — agregación por sector
+// ================================================================
+let flowCurrentTf = 'd1';
+let flowAllData = {};  // cache { symbol: { changes, price, ... } }
+let flowSectors = [];  // cache de sectores agrupados
+
+function aggregateSectorFlow(sectors, allData, tfKey) {
+  // Promedio simple de los % cambio de ETFs del sector (sin pesos arbitrarios)
+  // Excluimos el sector "Referencias" del flujo (son benchmarks, no son destino de capital).
+  const out = [];
+  for (const s of sectors) {
+    if (s.name.toLowerCase() === 'referencias' || s.name.toLowerCase() === 'reference') continue;
+    const vals = s.etfs
+      .map(e => allData[e.symbol]?.changes?.[tfKey])
+      .filter(v => v != null && !isNaN(v));
+    if (!vals.length) continue;
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    out.push({ name: s.name, color: s.color, avg, etfs: s.etfs.length, counted: vals.length });
+  }
+  return out.sort((a, b) => b.avg - a.avg);
+}
+
+function renderFlow(sectors, allData, tfKey) {
+  const agg = aggregateSectorFlow(sectors, allData, tfKey);
+  if (!agg.length) return;
+
+  const inSide  = agg.filter(x => x.avg > 0);
+  const outSide = agg.filter(x => x.avg < 0).sort((a, b) => a.avg - b.avg); // más negativos primero
+
+  const maxMag = Math.max(
+    ...agg.map(x => Math.abs(x.avg)),
+    0.5 // mínimo para que la escala no se vuelva absurda en días planos
+  );
+
+  function renderSide(containerId, items) {
+    const el = document.getElementById(containerId);
+    if (!items.length) {
+      el.innerHTML = `<div style="padding:14px 0;font-family:var(--font-serif);font-style:italic;color:var(--text-dim);font-size:13px;">Ningún sector en esta dirección en el timeframe seleccionado.</div>`;
+      return;
+    }
+    el.innerHTML = items.map(s => {
+      const widthPct = Math.min(100, (Math.abs(s.avg) / maxMag) * 100);
+      return `
+        <div class="flow-bar" data-sector="${s.name}">
+          <div class="sname"><span class="dot" style="background:${s.color}"></span>${s.name}</div>
+          <div class="track"><div class="fill" style="width:${widthPct}%"></div></div>
+          <div class="pct">${fmtPct(s.avg)}</div>
+        </div>`;
+    }).join('');
+  }
+
+  renderSide('flowIn',  inSide);
+  renderSide('flowOut', outSide);
+
+  // Resumen narrativo objetivo
+  const summary = document.getElementById('flowSummary');
+  const tfLabel = TIMEFRAMES.find(t => t.key === tfKey)?.label || tfKey;
+  const tfHuman = {
+    d1: 'hoy',
+    w1: 'esta semana',
+    m1: 'este mes',
+    m3: 'últimos 3 meses',
+    m6: 'últimos 6 meses',
+  }[tfKey] || tfLabel;
+
+  const topIn  = inSide[0];
+  const topOut = outSide[0];
+
+  if (topIn && topOut) {
+    summary.innerHTML = `<strong>${tfHuman.charAt(0).toUpperCase() + tfHuman.slice(1)}</strong> el capital entra en <span class="up">${topIn.name} (${fmtPct(topIn.avg)})</span> y sale de <span class="down">${topOut.name} (${fmtPct(topOut.avg)})</span>.`;
+  } else if (topIn) {
+    summary.innerHTML = `<strong>${tfHuman.charAt(0).toUpperCase() + tfHuman.slice(1)}</strong> el capital entra principalmente en <span class="up">${topIn.name} (${fmtPct(topIn.avg)})</span>. Ningún sector cierra en negativo agregado.`;
+  } else if (topOut) {
+    summary.innerHTML = `<strong>${tfHuman.charAt(0).toUpperCase() + tfHuman.slice(1)}</strong> el capital sale principalmente de <span class="down">${topOut.name} (${fmtPct(topOut.avg)})</span>. Ningún sector cierra en positivo agregado.`;
+  } else {
+    summary.textContent = `Datos insuficientes para el timeframe ${tfLabel}.`;
+  }
+
+  document.getElementById('flowSection').style.display = 'block';
+}
+
+function setupFlowSelector() {
+  const selector = document.getElementById('flowTfSelector');
+  selector.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-tf]');
+    if (!btn) return;
+    selector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    flowCurrentTf = btn.dataset.tf;
+    renderFlow(flowSectors, flowAllData, flowCurrentTf);
+  });
+}
+
+// ================================================================
+// MODAL DRILL-DOWN
+// ================================================================
+let holdingsCache = null; // se carga perezosamente desde data/holdings.json
+
+async function loadHoldingsOnce() {
+  if (holdingsCache !== null) return holdingsCache;
+  try {
+    const res = await fetch('./data/holdings.json', { cache: 'no-cache' });
+    if (!res.ok) throw new Error(res.status);
+    holdingsCache = await res.json();
+  } catch (e) {
+    console.warn('holdings.json no disponible:', e);
+    holdingsCache = { holdings: {}, stocks: {} };
+  }
+  return holdingsCache;
+}
+
+async function openModal(symbol, name) {
+  const backdrop = document.getElementById('modalBackdrop');
+  document.getElementById('modalSymbol').textContent = symbol;
+  document.getElementById('modalName').textContent = name;
+  document.getElementById('modalSub').textContent = 'Top holdings · peso % de la cartera';
+  const body = document.getElementById('modalBody');
+  body.innerHTML = '<div class="modal-empty">Cargando holdings…</div>';
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  const data = await loadHoldingsOnce();
+  const list = data?.holdings?.[symbol];
+
+  if (!list || !list.length) {
+    const lastUpdated = data?.last_updated && data.last_updated !== 'pending'
+      ? `Último intento: ${data.last_updated}`
+      : 'Se poblará automáticamente el próximo lunes (cron semanal).';
+    body.innerHTML = `<div class="modal-empty">
+      Holdings aún no disponibles para <strong>${symbol}</strong>.<br>
+      <span style="font-size:12px;">${lastUpdated}</span>
+    </div>`;
+    return;
+  }
+
+  const stocks = data.stocks || {};
+  body.innerHTML = `
+    <table class="holdings-table">
+      <thead><tr>
+        <th>Ticker</th><th>Empresa</th><th>Peso</th>
+      </tr></thead>
+      <tbody>
+        ${list.slice(0, 15).map(h => {
+          const s = stocks[h.symbol] || {};
+          const dispName = s.name || h.name || '—';
+          return `<tr>
+            <td>${h.symbol}</td>
+            <td>${dispName}</td>
+            <td>${h.weight.toFixed(2)}%</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function setupModal() {
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'modalBackdrop') closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+  // Delegación: click en fila de ETF abre modal
+  document.getElementById('sectorsContainer').addEventListener('click', (e) => {
+    const row = e.target.closest('tr[id^="row-"]');
+    if (!row) return;
+    const symbol = row.id.replace('row-', '');
+    const nameCell = row.querySelector('.etf-name');
+    const name = nameCell ? nameCell.textContent : symbol;
+    openModal(symbol, name);
+  });
+}
+
 function updateHighlights(allData) {
   const valid = Object.entries(allData).filter(([_, v]) => v?.changes);
   const rank = (key, desc) => valid
@@ -532,10 +918,15 @@ async function loadAll() {
       }
     }
 
-    // 3. Highlights
+    // 3. Flujo del dinero (agregación por sector)
+    flowAllData = allData;
+    flowSectors = currentSectors;
+    renderFlow(flowSectors, flowAllData, flowCurrentTf);
+
+    // 4. Highlights
     updateHighlights(allData);
 
-    // 4. Info bar
+    // 5. Info bar
     updateInfoBar(metadata.length, loadedCount, newestDate);
 
     // 5. Status
@@ -584,6 +975,8 @@ async function forceFetch() {
 // ——— INIT ———
 document.getElementById('refreshBtn').addEventListener('click', loadAll);
 document.getElementById('fetchBtn').addEventListener('click', forceFetch);
+setupFlowSelector();
+setupModal();
 loadAll();
 </script>
 </body>
