@@ -1,0 +1,27 @@
+name: Update Holdings
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+jobs:
+  fetch-holdings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install httpx
+      - env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python agents/fetch_holdings.py
+      - run: |
+          git config user.name "money-tracker-bot"
+          git config user.email "bot@money-tracker.app"
+          git add data/
+          git diff --cached --quiet || git commit -m "chore: update holdings [bot]"
+          git push
