@@ -2,7 +2,7 @@
   "version": "1.0",
   "last_updated": "2026-04-19",
   "curated_by": "founder",
-  "total": 15,
+  "total": 17,
   "etfs": [
     {"symbol": "XLK",  "name": "Technology Select Sector SPDR", "isin": "US81369Y8030", "sector_id": "technology", "sector_name": "Tecnología",  "sector_color": "#7c3aed"},
     {"symbol": "SMH",  "name": "VanEck Semiconductors",         "isin": "US92189F6875", "sector_id": "technology", "sector_name": "Tecnología",  "sector_color": "#7c3aed"},
@@ -16,6 +16,8 @@
     {"symbol": "XLV",  "name": "Health Care Select Sector SPDR","isin": "US81369Y2090", "sector_id": "healthcare", "sector_name": "Salud",       "sector_color": "#15803d"},
     {"symbol": "IBB",  "name": "iShares Biotechnology",         "isin": "US4642875235", "sector_id": "healthcare", "sector_name": "Salud",       "sector_color": "#15803d"},
     {"symbol": "XBI",  "name": "SPDR S&P Biotech",              "isin": "US78464A8707", "sector_id": "healthcare", "sector_name": "Salud",       "sector_color": "#15803d"},
+    {"symbol": "ITA",  "name": "iShares U.S. Aerospace & Defense","isin": "US4642874576", "sector_id": "defense",    "sector_name": "Defensa",    "sector_color": "#854d0e"},
+    {"symbol": "XAR",  "name": "SPDR S&P Aerospace & Defense",   "isin": "US78464A5844", "sector_id": "defense",    "sector_name": "Defensa",    "sector_color": "#854d0e"},
     {"symbol": "SPY",  "name": "SPDR S&P 500",                  "isin": "US78462F1030", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
     {"symbol": "IWM",  "name": "iShares Russell 2000",          "isin": "US4642876555", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
     {"symbol": "GLD",  "name": "SPDR Gold Shares",              "isin": "US78463V1070", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"}

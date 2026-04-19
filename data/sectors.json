@@ -40,13 +40,22 @@
       "display_order": 4
     },
     {
+      "id": "defense",
+      "name": "Defensa",
+      "color": "#854d0e",
+      "description": "Aeroespacial, defensa, industria militar",
+      "scope": ["Aerospace & Defense", "Contratistas militares", "Ciberseguridad nacional"],
+      "excludes": ["Ciberseguridad comercial → Tecnología"],
+      "display_order": 5
+    },
+    {
       "id": "reference",
       "name": "Referencias",
       "color": "#78716c",
       "description": "Benchmarks para contextualizar",
       "scope": ["Mercado amplio US", "Small caps", "Oro"],
       "excludes": [],
-      "display_order": 5
+      "display_order": 6
     }
   ],
   "candidates_for_review": [
