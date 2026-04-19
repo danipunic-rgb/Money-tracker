@@ -189,7 +189,8 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .col-sym { width: 72px; } .col-name { width: 22%; }
-  .col-price { width: 80px; } .col-tf { width: auto; }
+  .col-price { width: 80px; } .col-spark { width: 96px; } .col-tf { width: auto; }
+  .sparkline-cell { padding: 0 10px !important; vertical-align: middle; text-align: center !important; }
   .etf-symbol { font-weight: 600; text-align: left !important; font-size: 14px; }
   .etf-name { text-align: left !important; font-family: var(--font-sans) !important; color: var(--text-muted); font-size: 13px; }
 
@@ -545,7 +546,25 @@ function calculateChanges(rows) {
     const past = prices[idx];
     changes[tf.key] = (past && past > 0) ? ((latest - past) / past) * 100 : null;
   }
-  return { price: latest, changes, latestDate: rows[rows.length - 1].date };
+  return { price: latest, changes, latestDate: rows[rows.length - 1].date, rows };
+}
+
+function sparkline(rows, w = 84, h = 30) {
+  if (!rows || rows.length < 2) return '<span style="color:var(--text-dim);font-size:11px">—</span>';
+  const slice = rows.slice(-22); // ~1M de datos de trading
+  const vals = slice.map(r => Number(r.adj_close));
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const pts = vals.map((v, i) => {
+    const x = ((i / (vals.length - 1)) * w).toFixed(1);
+    const y = (h - ((v - min) / range) * h).toFixed(1);
+    return `${x},${y}`;
+  }).join(' ');
+  const trend = vals[vals.length - 1] >= vals[0] ? 'var(--up-strong)' : 'var(--down-strong)';
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;margin:auto;overflow:visible">
+    <polyline points="${pts}" fill="none" stroke="${trend}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${parseFloat(pts.split(' ').at(-1).split(',')[0])}" cy="${parseFloat(pts.split(' ').at(-1).split(',')[1])}" r="2" fill="${trend}"/>
+  </svg>`;
 }
 
 function groupBySector(metadata) {
@@ -612,6 +631,7 @@ function renderSectors(sectors) {
           <th class="col-sym al">Ticker</th>
           <th class="col-name al">Nombre</th>
           <th class="col-price">Precio</th>
+          <th class="col-spark">1M</th>
           ${TIMEFRAMES.map(tf => `<th class="col-tf">${tf.label}</th>`).join('')}
         </tr></thead>
         <tbody>
@@ -620,6 +640,7 @@ function renderSectors(sectors) {
               <td class="etf-symbol">${etf.symbol}</td>
               <td class="etf-name">${etf.name}</td>
               <td><div class="skeleton"></div></td>
+              <td class="sparkline-cell"><div class="skeleton" style="width:84px;height:30px"></div></td>
               ${TIMEFRAMES.map(() => `<td><div class="skeleton"></div></td>`).join('')}
             </tr>
           `).join('')}
@@ -634,13 +655,14 @@ function updateRow(symbol, name, data) {
   if (!row) return;
   if (!data) {
     row.innerHTML = `<td class="etf-symbol">${symbol}</td><td class="etf-name">${name}</td>
-      <td colspan="${TIMEFRAMES.length + 1}" style="text-align:center;color:var(--text-dim);font-style:italic;font-family:var(--font-serif);">sin datos</td>`;
+      <td colspan="${TIMEFRAMES.length + 2}" style="text-align:center;color:var(--text-dim);font-style:italic;font-family:var(--font-serif);">sin datos</td>`;
     return;
   }
   row.innerHTML = `
     <td class="etf-symbol">${symbol}</td>
     <td class="etf-name">${name}</td>
     <td>${fmtPrice(data.price)}</td>
+    <td class="sparkline-cell">${sparkline(data.rows)}</td>
     ${TIMEFRAMES.map(tf => {
       const v = data.changes[tf.key];
       return `<td class="pct-cell ${cls(v)} ${bg(v)}" data-mag="${mag(v)}">${fmtPct(v)}</td>`;

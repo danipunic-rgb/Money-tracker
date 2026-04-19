@@ -268,8 +268,23 @@ def publish_tweet(text: str) -> dict:
         consumer_secret=os.environ["X_API_SECRET"],
         access_token=os.environ["X_ACCESS_TOKEN"],
         access_token_secret=os.environ["X_ACCESS_TOKEN_SECRET"],
+        wait_on_rate_limit=True,
     )
-    resp = client.create_tweet(text=text)
+    try:
+        resp = client.create_tweet(text=text)
+    except tweepy.errors.Forbidden as e:
+        body = e.response.text if hasattr(e, "response") and e.response is not None else str(e)
+        raise RuntimeError(
+            f"403 Forbidden — X rechazó el tweet.\n"
+            f"Body: {body}\n"
+            f"Checklist:\n"
+            f"  1. App en Read+Write (developer.x.com → App → User auth settings)\n"
+            f"  2. Tokens regenerados DESPUÉS de cambiar a R+W\n"
+            f"  3. Plan Pay Per Use activo en console.x.com\n"
+            f"  4. SUPABASE_ANON_KEY no es el problema aquí — revisa X_ACCESS_TOKEN"
+        ) from e
+    except tweepy.errors.TweepyException as e:
+        raise RuntimeError(f"Error de tweepy ({type(e).__name__}): {e}") from e
     tweet_id = resp.data.get("id") if hasattr(resp, "data") and resp.data else None
     return {"id": tweet_id, "raw": str(resp)}
 
