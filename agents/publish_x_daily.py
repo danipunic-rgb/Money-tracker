@@ -39,11 +39,17 @@ except ImportError:
 # -----------------------------------------------------------------------------
 # Config
 # -----------------------------------------------------------------------------
-SB_URL = os.environ.get("SUPABASE_URL", "https://rieyywfkpprgkenljilm.supabase.co")
+# Nota crítica: os.environ.get(key, default) SOLO devuelve `default` si la var
+# no existe; si existe pero está VACÍA (caso típico en GitHub Actions cuando el
+# secret no está configurado — `${{ secrets.X }}` se expande a string vacío),
+# devuelve "". Por eso usamos `or` para garantizar fallback real.
+SB_URL = os.environ.get("SUPABASE_URL") or "https://rieyywfkpprgkenljilm.supabase.co"
 # Anon key: es pública por diseño (RLS protege la BBDD). Se puede sobrescribir.
-SB_ANON = os.environ.get(
-    "SUPABASE_ANON_KEY",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2ZrcHByZ2tlbmxqaWxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzQ5NDgsImV4cCI6MjA5MTk1MDk0OH0.d4H4QW_BeBc6axpgmevLKNdMb0gJ-U6hQ15Rk9Bn-20",
+SB_ANON = os.environ.get("SUPABASE_ANON_KEY") or (
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+    "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2ZrcHByZ2tlbmxqaWxtIiwicm9sZSI6ImFub24i"
+    "LCJpYXQiOjE3NzYzNzQ5NDgsImV4cCI6MjA5MTk1MDk0OH0."
+    "d4H4QW_BeBc6axpgmevLKNdMb0gJ-U6hQ15Rk9Bn-20"
 )
 SITE_URL = "money-tracker-new-app.vercel.app"
 
@@ -69,6 +75,15 @@ SECTOR_EN = {
 # Supabase
 # -----------------------------------------------------------------------------
 def sb_get(path: str) -> list[dict]:
+    # Defensa: si alguien rompe los defaults y terminamos con URL o key vacías,
+    # fallar temprano con un mensaje claro en vez del críptico "Illegal header
+    # value b'Bearer '" que lanza httpx.
+    if not SB_URL or not SB_ANON:
+        raise RuntimeError(
+            f"Supabase config missing — SB_URL='{SB_URL}' "
+            f"SB_ANON_len={len(SB_ANON) if SB_ANON else 0}. "
+            "Check GitHub Secrets SUPABASE_URL / SUPABASE_ANON_KEY."
+        )
     headers = {"apikey": SB_ANON, "Authorization": f"Bearer {SB_ANON}"}
     r = httpx.get(f"{SB_URL}/rest/v1/{path}", headers=headers, timeout=20)
     r.raise_for_status()

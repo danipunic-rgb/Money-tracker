@@ -162,7 +162,65 @@ cat supabase/migrations/001_holdings.sql
 
 ---
 
-## 10. Cuándo actualizar este archivo
+## 10. Protocolo git — cómo NO destruir trabajo
+
+Lecciones aprendidas a golpes. Léelas antes de tocar `git` cuando algo falle.
+
+### 10.1 Si aparece `fatal: Unable to create '.git/index.lock': Permission denied`
+
+Es casi siempre un `index.lock` huérfano (otro proceso de git murió sin limpiar). **NO ejecutar `git reset --hard`** como "arreglo", porque destruye los cambios no commiteados en ficheros trackeados.
+
+Protocolo correcto:
+
+```bash
+# 1) Asegúrate de que no hay otro git corriendo
+ps aux | grep git
+
+# 2) Borra SOLO el lock (no toques nada más)
+rm -f .git/index.lock
+
+# 3) Si el índice está corrupto (raro), regenéralo sin perder el working tree:
+rm -f .git/index
+git reset            # ← SIN --hard. Recoloca el índice desde HEAD, conserva tus cambios
+git status           # verifica que tus modificaciones siguen ahí
+
+# 4) Añade y commitea normal
+git add <ficheros>
+git commit -m "..."
+```
+
+### 10.2 Nunca ejecutar `git reset --hard` salvo que Dani lo pida por nombre
+
+`git reset --hard` borra los cambios no commiteados del working tree. En esta sesión ya perdimos `index.html` y `ARCHITECTURE.md` una vez por esto. Si algo parece requerirlo, casi siempre hay alternativa:
+
+- ¿Quieres descartar un fichero concreto? → `git checkout -- <file>` (también destructivo, pero acotado).
+- ¿Quieres volver a `origin/main` pero conservar tu trabajo? → `git stash && git reset --hard origin/main && git stash pop`.
+- ¿Solo quieres limpiar el índice bloqueado? → ver §10.1.
+
+### 10.3 Antes de `git commit` en una sesión nueva
+
+Siempre verificar qué vamos a commitear:
+
+```bash
+git status
+git diff --stat
+```
+
+Si aparecen ficheros que no recuerdas haber tocado, **parar** y entender qué pasó antes de commitear. El caso típico: otra sesión dejó cambios a medias y ahora se mezclan con los tuyos.
+
+### 10.4 Cowork sandbox → push
+
+Cowork no tiene credenciales de GitHub en el sandbox. El flujo que ha funcionado es:
+
+1. Cowork hace cambios en `/sessions/.../mnt/Money-tracker/` (esto es el working directory del usuario).
+2. Cowork clona el repo a `/tmp/mt-clone`, copia ahí los cambios, commitea y genera parches con `git format-patch` en `_cowork-patches/`.
+3. Dani (o Claude Code local) aplica esos parches con `git am` y hace `git push`.
+
+`_cowork-patches/` está en `.gitignore`. Borrarlo tras cada push.
+
+---
+
+## 11. Cuándo actualizar este archivo
 
 **Siempre** que cambie alguno de estos:
 
@@ -177,9 +235,10 @@ cat supabase/migrations/001_holdings.sql
 
 ---
 
-## 11. Historial rápido (lo importante)
+## 12. Historial rápido (lo importante)
 
 - 2026-04-18 — Proyecto Supabase separado creado, Edge Function + cron diario activos.
 - 2026-04-19 — Repo público en GitHub, deploy en Vercel, ARCHITECTURE.md como fuente de verdad.
 - 2026-04-19 — Decisión: scripts Python puros (sin LLM) + Cowork para curación.
 - 2026-04-19 — Introducido este `CLAUDE.md`, sección "Flujo del Dinero" visual en la web, pipeline de publicación diaria en X (inglés), disclaimer visible, migración SQL de Fase 1.
+- 2026-04-19 — Fix: `publish_x_daily.py` usaba `os.environ.get(k, default)` que no captura el caso "var existe pero vacía" típico de GitHub Actions con secret no configurado. Cambiado a `os.environ.get(k) or default` + validación explícita en `sb_get`. Añadido protocolo git §10 tras perder `index.html`/`ARCHITECTURE.md` por un `git reset --hard` de Claude Code.
