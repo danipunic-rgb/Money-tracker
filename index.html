@@ -484,10 +484,25 @@
     .header-right { align-items: flex-start; min-width: unset; width: 100%; }
     .btn-group { justify-content: flex-start; }
     .highlights { grid-template-columns: 1fr; }
+    .brief-grid { grid-template-columns: 1fr; gap: 0; }
     .sector-desc { display: none; }
-    .etf-table { display: block; overflow-x: auto; }
+    .etf-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .col-name, .etf-table thead .col-name, .etf-table tbody .etf-name { display: none; }
     .info-bar { flex-direction: column; align-items: flex-start; }
+    .search-input { width: 100%; }
+    .heatmap-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
+    .flow-grid { grid-template-columns: 1fr; gap: 16px; }
+  }
+  @media (max-width: 600px) {
+    .header-left h1 { font-size: 38px; }
+    /* En móvil pequeño: mostrar solo 1D, 1S, 1M en la tabla (ocultar 3M, 6M, 1A, 2A) */
+    .etf-table th:nth-child(n+7),
+    .etf-table td:nth-child(n+7) { display: none; }
+    /* Ocultar sparkline en móvil pequeño */
+    .sparkline-cell, .col-spark { display: none; }
+    .brief { padding: 20px 16px; }
+    .brief-narrative { font-size: 15px; }
+    .heatmap, .flow { padding: 20px 16px; }
   }
 </style>
 </head>
