@@ -1,0 +1,77 @@
+name: Publish X Daily
+
+on:
+  schedule:
+    # 21:05 UTC L-V → justo tras cierre NYSE (invierno) / ~1h después (verano).
+    # Captura prime time de finance Twitter en US + Europa tarde + Asia amanece.
+    - cron: '5 21 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run (no publica, solo imprime)'
+        type: boolean
+        default: false
+      timeframe:
+        description: 'Timeframe del tweet'
+        type: choice
+        default: d1
+        options: [d1, w1, m1, m3, m6]
+      intro:
+        description: 'Línea de introducción opcional (ej. "Hello 👋")'
+        type: string
+        required: false
+        default: ''
+      force_fetch:
+        description: 'Forzar fetch de precios frescos antes de publicar'
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install httpx tweepy
+
+      - name: Publish tweet
+        env:
+          X_API_KEY:              ${{ secrets.X_API_KEY }}
+          X_API_SECRET:           ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN:         ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET:  ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          SUPABASE_URL:           ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY:      ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          ARGS="--tf ${{ inputs.timeframe || 'd1' }}"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          if [ "${{ inputs.force_fetch }}" = "true" ] || [ "${{ github.event_name }}" = "schedule" ]; then
+            ARGS="$ARGS --force-fetch"
+          fi
+          if [ -n "${{ inputs.intro }}" ]; then
+            ARGS="$ARGS --intro \"${{ inputs.intro }}\""
+          fi
+          echo "Running: python agents/publish_x_daily.py $ARGS"
+          eval "python agents/publish_x_daily.py $ARGS"
+
+      - name: Upload tweet artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tweet-output
+          path: |
+            last_tweet.txt
+            last_tweet_preview.txt
+          if-no-files-found: ignore
+          retention-days: 14
