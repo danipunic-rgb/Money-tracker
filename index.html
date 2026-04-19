@@ -490,7 +490,7 @@
     .header { flex-direction: column; align-items: flex-start; gap: 20px; }
     .header-right { align-items: flex-start; min-width: unset; width: 100%; }
     .btn-group { justify-content: flex-start; }
-    .highlights { grid-template-columns: 1fr; }
+    .highlights { grid-template-columns: 1fr 1fr !important; }
     .brief-grid { grid-template-columns: 1fr; gap: 0; }
     .sector-desc { display: none; }
     .etf-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -608,18 +608,22 @@
       <div class="heatmap-grid" id="heatmapGrid"></div>
     </section>
 
-    <section class="highlights">
+    <section class="highlights" style="grid-template-columns:repeat(4,1fr)">
       <div class="highlight-card">
-        <div class="highlight-label">▸ Hoy</div>
+        <div class="highlight-label">▸ Hoy · 1D</div>
         <div id="topDaily"><div class="skeleton" style="width:100%"></div></div>
       </div>
       <div class="highlight-card">
-        <div class="highlight-label">▸ Esta semana</div>
+        <div class="highlight-label">▸ Semana · 1S</div>
         <div id="topWeekly"><div class="skeleton" style="width:100%"></div></div>
       </div>
       <div class="highlight-card">
-        <div class="highlight-label">▸ Este mes</div>
+        <div class="highlight-label">▸ Mes · 1M</div>
         <div id="topMonthly"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Trimestre · 3M</div>
+        <div id="topQuarterly"><div class="skeleton" style="width:100%"></div></div>
       </div>
     </section>
 
@@ -1105,30 +1109,41 @@ function setupModal() {
 }
 
 function updateHighlights(allData) {
-  const valid = Object.entries(allData).filter(([_, v]) => v?.changes);
+  const valid = Object.entries(allData).filter(([, v]) => v?.changes);
   const rank = (key, desc) => valid
     .map(([sym, d]) => ({ symbol: sym, pct: d.changes[key] }))
     .filter(x => x.pct != null)
     .sort((a, b) => desc ? b.pct - a.pct : a.pct - b.pct);
 
+  // Look up ETF name from current sectors
+  const nameMap = {};
+  for (const s of flowSectors) for (const e of s.etfs) nameMap[e.symbol] = e.name;
+
   function render(elId, key) {
     const top = rank(key, true).slice(0, 3);
     const bot = rank(key, false).slice(0, 3);
     const el = document.getElementById(elId);
+    if (!el) return;
     if (!top.length) { el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-family:var(--font-serif);font-size:12px;">sin datos</div>'; return; }
+    const row = (x, dir) => `
+      <div class="highlight-row" style="cursor:pointer" onclick="openModal('${x.symbol}','${(nameMap[x.symbol]||x.symbol).replace(/'/g,"\\'")}')">
+        <span class="symbol">${x.symbol}</span>
+        <span class="pct ${dir}">${fmtPct(x.pct)}</span>
+      </div>`;
     el.innerHTML = `
       <div class="highlight-subsection">
-        <div class="highlight-sublabel">▲ Entrada de capital</div>
-        ${top.map(x => `<div class="highlight-row"><span class="symbol">${x.symbol}</span><span class="pct up">${fmtPct(x.pct)}</span></div>`).join('')}
+        <div class="highlight-sublabel">▲ Mejores</div>
+        ${top.map(x => row(x, 'up')).join('')}
       </div>
       <div class="highlight-subsection">
-        <div class="highlight-sublabel">▼ Salida de capital</div>
-        ${bot.map(x => `<div class="highlight-row"><span class="symbol">${x.symbol}</span><span class="pct down">${fmtPct(x.pct)}</span></div>`).join('')}
+        <div class="highlight-sublabel">▼ Peores</div>
+        ${bot.map(x => row(x, 'down')).join('')}
       </div>`;
   }
-  render('topDaily', 'd1');
-  render('topWeekly', 'w1');
-  render('topMonthly', 'm1');
+  render('topDaily',     'd1');
+  render('topWeekly',    'w1');
+  render('topMonthly',   'm1');
+  render('topQuarterly', 'm3');
 }
 
 // ================================================================
