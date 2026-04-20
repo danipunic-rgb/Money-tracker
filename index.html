@@ -1604,7 +1604,6 @@ async function loadAll() {
     const metadata = await fetchMetadata();
     currentSectors = groupBySector(metadata);
     renderSectors(currentSectors);
-    renderHeatmapSkeleton(currentSectors);
 
     // 2. Prices — parallel fetch per symbol
     const allData = {};
@@ -1631,19 +1630,13 @@ async function loadAll() {
       }
     }
 
-    // 3. Flujo del dinero + heatmap
+    // 3. Global data ready
     flowAllData = allData;
     flowSectors = currentSectors;
-    renderFlow(flowSectors, flowAllData, flowCurrentTf);
-    renderHeatmap(flowSectors, flowAllData, flowCurrentTf);
 
-    // 3b. Actualizar vista empresas + Market Vision con datos reales
+    // 3b. Render views with real data
     renderCompaniesView(companiesCurrentTf);
-    renderMV2();
-
-    // 4. Daily Brief + Highlights
-    renderBrief(flowSectors, allData);
-    updateHighlights(allData);
+    renderGlobalMarketMap();
 
     // 5. Info bar
     updateInfoBar(metadata.length, loadedCount, newestDate);
@@ -2202,6 +2195,85 @@ function setupCompanyModal() {
 }
 
 // ================================================================
+// GLOBAL MARKET MAP — mapa mundial de indices principales
+// ================================================================
+const GLOBAL_INDICES = [
+  { region: 'usa', indices: [
+    { name: 'S&P 500',    level: 7126,  etfProxy: 'SPY', mockPct: 1.20 },
+    { name: 'Nasdaq 100', level: 24468, etfProxy: 'QQQ', mockPct: 1.52 },
+    { name: 'Dow Jones',  level: 49447, etfProxy: null,  mockPct: 1.79 },
+  ]},
+  { region: 'europe', indices: [
+    { name: 'Euro Stoxx 50', level: 5284,  etfProxy: null, mockPct: 2.10 },
+    { name: 'DAX',           level: 22847, etfProxy: null, mockPct: 2.27 },
+    { name: 'CAC 40',        level: 7894,  etfProxy: null, mockPct: 1.97 },
+  ]},
+  { region: 'china', indices: [
+    { name: 'Hang Seng', level: 23416, etfProxy: null, mockPct: 1.25 },
+    { name: 'CSI 300',   level: 3987,  etfProxy: null, mockPct: 0.62 },
+  ]},
+  { region: 'japan', indices: [
+    { name: 'Nikkei 225', level: 38204, etfProxy: null, mockPct: 0.85 },
+    { name: 'TOPIX',      level: 2764,  etfProxy: null, mockPct: 0.92 },
+  ]},
+  { region: 'india', indices: [
+    { name: 'Nifty 50', level: 22419, etfProxy: null, mockPct: 0.45 },
+    { name: 'Sensex',   level: 73847, etfProxy: null, mockPct: 0.52 },
+  ]},
+];
+const GMM_LABELS = { usa: 'EE.UU', europe: 'Europa', china: 'China', japan: 'Japon', india: 'India' };
+
+function gmmGetPct(idx, tf) {
+  if (idx.etfProxy) {
+    const v = flowAllData[idx.etfProxy]?.changes?.[tf];
+    if (v != null) return Number(v);
+  }
+  return idx.mockPct ?? null;
+}
+function gmmPctSpan(v) {
+  if (v == null) return '<span class="gmm-pct gmm-flat">—</span>';
+  const cls = Math.abs(v) < 0.05 ? 'gmm-flat' : v > 0 ? 'gmm-pos' : 'gmm-neg';
+  return `<span class="gmm-pct ${cls}">${v > 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+}
+function renderGlobalMarketMap() {
+  const tf = companiesCurrentTf;
+  for (const region of GLOBAL_INDICES) {
+    const el = document.getElementById('gmmCard_' + region.region);
+    if (!el) continue;
+    el.innerHTML = region.indices.map(idx => {
+      const pct = gmmGetPct(idx, tf);
+      const lv = idx.level ? idx.level.toLocaleString('en-US') : '';
+      return `<div class="gmm-idx-row">` +
+        `<span class="gmm-idx-name">${idx.name}</span>` +
+        (lv ? `<span class="gmm-idx-level">${lv}</span>` : '') +
+        gmmPctSpan(pct) + `</div>`;
+    }).join('');
+  }
+  const bar = document.getElementById('gmmGlobalBar');
+  if (bar) {
+    const items = [{label:'ACWI',sym:'ACWI'},{label:'WORLD',sym:'URTH'},{label:'EM',sym:'IEMG'}];
+    bar.innerHTML = items.map(it => {
+      const v = flowAllData[it.sym]?.changes?.[tf];
+      return `<span class="gmm-global-item">` +
+        `<span class="gmm-global-sym">${it.label}</span>` +
+        gmmPctSpan(v != null ? Number(v) : null) + `</span>`;
+    }).join('');
+  }
+  const sb = document.getElementById('gmmSidebarList');
+  if (sb) {
+    sb.innerHTML = GLOBAL_INDICES.map(region =>
+      `<div class="gmm-sb-section">` +
+      `<div class="gmm-sb-region">${GMM_LABELS[region.region] || region.region}</div>` +
+      region.indices.map(idx =>
+        `<div class="gmm-sb-row">` +
+        `<span class="gmm-sb-name">${idx.name}</span>` +
+        gmmPctSpan(gmmGetPct(idx, tf)) + `</div>`
+      ).join('') + `</div>`
+    ).join('');
+  }
+}
+
+// ================================================================
 // MARKET VISION v2 — árbol jerárquico Índice → Sector → ETF → Empresa
 // ================================================================
 let mvCurrentTf = 'd1';
@@ -2484,11 +2556,8 @@ function setupViewTabs() {
 // ——— INIT ———
 document.getElementById('refreshBtn').addEventListener('click', loadAll);
 document.getElementById('fetchBtn').addEventListener('click', forceFetch);
-setupViewTabs();
 setupCompaniesView();
-setupMV2();
 setupCompanyModal();
-setupFlowSelector();
 setupModal();
 setupSearch();
 loadAll();

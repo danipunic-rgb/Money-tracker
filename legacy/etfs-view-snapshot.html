@@ -1,0 +1,99 @@
+    <div id="etfsView" style="display:none;">
+
+    <div id="infoBar" class="info-bar" style="display:none;">
+      <div class="left" id="infoLeft"></div>
+      <div class="right" id="infoRight"></div>
+    </div>
+
+    <section class="flow" id="flowSection" style="display:none;">
+      <div class="flow-header">
+        <div class="flow-title">
+          <span class="flow-eyebrow">Flujo del dinero · agregado por sector</span>
+          <h2>¿Hacia dónde va el capital?</h2>
+        </div>
+        <div class="flow-tf-selector" id="flowTfSelector">
+          <button data-tf="d1" class="active">1D</button>
+          <button data-tf="w1">1S</button>
+          <button data-tf="m1">1M</button>
+          <button data-tf="m3">3M</button>
+          <button data-tf="m6">6M</button>
+        </div>
+      </div>
+
+      <div id="flowSummary" class="flow-summary"></div>
+
+      <div class="flow-grid">
+        <div class="flow-col flow-in">
+          <div class="flow-col-label">▲ Entrada de capital</div>
+          <div id="flowIn"></div>
+        </div>
+        <div class="flow-col flow-out">
+          <div class="flow-col-label">▼ Salida de capital</div>
+          <div id="flowOut"></div>
+        </div>
+      </div>
+
+      <div class="flow-disclaimer">
+        <strong>Nota metodológica:</strong> el flujo mostrado es un <em>proxy</em> basado
+        en la variación del precio (adjusted close, promedio simple de los ETFs de cada
+        sector). No refleja los flujos reales de capital (creations/redemptions), que
+        requieren datos de pago. Úsalo como señal de dirección, no como cifra contable.
+      </div>
+    </section>
+
+    <section class="brief" id="briefSection" style="display:none">
+      <span class="brief-eyebrow">Daily Brief · datos objetivos · sin opiniones</span>
+      <div class="brief-narrative" id="briefNarrative"></div>
+      <div class="brief-grid">
+        <div class="brief-col">
+          <div class="brief-col-label">▸ Hoy</div>
+          <div id="briefToday"></div>
+        </div>
+        <div class="brief-col">
+          <div class="brief-col-label">▸ Esta semana</div>
+          <div id="briefWeek"></div>
+        </div>
+        <div class="brief-col">
+          <div class="brief-col-label">▸ Este mes</div>
+          <div id="briefMonth"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="heatmap" id="heatmapSection">
+      <div class="heatmap-header">
+        <div>
+          <span class="flow-eyebrow">Mapa de calor</span>
+          <h2 style="font-family:var(--font-serif);font-weight:500;font-size:22px;letter-spacing:-0.015em">Rendimiento por ETF</h2>
+        </div>
+        <span style="font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--text-muted)">Mismo timeframe que Flujo del Dinero · click para detalle</span>
+      </div>
+      <div class="heatmap-grid" id="heatmapGrid"></div>
+    </section>
+
+    <section class="highlights" style="grid-template-columns:repeat(4,1fr)">
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Hoy · 1D</div>
+        <div id="topDaily"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Semana · 1S</div>
+        <div id="topWeekly"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Mes · 1M</div>
+        <div id="topMonthly"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-label">▸ Trimestre · 3M</div>
+        <div id="topQuarterly"><div class="skeleton" style="width:100%"></div></div>
+      </div>
+    </section>
+
+    <div class="search-bar">
+      <input class="search-input" id="searchInput" type="search" placeholder="Buscar ETF…" autocomplete="off" spellcheck="false">
+      <span class="search-count" id="searchCount"></span>
+    </div>
+    <div id="sectorsContainer"></div>
+
+    </div><!-- /etfsView -->
