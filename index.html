@@ -778,6 +778,44 @@
     .brief-narrative { font-size: 15px; }
     .heatmap, .flow { padding: 20px 16px; }
   }
+
+  /* ================================================================
+     GLOBAL MARKET MAP
+  ================================================================ */
+  #global-market-map { margin: 32px 0; padding: 28px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .gmm-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .gmm-title { font-family: var(--font-serif); font-weight: 500; font-size: 22px; letter-spacing: -0.015em; margin: 2px 0 0; }
+  .gmm-global-bar { display: flex; gap: 20px; align-items: center; }
+  .gmm-global-item { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .gmm-global-sym { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.05em; }
+  .gmm-layout { display: grid; grid-template-columns: 70% 1fr; gap: 24px; align-items: start; }
+  .gmm-map-wrap { position: relative; }
+  .gmm-map-inner { position: relative; width: 100%; }
+  .gmm-svg { width: 100%; height: auto; display: block; border-radius: 3px; }
+  .gmm-card { position: absolute; transform: translateX(-50%); background: rgba(249,247,244,0.95); border: 1px solid var(--border); border-radius: 3px; padding: 6px 9px; min-width: 110px; box-shadow: 0 1px 6px rgba(0,0,0,0.12); }
+  .gmm-card-header { display: flex; align-items: center; gap: 4px; margin-bottom: 5px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .gmm-card-region { font-family: var(--font-sans); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); }
+  .gmm-card-body { display: flex; flex-direction: column; gap: 3px; }
+  .gmm-idx-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .gmm-idx-name { font-family: var(--font-sans); font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+  .gmm-idx-level { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); }
+  .gmm-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .gmm-pos { color: var(--up-strong); }
+  .gmm-neg { color: var(--down-strong); }
+  .gmm-flat { color: var(--text-dim); }
+  .gmm-sidebar { border-left: 1px solid var(--border); padding-left: 20px; }
+  .gmm-sidebar-title { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 10px; }
+  .gmm-sb-section { margin-bottom: 14px; }
+  .gmm-sb-region { font-family: var(--font-sans); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); margin-bottom: 4px; }
+  .gmm-sb-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 2px 0; }
+  .gmm-sb-name { font-family: var(--font-sans); font-size: 11px; color: var(--text-dim); }
+  @media (max-width: 960px) {
+    .gmm-layout { grid-template-columns: 1fr; }
+    .gmm-svg { display: none; }
+    .gmm-map-inner { display: flex; flex-wrap: wrap; gap: 8px; }
+    .gmm-card { position: static; transform: none; flex: 1 1 calc(50% - 4px); }
+  }
+
 </style>
 </head>
 <body>
@@ -804,13 +842,70 @@
       </div>
     </header>
 
-    <!-- Tab navigation -->
-    <nav class="view-tabs">
-      <button class="view-tab active" data-view="companies">Empresas</button>
-      <button class="view-tab" data-view="etfs">ETFs &amp; Sectores</button>
-    </nav>
+    <!-- ====== GLOBAL MARKET MAP ====== -->
+    <section id="global-market-map">
+      <div class="gmm-header-row">
+        <div>
+          <span class="flow-eyebrow">Visión global · índices principales</span>
+          <h2 class="gmm-title">Global Market Map</h2>
+        </div>
+        <div class="gmm-global-bar" id="gmmGlobalBar"></div>
+      </div>
+      <div class="gmm-layout">
+        <div class="gmm-map-wrap">
+          <div class="gmm-map-inner">
+            <svg class="gmm-svg" viewBox="0 0 900 380">
+              <rect width="900" height="380" fill="#dce8f0"/>
+              <g fill="#c9c3b8" stroke="#aaa098" stroke-width="0.6">
+                <path d="M60,20 L180,18 L240,28 L270,55 L265,90 L250,125 L230,160 L205,195 L185,230 L165,270 L145,300 L115,315 L80,305 L55,280 L35,245 L25,200 L30,155 L45,115 L55,75 Z"/>
+                <path d="M185,5 L225,5 L240,20 L235,40 L215,50 L195,45 L180,30 Z"/>
+                <path d="M160,285 L200,275 L230,280 L245,305 L255,340 L245,370 L225,380 L200,375 L175,355 L155,325 L148,300 Z"/>
+                <path d="M335,20 L390,15 L420,25 L440,40 L445,65 L430,85 L410,95 L385,100 L355,95 L330,80 L320,60 L325,35 Z"/>
+                <path d="M340,110 L390,100 L425,110 L445,135 L455,170 L450,215 L435,255 L410,285 L380,300 L350,295 L325,270 L310,230 L305,185 L310,145 L325,120 Z"/>
+                <path d="M450,15 L580,10 L660,20 L700,40 L720,65 L715,100 L700,125 L670,145 L630,155 L580,150 L540,135 L505,115 L475,90 L455,65 L445,40 Z"/>
+                <path d="M540,130 L575,125 L600,135 L615,160 L620,195 L610,225 L590,250 L570,255 L550,240 L535,210 L528,180 L530,155 Z"/>
+                <path d="M630,150 L670,145 L700,155 L715,175 L710,200 L690,215 L665,220 L640,210 L625,190 L622,170 Z"/>
+                <path d="M730,55 L755,50 L765,65 L760,85 L745,90 L730,80 L722,65 Z"/>
+                <path d="M670,255 L740,245 L780,255 L800,280 L800,320 L780,345 L745,355 L705,350 L672,330 L655,300 L655,270 Z"/>
+              </g>
+            </svg>
+            <div class="gmm-card" style="left:15%;top:38%">
+              <div class="gmm-card-header"><span class="gmm-card-region">EE.UU</span></div>
+              <div class="gmm-card-body" id="gmmCard_usa"></div>
+            </div>
+            <div class="gmm-card" style="left:40%;top:20%">
+              <div class="gmm-card-header"><span class="gmm-card-region">Europa</span></div>
+              <div class="gmm-card-body" id="gmmCard_europe"></div>
+            </div>
+            <div class="gmm-card" style="left:72%;top:30%">
+              <div class="gmm-card-header"><span class="gmm-card-region">China</span></div>
+              <div class="gmm-card-body" id="gmmCard_china"></div>
+            </div>
+            <div class="gmm-card" style="left:83%;top:14%">
+              <div class="gmm-card-header"><span class="gmm-card-region">Japón</span></div>
+              <div class="gmm-card-body" id="gmmCard_japan"></div>
+            </div>
+            <div class="gmm-card" style="left:62%;top:46%">
+              <div class="gmm-card-header"><span class="gmm-card-region">India</span></div>
+              <div class="gmm-card-body" id="gmmCard_india"></div>
+            </div>
+          </div>
+        </div>
+        <div class="gmm-sidebar">
+          <div class="gmm-sidebar-title">Todos los índices</div>
+          <div id="gmmSidebarList"></div>
+        </div>
+      </div>
+    </section>
 
-    <!-- ====== COMPANIES VIEW ====== -->
+    <!-- ====== ETF SECTOR TABLES ====== -->
+    <div class="search-bar" style="margin-top:32px">
+      <input class="search-input" id="searchInput" type="search" placeholder="Buscar ETF…" autocomplete="off" spellcheck="false">
+      <span class="search-count" id="searchCount"></span>
+    </div>
+    <div id="sectorsContainer"></div>
+
+    <!-- ====== COMPANIES ====== -->
     <div id="companiesView">
       <div class="companies-header">
         <div>
@@ -841,127 +936,7 @@
         <div class="companies-main" id="companiesMain"></div>
         <aside class="co-etf-panel" id="coEtfPanel"></aside>
       </div>
-      <div id="sectorSidebar" style="display:none"></div>
-
-      <!-- Market Vision v2 — árbol Índice → Sector → ETF → Empresa -->
-      <div class="mv2">
-        <div class="mv2-header">
-          <div>
-            <span class="mv2-eyebrow">Índice → Sector → ETF → Empresa</span>
-            <span class="mv2-title">Market Vision</span>
-          </div>
-          <div class="companies-tf-selector" id="mv2TfSelector">
-            <button data-tf="d1" class="active">1D</button>
-            <button data-tf="w1">1S</button>
-            <button data-tf="m1">1M</button>
-            <button data-tf="m3">3M</button>
-            <button data-tf="m6">6M</button>
-          </div>
-        </div>
-        <div id="mv2Container"></div>
-      </div>
     </div>
-
-    <!-- ====== MERCADO VIEW (ex ETFs & Sectores) ====== -->
-    <div id="etfsView" style="display:none;">
-
-    <div id="infoBar" class="info-bar" style="display:none;">
-      <div class="left" id="infoLeft"></div>
-      <div class="right" id="infoRight"></div>
-    </div>
-
-    <section class="flow" id="flowSection" style="display:none;">
-      <div class="flow-header">
-        <div class="flow-title">
-          <span class="flow-eyebrow">Flujo del dinero · agregado por sector</span>
-          <h2>¿Hacia dónde va el capital?</h2>
-        </div>
-        <div class="flow-tf-selector" id="flowTfSelector">
-          <button data-tf="d1" class="active">1D</button>
-          <button data-tf="w1">1S</button>
-          <button data-tf="m1">1M</button>
-          <button data-tf="m3">3M</button>
-          <button data-tf="m6">6M</button>
-        </div>
-      </div>
-
-      <div id="flowSummary" class="flow-summary"></div>
-
-      <div class="flow-grid">
-        <div class="flow-col flow-in">
-          <div class="flow-col-label">▲ Entrada de capital</div>
-          <div id="flowIn"></div>
-        </div>
-        <div class="flow-col flow-out">
-          <div class="flow-col-label">▼ Salida de capital</div>
-          <div id="flowOut"></div>
-        </div>
-      </div>
-
-      <div class="flow-disclaimer">
-        <strong>Nota metodológica:</strong> el flujo mostrado es un <em>proxy</em> basado
-        en la variación del precio (adjusted close, promedio simple de los ETFs de cada
-        sector). No refleja los flujos reales de capital (creations/redemptions), que
-        requieren datos de pago. Úsalo como señal de dirección, no como cifra contable.
-      </div>
-    </section>
-
-    <section class="brief" id="briefSection" style="display:none">
-      <span class="brief-eyebrow">Daily Brief · datos objetivos · sin opiniones</span>
-      <div class="brief-narrative" id="briefNarrative"></div>
-      <div class="brief-grid">
-        <div class="brief-col">
-          <div class="brief-col-label">▸ Hoy</div>
-          <div id="briefToday"></div>
-        </div>
-        <div class="brief-col">
-          <div class="brief-col-label">▸ Esta semana</div>
-          <div id="briefWeek"></div>
-        </div>
-        <div class="brief-col">
-          <div class="brief-col-label">▸ Este mes</div>
-          <div id="briefMonth"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="heatmap" id="heatmapSection">
-      <div class="heatmap-header">
-        <div>
-          <span class="flow-eyebrow">Mapa de calor</span>
-          <h2 style="font-family:var(--font-serif);font-weight:500;font-size:22px;letter-spacing:-0.015em">Rendimiento por ETF</h2>
-        </div>
-        <span style="font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--text-muted)">Mismo timeframe que Flujo del Dinero · click para detalle</span>
-      </div>
-      <div class="heatmap-grid" id="heatmapGrid"></div>
-    </section>
-
-    <section class="highlights" style="grid-template-columns:repeat(4,1fr)">
-      <div class="highlight-card">
-        <div class="highlight-label">▸ Hoy · 1D</div>
-        <div id="topDaily"><div class="skeleton" style="width:100%"></div></div>
-      </div>
-      <div class="highlight-card">
-        <div class="highlight-label">▸ Semana · 1S</div>
-        <div id="topWeekly"><div class="skeleton" style="width:100%"></div></div>
-      </div>
-      <div class="highlight-card">
-        <div class="highlight-label">▸ Mes · 1M</div>
-        <div id="topMonthly"><div class="skeleton" style="width:100%"></div></div>
-      </div>
-      <div class="highlight-card">
-        <div class="highlight-label">▸ Trimestre · 3M</div>
-        <div id="topQuarterly"><div class="skeleton" style="width:100%"></div></div>
-      </div>
-    </section>
-
-    <div class="search-bar">
-      <input class="search-input" id="searchInput" type="search" placeholder="Buscar ETF…" autocomplete="off" spellcheck="false">
-      <span class="search-count" id="searchCount"></span>
-    </div>
-    <div id="sectorsContainer"></div>
-
-    </div><!-- /etfsView -->
 
     <footer class="footer">
       Backend: <a href="https://supabase.com/dashboard/project/rieyywfkpprgkenljilm" target="_blank">Supabase money-tracker</a> ·
