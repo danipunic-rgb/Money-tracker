@@ -522,87 +522,91 @@
   .companies-tf-selector button:hover { color: var(--text); background: white; }
   .companies-tf-selector button.active { background: var(--text); color: var(--bg); font-weight: 600; }
 
-  /* Layout dos columnas */
-  .companies-layout { display: grid; grid-template-columns: 1fr 230px; gap: 16px; align-items: start; }
+  /* Layout: grid de bloques + sidebar */
+  .companies-layout { display: grid; grid-template-columns: 1fr 218px; gap: 12px; align-items: start; }
+  .companies-main {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+    gap: 7px; align-items: start;
+  }
 
-  /* Sector blocks — ultra compactos */
+  /* Sector blocks */
   .sector-block {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 2px; margin-bottom: 8px; overflow: hidden;
-    opacity: 0; animation: fadeUp 0.3s ease-out forwards;
+    border-radius: 2px; overflow: hidden;
+    opacity: 0; animation: fadeUp 0.28s ease-out forwards;
   }
   .sector-block.filtered-out { display: none; }
   .sector-block-header {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 10px; background: #f9f8f7;
-    border-bottom: 1px solid var(--border); cursor: pointer;
-    user-select: none;
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 8px; background: #f8f7f5;
+    border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
   }
-  .sector-block-header:hover { background: #f4f3f1; }
-  .sector-block-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sector-block-header:hover { background: #f1f0ee; }
+  .sector-block-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .sector-block-name {
-    font-family: var(--font-mono); font-weight: 600; font-size: 11px;
-    letter-spacing: 0.08em; text-transform: uppercase; flex: 1; color: var(--text);
+    font-family: var(--font-mono); font-weight: 700; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase; flex: 1; color: var(--text);
   }
-  .sector-block-change { font-family: var(--font-mono); font-weight: 700; font-size: 12px; }
-  .sector-block-count { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+  .sector-block-change { font-family: var(--font-mono); font-weight: 700; font-size: 11px; }
+  .sector-block-count  { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); margin-left: 2px; }
 
-  /* Tabla ultra compacta — sin thead */
+  /* Tabla ultra-compacta con thead */
   .co-table { width: 100%; border-collapse: collapse; }
-  .co-table tbody tr {
+  .co-table thead th {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim);
+    padding: 3px 4px; text-align: right; background: #fdfcfb;
     border-bottom: 1px solid var(--border-soft);
-    transition: background 0.08s; cursor: pointer;
   }
+  .co-table thead th.al { text-align: left; }
+  .co-table tbody tr { border-bottom: 1px solid var(--border-soft); transition: background 0.07s; cursor: pointer; }
   .co-table tbody tr:last-child { border-bottom: none; }
-  .co-table tbody tr:hover { background: #f9f8f7; }
-  .co-table tbody tr.anomaly-row-high { background: rgba(185,28,28,0.055); }
-  .co-table tbody tr.anomaly-row-high:hover { background: rgba(185,28,28,0.1); }
-  .co-table tbody tr.anomaly-row-mid { background: rgba(161,98,7,0.04); }
-  .co-table td { padding: 5px 8px; font-family: var(--font-mono); font-size: 12px; text-align: right; white-space: nowrap; }
-  .col-cotick { width: 60px; text-align: left !important; }
-  .col-cov    { width: 66px; }
-  .col-coanom { width: 84px; }
-  .co-ticker { font-weight: 700; font-size: 12px; color: var(--text); letter-spacing: 0.02em; }
+  .co-table tbody tr:hover { background: #f7f6f4; }
+  .co-table td { padding: 3px 4px; font-family: var(--font-mono); font-size: 11px; text-align: right; white-space: nowrap; }
+  .col-cotick { width: 50px; text-align: left !important; }
+  .col-tf     { width: 42px; }
+  .col-coanom { width: 54px; }
+  .co-ticker  { font-weight: 700; font-size: 11px; color: var(--text); }
 
-  /* Δ sector — texto inline sin caja */
-  .vs-high-up   { color: var(--up-strong);   font-weight: 700; }
-  .vs-high-down { color: var(--down-strong); font-weight: 700; }
-  .vs-mid-up    { color: #16a34a; font-weight: 500; }
-  .vs-mid-down  { color: #dc2626; font-weight: 500; }
-  .vs-low       { color: var(--text-dim); font-size: 11px; }
+  /* Δ sector — solo tipografía, sin fondos */
+  .vs-high-up   { color: var(--up-strong);   font-weight: 800; }
+  .vs-high-down { color: var(--down-strong); font-weight: 800; }
+  .vs-mid-up    { color: #16a34a; }
+  .vs-mid-down  { color: #dc2626; }
+  .vs-low       { color: var(--text-dim); font-size: 10px; }
 
-  /* Sidebar ETFs */
+  /* Sidebar con ETFs */
   .sector-sidebar {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 2px; overflow: hidden; position: sticky; top: 16px;
+    border-radius: 2px; overflow: hidden; position: sticky; top: 14px;
+    max-height: calc(100vh - 120px); overflow-y: auto;
   }
   .sector-sidebar-title {
-    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em;
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em;
     text-transform: uppercase; color: var(--text-muted);
-    padding: 8px 12px; border-bottom: 1px solid var(--border); background: #fafaf9;
+    padding: 7px 10px; border-bottom: 1px solid var(--border); background: #fafaf9;
+    position: sticky; top: 0; z-index: 1;
   }
   .sb-sector {
     border-bottom: 1px solid var(--border-soft); border-left: 2px solid transparent;
-    transition: background 0.1s; cursor: pointer;
+    transition: background 0.08s; cursor: pointer;
   }
   .sb-sector:last-child { border-bottom: none; }
-  .sb-sector:hover { background: #f7f6f4; }
-  .sb-sector.sb-active { border-left-color: var(--text); background: #f5f4f2; }
-  .sb-sector-head {
-    display: flex; align-items: center; gap: 7px;
-    padding: 7px 12px 5px;
-  }
-  .sb-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .sb-name { font-family: var(--font-sans); font-size: 12px; font-weight: 500; flex: 1; color: var(--text); }
+  .sb-sector:hover { background: #f6f5f3; }
+  .sb-sector.sb-active { border-left-color: var(--text); background: #f3f2f0; }
+  .sb-sector-head { display: flex; align-items: center; gap: 6px; padding: 6px 10px 4px; }
+  .sb-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .sb-name { font-family: var(--font-sans); font-size: 11px; font-weight: 600; flex: 1; color: var(--text); }
   .sb-pct  { font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
-  .sb-etfs { padding: 0 12px 6px 26px; display: flex; flex-direction: column; gap: 2px; }
+  .sb-etfs { padding: 0 10px 5px 22px; display: flex; flex-direction: column; gap: 1px; }
   .sb-etf-row {
-    display: grid; grid-template-columns: 36px 1fr 48px;
-    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
-    align-items: baseline;
+    display: grid; grid-template-columns: 34px 38px 40px;
+    font-family: var(--font-mono); font-size: 10px;
+    align-items: baseline; gap: 2px;
   }
-  .sb-etf-sym { font-weight: 600; color: var(--text); }
-  .sb-etf-pct { text-align: right; }
+  .sb-etf-sym   { font-weight: 700; color: var(--text); }
+  .sb-etf-pct   { text-align: right; }
   .sb-etf-price { text-align: right; color: var(--text-dim); }
 
   /* ——— COMPANY MODAL ——— */
@@ -690,7 +694,7 @@
       <div class="companies-header">
         <div>
           <div class="companies-title">Holdings <span class="mock-badge">Demo</span></div>
-          <div class="companies-subtitle">Agrupado por sector · ordenado por anomalía · click para detalle</div>
+          <div class="companies-subtitle">1D · 1S · 1M siempre visibles · Δ calculado en el timeframe seleccionado</div>
         </div>
         <div class="companies-tf-selector" id="companiesTfSelector">
           <button data-tf="d1" class="active">1D</button>
@@ -1629,11 +1633,21 @@ function computeSectorChange(sectorId, tf) {
   return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
 
+// Formato corto sin símbolo %: "+2.6", "-1.2"
+function fmtShort(v) {
+  if (v == null || isNaN(v)) return '—';
+  return (v > 0 ? '+' : '') + v.toFixed(1);
+}
+function colorFor(v) {
+  if (v == null || Math.abs(v) < 0.05) return 'var(--text-dim)';
+  return v > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+}
+
 function vsSectorCell(anomaly) {
   if (anomaly == null) return '<span class="vs-low">—</span>';
   const abs = Math.abs(anomaly);
   const sign = anomaly > 0 ? '+' : '';
-  const val = `${sign}${anomaly.toFixed(2)}%`;
+  const val = `${sign}${anomaly.toFixed(1)}`;
   if (abs > 3) return `<span class="${anomaly > 0 ? 'vs-high-up' : 'vs-high-down'}">${val}</span>`;
   if (abs > 1) return `<span class="${anomaly > 0 ? 'vs-mid-up' : 'vs-mid-down'}">${val}</span>`;
   return `<span class="vs-low">${val}</span>`;
@@ -1642,6 +1656,10 @@ function vsSectorCell(anomaly) {
 function renderSectorSidebar(sortedSids, sectorData, tf) {
   const sidebar = document.getElementById('sectorSidebar');
   if (!sidebar) return;
+
+  // Build etf name map from live sectors + static etfs.json fallback
+  const etfNames = {};
+  for (const s of flowSectors) for (const e of s.etfs) etfNames[e.symbol] = e.name;
 
   const html = sortedSids.map(sid => {
     const s = sectorData[sid];
@@ -1655,9 +1673,10 @@ function renderSectorSidebar(sortedSids, sectorData, tf) {
       const p = d?.changes?.[tf];
       const price = d?.price;
       const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
-      return `<div class="sb-etf-row">
+      const fullName = etfNames[sym] || sym;
+      return `<div class="sb-etf-row" title="${fullName}">
         <span class="sb-etf-sym">${sym}</span>
-        <span class="sb-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}</span>
+        <span class="sb-etf-pct" style="color:${pColor}">${p != null ? fmtShort(p) : '—'}</span>
         <span class="sb-etf-price">${price != null ? price.toFixed(0) : '—'}</span>
       </div>`;
     }).join('');
@@ -1672,7 +1691,7 @@ function renderSectorSidebar(sortedSids, sectorData, tf) {
     </div>`;
   }).join('');
 
-  sidebar.innerHTML = `<div class="sector-sidebar-title">ETFs por sector</div>${html}`;
+  sidebar.innerHTML = `<div class="sector-sidebar-title">Sector · ETFs</div>${html}`;
 
   sidebar.querySelectorAll('.sb-sector').forEach(el => {
     el.addEventListener('click', () => {
@@ -1687,6 +1706,7 @@ function renderSectorBlocks(sortedSids, grouped, sectorData) {
   const main = document.getElementById('companiesMain');
   if (!main) return;
   let html = '';
+
   sortedSids.forEach((sid, i) => {
     const s = sectorData[sid];
     const companies = grouped[sid] ?? [];
@@ -1694,40 +1714,49 @@ function renderSectorBlocks(sortedSids, grouped, sectorData) {
     const hidden = companiesActiveSector && companiesActiveSector !== sid ? ' filtered-out' : '';
     const pctStr = s.change != null ? fmtPct(s.change) : '—';
     const pctColor = s.change == null ? 'var(--text-dim)' : s.change > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+    const deltaLabel = { d1:'Δ 1D', w1:'Δ 1S', m1:'Δ 1M' }[companiesCurrentTf] ?? 'Δ';
 
     const rows = companies.map(co => {
-      const abs = Math.abs(co.anomaly ?? 0);
-      const rowCls = co.anomaly != null && abs > 3 ? ' anomaly-row-high' : abs > 1 ? ' anomaly-row-mid' : '';
-      const coColor = co.coChange == null ? 'var(--text-dim)' : co.coChange > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
-      return `<tr class="${rowCls}" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}">
+      const d1 = getCoVar(co, 'd1');
+      const w1 = getCoVar(co, 'w1');
+      const m1 = getCoVar(co, 'm1');
+      return `<tr data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}" title="${co.name}">
         <td class="col-cotick"><span class="co-ticker">${co.ticker}</span></td>
-        <td class="col-cov" style="color:${coColor};font-weight:600">${fmtPct(co.coChange)}</td>
+        <td class="col-tf" style="color:${colorFor(d1)}">${fmtShort(d1)}</td>
+        <td class="col-tf" style="color:${colorFor(w1)}">${fmtShort(w1)}</td>
+        <td class="col-tf" style="color:${colorFor(m1)}">${fmtShort(m1)}</td>
         <td class="col-coanom">${vsSectorCell(co.anomaly)}</td>
       </tr>`;
     }).join('');
 
-    html += `<div class="sector-block${hidden}" style="animation-delay:${i * 0.05}s" data-sid="${sid}">
+    html += `<div class="sector-block${hidden}" style="animation-delay:${i * 0.04}s" data-sid="${sid}">
       <div class="sector-block-header" data-sid="${sid}">
         <span class="sector-block-dot" style="background:${s.color}"></span>
         <span class="sector-block-name">${s.name}</span>
         <span class="sector-block-change" style="color:${pctColor}">${pctStr}</span>
-        <span class="sector-block-count">${companies.length} co.</span>
+        <span class="sector-block-count">${companies.length}co</span>
       </div>
-      <table class="co-table"><tbody>${rows}</tbody></table>
+      <table class="co-table">
+        <thead><tr>
+          <th class="al col-cotick">Ticker</th>
+          <th class="col-tf">1D</th>
+          <th class="col-tf">1S</th>
+          <th class="col-tf">1M</th>
+          <th class="col-coanom">${deltaLabel}</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
   });
 
   main.innerHTML = html || '<div style="padding:28px;font-family:var(--font-serif);font-style:italic;color:var(--text-dim)">Sin datos disponibles.</div>';
 
-  // Click en header → toggle filtro
-  main.querySelectorAll('.sector-block-header').forEach(hdr => {
+  main.querySelectorAll('.sector-block-header[data-sid]').forEach(hdr => {
     hdr.addEventListener('click', () => {
-      const sid = hdr.dataset.sid;
-      companiesActiveSector = companiesActiveSector === sid ? null : sid;
+      companiesActiveSector = companiesActiveSector === hdr.dataset.sid ? null : hdr.dataset.sid;
       renderCompaniesView(companiesCurrentTf);
     });
   });
-  // Click en fila → modal
   main.querySelectorAll('tr[data-ticker]').forEach(row => {
     row.addEventListener('click', () => openCompanyModal(row.dataset.ticker, row.dataset.name));
   });
