@@ -525,7 +525,7 @@
   /* Layout: 4-col grid + panel ETFs */
   .co-layout {
     display: grid;
-    grid-template-columns: 1fr 260px;
+    grid-template-columns: 1fr 280px;
     gap: 12px;
     align-items: start;
   }
@@ -533,7 +533,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     column-gap: 8px;
-    row-gap: 16px;
+    row-gap: 0;
   }
 
   /* Sector strip */
@@ -635,21 +635,17 @@
     min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .co-etf-sym { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text); flex-shrink: 0; }
-  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 600; flex-shrink: 0; text-align: right; display: flex; align-items: center; gap: 2px; }
-  .co-etf-marker { font-size: 9px; font-weight: 700; }
-  .co-etf-best  { color: var(--up-strong); }
-  .co-etf-worst { color: var(--down-strong); }
+  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 600; flex-shrink: 0; text-align: right; }
 
-  /* Extremos por sector — solo tipografía */
-  .co-row-best .co-pct  { font-weight: 800; color: var(--up-strong) !important; }
-  .co-row-best .co-tick { font-weight: 800; color: var(--up-strong); }
+  /* Extremos por sector — SOLO el porcentaje cambia de color, ticker siempre neutro */
+  .co-row-best .co-pct   { font-weight: 800; color: var(--up-strong) !important; }
   .co-row-worst .co-pct  { font-weight: 800; color: #991b1b !important; }
-  .co-row-worst .co-tick { font-weight: 800; color: #991b1b; }
 
   /* Bloque de sector */
   .sector-block {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 2px; overflow: hidden;
+    margin-bottom: 12px;
     opacity: 0; animation: fadeUp 0.26s ease-out forwards;
   }
   .sector-block.filtered-out { display: none; }
@@ -679,12 +675,8 @@
     display: flex; align-items: baseline; gap: 4px;
     min-width: 0; flex: 1; overflow: hidden;
   }
-  .co-name {
-    font-family: var(--font-sans); font-size: 11px; color: var(--text-muted);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 90px; flex-shrink: 1;
-  }
-  .co-tick { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+  .co-name { font-family: var(--font-sans); font-size: 11px; color: var(--text-muted) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; flex-shrink: 1; }
+  .co-tick { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text) !important; flex-shrink: 0; }
   .co-pct  { font-family: var(--font-mono); font-size: 11px; font-weight: 600; flex-shrink: 0; }
 
   /* Sidebar (oculto en esta vista, lógica preservada) */
@@ -1680,53 +1672,94 @@ const ETF_SHORT_NAMES = {
 
 // Empresas mock — mcap: rango dentro del sector (1 = mayor market cap)
 const MOCK_COMPANIES = [
-  // Tecnología
-  { ticker:'AAPL', name:'Apple Inc.',            sector_id:'technology',  etfs:['XLK','QQQ'],       mcap:1, d1: 0.82, w1: 2.15, m1: -3.4, ytd: -5.2, y1: -8.3,  y2: 15.4 },
-  { ticker:'MSFT', name:'Microsoft Corp.',        sector_id:'technology',  etfs:['XLK','QQQ'],       mcap:2, d1: 1.14, w1: 3.22, m1:  5.1, ytd:  8.4, y1: 12.6,  y2: 28.2 },
-  { ticker:'NVDA', name:'NVIDIA Corp.',           sector_id:'technology',  etfs:['SMH','QQQ'],       mcap:3, d1: 2.67, w1: 8.43, m1: 18.2, ytd: 22.5, y1: 38.4,  y2:145.2 },
-  { ticker:'META', name:'Meta Platforms',         sector_id:'technology',  etfs:['QQQ'],             mcap:4, d1: 1.38, w1: 4.10, m1:  9.3, ytd: 14.2, y1: 22.8,  y2: 72.4 },
-  { ticker:'AVGO', name:'Broadcom Inc.',          sector_id:'technology',  etfs:['XLK','SMH'],       mcap:5, d1: 0.55, w1:-1.20, m1: -2.1, ytd: -3.8, y1: -2.4,  y2: 42.8 },
-  { ticker:'AMD',  name:'Advanced Micro Devices', sector_id:'technology',  etfs:['SMH'],             mcap:6, d1: 4.22, w1: 9.10, m1: 21.5, ytd: 28.4, y1:-18.6,  y2: 22.4 },
-  { ticker:'INTC', name:'Intel Corp.',            sector_id:'technology',  etfs:['SMH','XLK'],       mcap:7, d1:-2.10, w1:-4.80, m1:-12.3, ytd:-18.2, y1:-32.4,  y2:-52.8 },
-  // Energía
-  { ticker:'XOM',  name:'Exxon Mobil Corp.',      sector_id:'energy',      etfs:['XLE'],             mcap:1, d1:-0.44, w1:-1.20, m1: -4.2, ytd: -6.8, y1:  4.2,  y2: 18.6 },
-  { ticker:'CVX',  name:'Chevron Corp.',          sector_id:'energy',      etfs:['XLE'],             mcap:2, d1:-0.82, w1:-2.10, m1: -5.8, ytd: -8.4, y1:  2.1,  y2: 15.2 },
-  { ticker:'NEE',  name:'NextEra Energy',         sector_id:'energy',      etfs:['ICLN'],            mcap:3, d1: 0.43, w1: 1.05, m1:  2.1, ytd:  3.4, y1: -5.2,  y2:  8.8 },
-  { ticker:'ENPH', name:'Enphase Energy',         sector_id:'energy',      etfs:['ICLN'],            mcap:4, d1:-3.20, w1:-8.50, m1:-18.4, ytd:-24.5, y1:-42.8,  y2:-68.4 },
-  { ticker:'CCJ',  name:'Cameco Corp.',           sector_id:'energy',      etfs:['URA'],             mcap:5, d1: 3.15, w1: 7.40, m1: 15.2, ytd: 18.5, y1: 28.4,  y2: 82.5 },
-  // Financieros
-  { ticker:'JPM',  name:'JPMorgan Chase',         sector_id:'financials',  etfs:['XLF','KBE'],       mcap:1, d1: 0.92, w1: 2.40, m1:  6.5, ytd:  9.8, y1: 18.4,  y2: 42.8 },
-  { ticker:'BAC',  name:'Bank of America',        sector_id:'financials',  etfs:['XLF','KRE','KBE'], mcap:2, d1: 1.34, w1: 3.10, m1:  8.2, ytd: 12.4, y1: 14.2,  y2: 28.6 },
-  { ticker:'WFC',  name:'Wells Fargo & Co.',      sector_id:'financials',  etfs:['XLF','KBE'],       mcap:3, d1:-0.55, w1: 0.80, m1:  3.4, ytd:  5.2, y1:  8.8,  y2: 32.4 },
-  { ticker:'GS',   name:'Goldman Sachs',          sector_id:'financials',  etfs:['XLF'],             mcap:4, d1: 1.88, w1: 4.20, m1: 11.3, ytd: 15.8, y1: 22.4,  y2: 48.2 },
-  { ticker:'USB',  name:'U.S. Bancorp',           sector_id:'financials',  etfs:['KRE','KBE'],       mcap:5, d1:-1.20, w1:-2.80, m1: -4.1, ytd: -5.8, y1: -8.4,  y2:-12.8 },
-  // Salud
-  { ticker:'UNH',  name:'UnitedHealth Group',     sector_id:'healthcare',  etfs:['XLV'],             mcap:1, d1:-4.20, w1:-9.50, m1:-22.1, ytd:-32.4, y1:-42.8,  y2:-28.5 },
-  { ticker:'LLY',  name:'Eli Lilly & Co.',        sector_id:'healthcare',  etfs:['XLV'],             mcap:2, d1:-2.45, w1:-6.80, m1:-14.2, ytd:-18.5, y1: 24.8,  y2: 88.4 },
-  { ticker:'ABBV', name:'AbbVie Inc.',            sector_id:'healthcare',  etfs:['XLV'],             mcap:3, d1: 0.34, w1: 0.90, m1:  2.8, ytd:  4.2, y1: 12.8,  y2: 38.5 },
-  { ticker:'REGN', name:'Regeneron Pharma.',      sector_id:'healthcare',  etfs:['IBB'],             mcap:4, d1: 1.10, w1: 2.60, m1:  5.9, ytd:  8.4, y1: 18.2,  y2: 24.8 },
-  { ticker:'MRNA', name:'Moderna Inc.',           sector_id:'healthcare',  etfs:['IBB','XBI'],       mcap:5, d1: 5.60, w1:12.30, m1: 28.4, ytd: 32.8, y1:-28.4,  y2:-48.2 },
-  // Defensa
-  { ticker:'RTX',  name:'RTX Corp.',              sector_id:'defense',     etfs:['ITA','XAR'],       mcap:1, d1:-0.21, w1: 0.65, m1:  4.2, ytd:  6.8, y1: 14.2,  y2: 28.4 },
-  { ticker:'LMT',  name:'Lockheed Martin',        sector_id:'defense',     etfs:['ITA','XAR'],       mcap:2, d1: 0.34, w1: 1.82, m1:  6.7, ytd:  9.4, y1: 18.8,  y2: 32.5 },
-  { ticker:'NOC',  name:'Northrop Grumman',       sector_id:'defense',     etfs:['ITA','XAR'],       mcap:3, d1: 0.78, w1: 2.40, m1:  8.1, ytd: 11.8, y1: 22.4,  y2: 38.2 },
-  { ticker:'BA',   name:'Boeing Co.',             sector_id:'defense',     etfs:['ITA','XAR'],       mcap:4, d1:-1.12, w1:-3.45, m1: -8.6, ytd:-12.8, y1:-22.4,  y2:-38.5 },
-  // Inmobiliario
-  { ticker:'AMT',  name:'American Tower Corp.',   sector_id:'real_estate', etfs:['VNQ'],             mcap:1, d1: 0.44, w1:-0.87, m1: -1.4, ytd: -2.4, y1: -4.8,  y2: -8.2 },
-  { ticker:'PLD',  name:'Prologis Inc.',          sector_id:'real_estate', etfs:['VNQ'],             mcap:2, d1:-0.68, w1:-2.10, m1: -5.2, ytd: -7.8, y1:-12.4,  y2: -5.8 },
-  { ticker:'EQIX', name:'Equinix Inc.',           sector_id:'real_estate', etfs:['VNQ'],             mcap:3, d1: 0.92, w1: 1.34, m1:  3.1, ytd:  4.8, y1:  8.2,  y2: 18.4 },
-  { ticker:'SPG',  name:'Simon Property Group',   sector_id:'real_estate', etfs:['VNQ'],             mcap:4, d1:-0.30, w1:-1.20, m1: -2.8, ytd: -4.2, y1: -2.8,  y2: 12.5 },
-  // Consumo
-  { ticker:'AMZN', name:'Amazon.com Inc.',        sector_id:'consumer',    etfs:['XLY'],             mcap:1, d1: 1.55, w1: 3.88, m1:  7.4, ytd: 10.8, y1: 22.4,  y2: 48.2 },
-  { ticker:'WMT',  name:'Walmart Inc.',           sector_id:'consumer',    etfs:['XLP'],             mcap:2, d1: 0.48, w1: 1.20, m1:  4.5, ytd:  6.8, y1: 14.2,  y2: 38.5 },
-  { ticker:'MCD',  name:"McDonald's Corp.",       sector_id:'consumer',    etfs:['XLY','XLP'],       mcap:3, d1:-0.15, w1:-0.40, m1:  0.9, ytd:  1.4, y1:  2.8,  y2:  8.4 },
-  { ticker:'KO',   name:'Coca-Cola Co.',          sector_id:'consumer',    etfs:['XLP'],             mcap:4, d1: 0.22, w1: 0.55, m1:  1.8, ytd:  2.8, y1:  4.2,  y2: 12.8 },
-  { ticker:'TSLA', name:'Tesla Inc.',             sector_id:'consumer',    etfs:['XLY'],             mcap:5, d1:-2.34, w1:-7.22, m1:-14.8, ytd:-20.8, y1:-28.4,  y2:-48.2 },
-  // Crypto
-  { ticker:'COIN', name:'Coinbase Global',        sector_id:'crypto',      etfs:['IBIT','BITO'],     mcap:1, d1: 3.22, w1:11.40, m1: 22.5, ytd: 28.4, y1: 42.8,  y2:-52.4 },
-  { ticker:'MSTR', name:'MicroStrategy Inc.',     sector_id:'crypto',      etfs:['IBIT'],            mcap:2, d1: 4.15, w1:14.80, m1: 31.2, ytd: 42.8, y1: 68.4,  y2:145.2 },
-  { ticker:'MARA', name:'Marathon Digital',       sector_id:'crypto',      etfs:['BITO'],            mcap:3, d1: 2.55, w1: 8.20, m1: 19.4, ytd: 24.5, y1: 38.4,  y2:-42.8 },
-  { ticker:'RIOT', name:'Riot Platforms',         sector_id:'crypto',      etfs:['BITO'],            mcap:4, d1:-1.88, w1:-5.40, m1:-12.3, ytd:-18.4, y1:-28.5,  y2:-52.8 },
+  // Tecnología (10)
+  { ticker:'AAPL', name:'Apple Inc.',            sector_id:'technology',  etfs:['XLK','QQQ'],       mcap: 1, d1: 0.82, w1: 2.15, m1: -3.4, ytd: -5.2, y1: -8.3,  y2: 15.4 },
+  { ticker:'MSFT', name:'Microsoft Corp.',        sector_id:'technology',  etfs:['XLK','QQQ'],       mcap: 2, d1: 1.14, w1: 3.22, m1:  5.1, ytd:  8.4, y1: 12.6,  y2: 28.2 },
+  { ticker:'NVDA', name:'NVIDIA Corp.',           sector_id:'technology',  etfs:['SMH','QQQ'],       mcap: 3, d1: 2.67, w1: 8.43, m1: 18.2, ytd: 22.5, y1: 38.4,  y2:145.2 },
+  { ticker:'META', name:'Meta Platforms',         sector_id:'technology',  etfs:['QQQ'],             mcap: 4, d1: 1.38, w1: 4.10, m1:  9.3, ytd: 14.2, y1: 22.8,  y2: 72.4 },
+  { ticker:'AVGO', name:'Broadcom Inc.',          sector_id:'technology',  etfs:['XLK','SMH'],       mcap: 5, d1: 0.55, w1:-1.20, m1: -2.1, ytd: -3.8, y1: -2.4,  y2: 42.8 },
+  { ticker:'AMD',  name:'AMD',                    sector_id:'technology',  etfs:['SMH'],             mcap: 6, d1: 4.22, w1: 9.10, m1: 21.5, ytd: 28.4, y1:-18.6,  y2: 22.4 },
+  { ticker:'INTC', name:'Intel Corp.',            sector_id:'technology',  etfs:['SMH','XLK'],       mcap: 7, d1:-2.10, w1:-4.80, m1:-12.3, ytd:-18.2, y1:-32.4,  y2:-52.8 },
+  { ticker:'GOOGL',name:'Alphabet Inc.',          sector_id:'technology',  etfs:['QQQ'],             mcap: 8, d1: 0.94, w1: 2.40, m1:  4.8, ytd:  7.2, y1: 18.5,  y2: 35.4 },
+  { ticker:'ORCL', name:'Oracle Corp.',           sector_id:'technology',  etfs:['XLK','QQQ'],       mcap: 9, d1: 1.22, w1: 3.10, m1:  8.5, ytd: 12.4, y1: 28.2,  y2: 58.4 },
+  { ticker:'ADBE', name:'Adobe Inc.',             sector_id:'technology',  etfs:['XLK','QQQ'],       mcap:10, d1:-1.05, w1:-2.80, m1: -8.2, ytd:-11.4, y1:-22.5,  y2:-18.8 },
+  // Energía (10)
+  { ticker:'XOM',  name:'Exxon Mobil',            sector_id:'energy',      etfs:['XLE'],             mcap: 1, d1:-0.44, w1:-1.20, m1: -4.2, ytd: -6.8, y1:  4.2,  y2: 18.6 },
+  { ticker:'CVX',  name:'Chevron Corp.',          sector_id:'energy',      etfs:['XLE'],             mcap: 2, d1:-0.82, w1:-2.10, m1: -5.8, ytd: -8.4, y1:  2.1,  y2: 15.2 },
+  { ticker:'NEE',  name:'NextEra Energy',         sector_id:'energy',      etfs:['ICLN'],            mcap: 3, d1: 0.43, w1: 1.05, m1:  2.1, ytd:  3.4, y1: -5.2,  y2:  8.8 },
+  { ticker:'COP',  name:'ConocoPhillips',         sector_id:'energy',      etfs:['XLE'],             mcap: 4, d1:-0.38, w1:-1.05, m1: -3.8, ytd: -5.2, y1:  2.4,  y2: 22.5 },
+  { ticker:'SLB',  name:'SLB',                    sector_id:'energy',      etfs:['XLE'],             mcap: 5, d1:-0.65, w1:-2.20, m1: -7.2, ytd: -9.4, y1: -8.5,  y2:  8.2 },
+  { ticker:'EOG',  name:'EOG Resources',          sector_id:'energy',      etfs:['XLE'],             mcap: 6, d1: 0.12, w1:-0.85, m1: -2.9, ytd: -4.2, y1:  6.5,  y2: 28.4 },
+  { ticker:'DVN',  name:'Devon Energy',           sector_id:'energy',      etfs:['XLE'],             mcap: 7, d1:-1.20, w1:-3.40, m1: -9.8, ytd:-14.2, y1:-18.5,  y2: 12.5 },
+  { ticker:'ENPH', name:'Enphase Energy',         sector_id:'energy',      etfs:['ICLN'],            mcap: 8, d1:-3.20, w1:-8.50, m1:-18.4, ytd:-24.5, y1:-42.8,  y2:-68.4 },
+  { ticker:'FSLR', name:'First Solar',            sector_id:'energy',      etfs:['ICLN'],            mcap: 9, d1: 2.45, w1: 6.80, m1: 14.2, ytd: 18.5, y1: -5.2,  y2:-28.4 },
+  { ticker:'CCJ',  name:'Cameco Corp.',           sector_id:'energy',      etfs:['URA'],             mcap:10, d1: 3.15, w1: 7.40, m1: 15.2, ytd: 18.5, y1: 28.4,  y2: 82.5 },
+  // Financieros (10)
+  { ticker:'JPM',  name:'JPMorgan Chase',         sector_id:'financials',  etfs:['XLF','KBE'],       mcap: 1, d1: 0.92, w1: 2.40, m1:  6.5, ytd:  9.8, y1: 18.4,  y2: 42.8 },
+  { ticker:'BAC',  name:'Bank of America',        sector_id:'financials',  etfs:['XLF','KRE','KBE'], mcap: 2, d1: 1.34, w1: 3.10, m1:  8.2, ytd: 12.4, y1: 14.2,  y2: 28.6 },
+  { ticker:'WFC',  name:'Wells Fargo',            sector_id:'financials',  etfs:['XLF','KBE'],       mcap: 3, d1:-0.55, w1: 0.80, m1:  3.4, ytd:  5.2, y1:  8.8,  y2: 32.4 },
+  { ticker:'GS',   name:'Goldman Sachs',          sector_id:'financials',  etfs:['XLF'],             mcap: 4, d1: 1.88, w1: 4.20, m1: 11.3, ytd: 15.8, y1: 22.4,  y2: 48.2 },
+  { ticker:'MS',   name:'Morgan Stanley',         sector_id:'financials',  etfs:['XLF'],             mcap: 5, d1: 1.45, w1: 3.85, m1: 10.2, ytd: 14.5, y1: 24.8,  y2: 52.4 },
+  { ticker:'C',    name:'Citigroup',              sector_id:'financials',  etfs:['XLF','KBE'],       mcap: 6, d1: 0.88, w1: 2.20, m1:  5.8, ytd:  8.2, y1: 12.4,  y2: 28.5 },
+  { ticker:'AXP',  name:'American Express',       sector_id:'financials',  etfs:['XLF'],             mcap: 7, d1: 1.22, w1: 3.10, m1:  9.4, ytd: 13.2, y1: 22.8,  y2: 48.2 },
+  { ticker:'BLK',  name:'BlackRock Inc.',         sector_id:'financials',  etfs:['XLF'],             mcap: 8, d1: 1.65, w1: 4.20, m1: 12.8, ytd: 18.4, y1: 32.5,  y2: 68.2 },
+  { ticker:'USB',  name:'U.S. Bancorp',           sector_id:'financials',  etfs:['KRE','KBE'],       mcap: 9, d1:-1.20, w1:-2.80, m1: -4.1, ytd: -5.8, y1: -8.4,  y2:-12.8 },
+  { ticker:'COF',  name:'Capital One',            sector_id:'financials',  etfs:['KRE','KBE'],       mcap:10, d1:-0.88, w1:-2.40, m1: -5.2, ytd: -7.4, y1:  8.5,  y2: 22.4 },
+  // Salud (10)
+  { ticker:'UNH',  name:'UnitedHealth',           sector_id:'healthcare',  etfs:['XLV'],             mcap: 1, d1:-4.20, w1:-9.50, m1:-22.1, ytd:-32.4, y1:-42.8,  y2:-28.5 },
+  { ticker:'LLY',  name:'Eli Lilly',              sector_id:'healthcare',  etfs:['XLV'],             mcap: 2, d1:-2.45, w1:-6.80, m1:-14.2, ytd:-18.5, y1: 24.8,  y2: 88.4 },
+  { ticker:'JNJ',  name:'Johnson & Johnson',      sector_id:'healthcare',  etfs:['XLV'],             mcap: 3, d1: 0.28, w1: 0.65, m1:  1.8, ytd:  2.4, y1:  4.5,  y2: 12.8 },
+  { ticker:'MRK',  name:'Merck & Co.',            sector_id:'healthcare',  etfs:['XLV'],             mcap: 4, d1: 0.62, w1: 1.80, m1:  5.2, ytd:  7.8, y1: 14.5,  y2: 28.4 },
+  { ticker:'ABBV', name:'AbbVie Inc.',            sector_id:'healthcare',  etfs:['XLV'],             mcap: 5, d1: 0.34, w1: 0.90, m1:  2.8, ytd:  4.2, y1: 12.8,  y2: 38.5 },
+  { ticker:'PFE',  name:'Pfizer Inc.',            sector_id:'healthcare',  etfs:['XLV'],             mcap: 6, d1:-0.45, w1:-1.20, m1: -4.2, ytd: -6.5, y1:-18.4,  y2:-32.5 },
+  { ticker:'TMO',  name:'Thermo Fisher',          sector_id:'healthcare',  etfs:['XLV'],             mcap: 7, d1:-0.85, w1:-2.40, m1: -6.8, ytd: -9.5, y1:-12.4,  y2:  8.5 },
+  { ticker:'REGN', name:'Regeneron',              sector_id:'healthcare',  etfs:['IBB'],             mcap: 8, d1: 1.10, w1: 2.60, m1:  5.9, ytd:  8.4, y1: 18.2,  y2: 24.8 },
+  { ticker:'CVS',  name:'CVS Health',             sector_id:'healthcare',  etfs:['XLV'],             mcap: 9, d1:-1.45, w1:-4.20, m1:-11.5, ytd:-15.8, y1:-28.5,  y2:-42.8 },
+  { ticker:'MRNA', name:'Moderna Inc.',           sector_id:'healthcare',  etfs:['IBB','XBI'],       mcap:10, d1: 5.60, w1:12.30, m1: 28.4, ytd: 32.8, y1:-28.4,  y2:-48.2 },
+  // Defensa (10)
+  { ticker:'RTX',  name:'RTX Corp.',              sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 1, d1:-0.21, w1: 0.65, m1:  4.2, ytd:  6.8, y1: 14.2,  y2: 28.4 },
+  { ticker:'LMT',  name:'Lockheed Martin',        sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 2, d1: 0.34, w1: 1.82, m1:  6.7, ytd:  9.4, y1: 18.8,  y2: 32.5 },
+  { ticker:'BA',   name:'Boeing Co.',             sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 3, d1:-1.12, w1:-3.45, m1: -8.6, ytd:-12.8, y1:-22.4,  y2:-38.5 },
+  { ticker:'NOC',  name:'Northrop Grumman',       sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 4, d1: 0.78, w1: 2.40, m1:  8.1, ytd: 11.8, y1: 22.4,  y2: 38.2 },
+  { ticker:'GD',   name:'General Dynamics',       sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 5, d1: 0.45, w1: 1.25, m1:  5.2, ytd:  7.4, y1: 12.8,  y2: 22.5 },
+  { ticker:'HII',  name:'Huntington Ingalls',     sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 6, d1: 0.88, w1: 2.40, m1:  8.5, ytd: 12.2, y1: 18.5,  y2: 34.8 },
+  { ticker:'TDG',  name:'TransDigm Group',        sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 7, d1: 1.22, w1: 3.20, m1: 10.8, ytd: 15.4, y1: 28.5,  y2: 52.4 },
+  { ticker:'LHX',  name:'L3Harris Tech.',         sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 8, d1:-0.35, w1: 0.85, m1:  3.8, ytd:  5.5, y1: 10.2,  y2: 18.4 },
+  { ticker:'AXON', name:'Axon Enterprise',        sector_id:'defense',     etfs:['ITA','XAR'],       mcap: 9, d1: 3.45, w1: 8.20, m1: 22.5, ytd: 32.4, y1: 58.5,  y2:125.8 },
+  { ticker:'CACI', name:'CACI International',     sector_id:'defense',     etfs:['ITA'],             mcap:10, d1: 0.65, w1: 1.85, m1:  6.2, ytd:  8.8, y1: 15.4,  y2: 28.5 },
+  // Inmobiliario (10)
+  { ticker:'AMT',  name:'American Tower',         sector_id:'real_estate', etfs:['VNQ'],             mcap: 1, d1: 0.44, w1:-0.87, m1: -1.4, ytd: -2.4, y1: -4.8,  y2: -8.2 },
+  { ticker:'PLD',  name:'Prologis Inc.',          sector_id:'real_estate', etfs:['VNQ'],             mcap: 2, d1:-0.68, w1:-2.10, m1: -5.2, ytd: -7.8, y1:-12.4,  y2: -5.8 },
+  { ticker:'EQIX', name:'Equinix Inc.',           sector_id:'real_estate', etfs:['VNQ'],             mcap: 3, d1: 0.92, w1: 1.34, m1:  3.1, ytd:  4.8, y1:  8.2,  y2: 18.4 },
+  { ticker:'SPG',  name:'Simon Property',         sector_id:'real_estate', etfs:['VNQ'],             mcap: 4, d1:-0.30, w1:-1.20, m1: -2.8, ytd: -4.2, y1: -2.8,  y2: 12.5 },
+  { ticker:'DLR',  name:'Digital Realty',         sector_id:'real_estate', etfs:['VNQ'],             mcap: 5, d1: 1.05, w1: 2.40, m1:  5.8, ytd:  8.2, y1: 12.5,  y2: 22.4 },
+  { ticker:'O',    name:'Realty Income',          sector_id:'real_estate', etfs:['VNQ'],             mcap: 6, d1:-0.22, w1:-0.65, m1: -1.8, ytd: -2.5, y1: -0.5,  y2:  8.5 },
+  { ticker:'PSA',  name:'Public Storage',         sector_id:'real_estate', etfs:['VNQ'],             mcap: 7, d1:-0.45, w1:-1.20, m1: -3.5, ytd: -4.8, y1: -2.5,  y2: 12.8 },
+  { ticker:'EQR',  name:'Equity Residential',     sector_id:'real_estate', etfs:['VNQ'],             mcap: 8, d1: 0.35, w1: 0.85, m1:  2.4, ytd:  3.5, y1:  4.8,  y2: 18.5 },
+  { ticker:'AVB',  name:'AvalonBay',              sector_id:'real_estate', etfs:['VNQ'],             mcap: 9, d1: 0.28, w1: 0.72, m1:  2.0, ytd:  2.8, y1:  3.5,  y2: 15.2 },
+  { ticker:'WELL', name:'Welltower Inc.',         sector_id:'real_estate', etfs:['VNQ'],             mcap:10, d1: 0.88, w1: 2.20, m1:  6.5, ytd:  9.2, y1: 18.5,  y2: 38.4 },
+  // Consumo (10)
+  { ticker:'AMZN', name:'Amazon.com',             sector_id:'consumer',    etfs:['XLY'],             mcap: 1, d1: 1.55, w1: 3.88, m1:  7.4, ytd: 10.8, y1: 22.4,  y2: 48.2 },
+  { ticker:'WMT',  name:'Walmart Inc.',           sector_id:'consumer',    etfs:['XLP'],             mcap: 2, d1: 0.48, w1: 1.20, m1:  4.5, ytd:  6.8, y1: 14.2,  y2: 38.5 },
+  { ticker:'HD',   name:'Home Depot',             sector_id:'consumer',    etfs:['XLY'],             mcap: 3, d1:-0.35, w1:-0.92, m1: -2.5, ytd: -3.2, y1:  2.5,  y2: 18.5 },
+  { ticker:'MCD',  name:"McDonald's",             sector_id:'consumer',    etfs:['XLY','XLP'],       mcap: 4, d1:-0.15, w1:-0.40, m1:  0.9, ytd:  1.4, y1:  2.8,  y2:  8.4 },
+  { ticker:'KO',   name:'Coca-Cola',              sector_id:'consumer',    etfs:['XLP'],             mcap: 5, d1: 0.22, w1: 0.55, m1:  1.8, ytd:  2.8, y1:  4.2,  y2: 12.8 },
+  { ticker:'TSLA', name:'Tesla Inc.',             sector_id:'consumer',    etfs:['XLY'],             mcap: 6, d1:-2.34, w1:-7.22, m1:-14.8, ytd:-20.8, y1:-28.4,  y2:-48.2 },
+  { ticker:'NKE',  name:'Nike Inc.',              sector_id:'consumer',    etfs:['XLY'],             mcap: 7, d1:-1.22, w1:-3.50, m1:-10.5, ytd:-14.8, y1:-22.5,  y2:-35.4 },
+  { ticker:'SBUX', name:'Starbucks Corp.',        sector_id:'consumer',    etfs:['XLY','XLP'],       mcap: 8, d1:-0.88, w1:-2.40, m1: -6.8, ytd: -9.5, y1:-18.4,  y2:-28.5 },
+  { ticker:'TGT',  name:'Target Corp.',           sector_id:'consumer',    etfs:['XLP'],             mcap: 9, d1: 0.45, w1: 1.20, m1:  3.5, ytd:  4.8, y1: -5.2,  y2: 12.4 },
+  { ticker:'TJX',  name:'TJX Companies',          sector_id:'consumer',    etfs:['XLY'],             mcap:10, d1: 0.65, w1: 1.80, m1:  5.2, ytd:  7.5, y1: 15.8,  y2: 38.5 },
+  // Crypto (10)
+  { ticker:'COIN', name:'Coinbase',               sector_id:'crypto',      etfs:['IBIT','BITO'],     mcap: 1, d1: 3.22, w1:11.40, m1: 22.5, ytd: 28.4, y1: 42.8,  y2:-52.4 },
+  { ticker:'MSTR', name:'MicroStrategy',          sector_id:'crypto',      etfs:['IBIT'],            mcap: 2, d1: 4.15, w1:14.80, m1: 31.2, ytd: 42.8, y1: 68.4,  y2:145.2 },
+  { ticker:'MARA', name:'Marathon Digital',       sector_id:'crypto',      etfs:['BITO'],            mcap: 3, d1: 2.55, w1: 8.20, m1: 19.4, ytd: 24.5, y1: 38.4,  y2:-42.8 },
+  { ticker:'RIOT', name:'Riot Platforms',         sector_id:'crypto',      etfs:['BITO'],            mcap: 4, d1:-1.88, w1:-5.40, m1:-12.3, ytd:-18.4, y1:-28.5,  y2:-52.8 },
+  { ticker:'HUT',  name:'Hut 8 Corp.',            sector_id:'crypto',      etfs:['BITO'],            mcap: 5, d1: 5.22, w1:18.50, m1: 38.5, ytd: 48.2, y1: 85.4,  y2:-65.8 },
+  { ticker:'BITF', name:'Bitfarms Ltd.',          sector_id:'crypto',      etfs:['BITO'],            mcap: 6, d1: 3.85, w1:12.40, m1: 28.5, ytd: 35.8, y1: 62.4,  y2:-48.5 },
+  { ticker:'CLSK', name:'CleanSpark Inc.',        sector_id:'crypto',      etfs:['BITO'],            mcap: 7, d1: 4.20, w1:14.80, m1: 32.5, ytd: 42.8, y1: 72.4,  y2:-55.2 },
+  { ticker:'WULF', name:'TeraWulf Inc.',          sector_id:'crypto',      etfs:['BITO'],            mcap: 8, d1: 6.15, w1:22.40, m1: 45.8, ytd: 58.5, y1:105.4,  y2:-72.5 },
+  { ticker:'IREN', name:'IREN Ltd.',              sector_id:'crypto',      etfs:['BITO'],            mcap: 9, d1: 2.88, w1: 9.50, m1: 20.5, ytd: 26.4, y1: 45.8,  y2:-38.5 },
+  { ticker:'CIFR', name:'Cipher Mining',          sector_id:'crypto',      etfs:['BITO'],            mcap:10, d1:-2.45, w1:-8.20, m1:-18.5, ytd:-24.2, y1:-42.5,  y2:-68.5 },
 ];
 
 let companiesCurrentTf = 'd1';
@@ -1819,26 +1852,15 @@ function renderEtfPanel(sortedSids, sectorData, tf) {
     const pctColor = pctVal == null ? 'var(--text-dim)' : pctVal > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
 
     const etfSyms = (ETF_BY_SECTOR[sid] ?? []).slice(0, 3);
-    const etfEntries = etfSyms.map(sym => {
+    const etfRows = etfSyms.map(sym => {
       const d = flowAllData[sym];
-      const raw = d?.changes?.[tf];
-      return { sym, p: raw != null ? Number(raw) : null };
-    });
-    const withData = etfEntries.filter(e => e.p != null);
-    const bestSym  = withData.length > 1 ? withData.reduce((a, b) => a.p > b.p ? a : b).sym : null;
-    const worstSym = withData.length > 1 ? withData.reduce((a, b) => a.p < b.p ? a : b).sym : null;
-    const etfRows = etfEntries.map(({ sym, p }) => {
+      const p = d?.changes?.[tf] != null ? Number(d.changes[tf]) : null;
       const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
       const fullName = etfNameMap[sym] || sym;
       const shortName = ETF_SHORT_NAMES[sym] || fullName;
-      const marker = sym === bestSym
-        ? '<span class="co-etf-marker co-etf-best">↑</span>'
-        : sym === worstSym
-          ? '<span class="co-etf-marker co-etf-worst">↓</span>'
-          : '';
       return `<div class="co-etf-row" data-sym="${sym}" title="${fullName}">
         <span class="co-etf-label"><span class="co-etf-short">${shortName}</span><span class="co-etf-sym">(${sym})</span></span>
-        <span class="co-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}${marker}</span>
+        <span class="co-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}</span>
       </div>`;
     }).join('');
 
