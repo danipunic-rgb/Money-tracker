@@ -532,8 +532,38 @@
   .companies-main {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    column-gap: 8px;
+    row-gap: 16px;
   }
+
+  /* Sector strip */
+  .co-sector-strip {
+    display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+    padding: 5px 0; margin-bottom: 4px;
+  }
+  .co-sector-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-mono); font-size: 10px;
+    padding: 2px 8px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 2px; cursor: default;
+    white-space: nowrap;
+  }
+  .co-sector-chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .co-sector-chip-name { color: var(--text-muted); }
+  .co-sector-chip-pct { font-weight: 700; }
+
+  /* Search bar */
+  .co-search-bar {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 2px;
+    padding: 0 10px; margin-bottom: 8px;
+  }
+  .co-search-icon { font-size: 13px; color: var(--text-dim); flex-shrink: 0; line-height: 1; }
+  .co-search-input {
+    font-family: var(--font-mono); font-size: 11px; border: none; outline: none;
+    background: transparent; color: var(--text); width: 200px; padding: 6px 0;
+  }
+  .co-search-input::placeholder { color: var(--text-dim); }
 
   /* Top movers bar */
   .co-top-movers {
@@ -605,13 +635,16 @@
     min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .co-etf-sym { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text); flex-shrink: 0; }
-  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 600; flex-shrink: 0; text-align: right; }
+  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 600; flex-shrink: 0; text-align: right; display: flex; align-items: center; gap: 2px; }
+  .co-etf-marker { font-size: 9px; font-weight: 700; }
+  .co-etf-best  { color: var(--up-strong); }
+  .co-etf-worst { color: var(--down-strong); }
 
   /* Extremos por sector — solo tipografía */
   .co-row-best .co-pct  { font-weight: 800; color: var(--up-strong) !important; }
-  .co-row-best .co-tick { font-weight: 800; }
-  .co-row-worst .co-pct  { font-weight: 800; color: #b91c1c !important; }
-  .co-row-worst .co-tick { font-weight: 800; }
+  .co-row-best .co-tick { font-weight: 800; color: var(--up-strong); }
+  .co-row-worst .co-pct  { font-weight: 800; color: #991b1b !important; }
+  .co-row-worst .co-tick { font-weight: 800; color: #991b1b; }
 
   /* Bloque de sector */
   .sector-block {
@@ -746,7 +779,7 @@
     <div id="companiesView">
       <div class="companies-header">
         <div>
-          <div class="companies-title">Holdings <span class="mock-badge">Demo</span></div>
+          <div class="companies-title">Empresas <span class="mock-badge">Demo</span></div>
           <div class="companies-subtitle">Ticker · % variación · selector cambia timeframe global</div>
         </div>
         <div class="companies-tf-selector" id="companiesTfSelector">
@@ -759,6 +792,11 @@
         </div>
       </div>
       <div id="coTopMovers" class="co-top-movers" style="display:none"></div>
+      <div id="coSectorStrip" class="co-sector-strip"></div>
+      <div class="co-search-bar">
+        <span class="co-search-icon">⌕</span>
+        <input type="text" id="coSearchInput" class="co-search-input" placeholder="Buscar empresa o ticker…" autocomplete="off">
+      </div>
       <div class="co-filter-bar">
         <button class="co-filter-btn active" data-filter="all">Todas</button>
         <button class="co-filter-btn" data-filter="positive">Solo positivas</button>
@@ -997,8 +1035,9 @@ function groupBySector(metadata) {
 // FORMATTERS
 // ================================================================
 function fmtPct(v) {
-  if (v == null || isNaN(v)) return '—';
-  return `${v > 0 ? '+' : ''}${v.toFixed(2)}%`;
+  const n = (v == null) ? NaN : Number(v);
+  if (isNaN(n)) return '—';
+  return `${n > 0 ? '+' : ''}${n.toFixed(2)}%`;
 }
 function fmtPrice(v) { return v == null ? '—' : v.toFixed(2); }
 function cls(v) {
@@ -1693,6 +1732,7 @@ const MOCK_COMPANIES = [
 let companiesCurrentTf = 'd1';
 let companiesActiveSector = null;
 let companiesFilter = 'all';
+let companiesSearch = '';
 
 function getCoVar(co, tf) {
   return { d1: co.d1, w1: co.w1, m1: co.m1, ytd: co.ytd, y1: co.y1, y2: co.y2 }[tf] ?? null;
@@ -1710,8 +1750,9 @@ function computeSectorChange(sectorId, tf) {
 
 // Formato corto sin símbolo %: "+2.6", "-1.2"
 function fmtShort(v) {
-  if (v == null || isNaN(v)) return '—';
-  return (v > 0 ? '+' : '') + v.toFixed(1);
+  const n = (v == null) ? NaN : Number(v);
+  if (isNaN(n)) return '—';
+  return (n > 0 ? '+' : '') + n.toFixed(1);
 }
 function colorFor(v) {
   const n = Number(v);
@@ -1727,6 +1768,23 @@ function vsSectorCell(anomaly) {
   if (abs > 3) return `<span class="${anomaly > 0 ? 'vs-high-up' : 'vs-high-down'}">${val}</span>`;
   if (abs > 1) return `<span class="${anomaly > 0 ? 'vs-mid-up' : 'vs-mid-down'}">${val}</span>`;
   return `<span class="vs-low">${val}</span>`;
+}
+
+function renderSectorStrip(sortedSids, sectorData) {
+  const el = document.getElementById('coSectorStrip');
+  if (!el) return;
+  if (!sortedSids.length) { el.innerHTML = ''; return; }
+  el.innerHTML = sortedSids.slice(0, 8).map(sid => {
+    const s = sectorData[sid];
+    const n = s.change != null ? Number(s.change) : null;
+    const color = n == null ? 'var(--text-dim)' : n > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+    const pctStr = n != null ? fmtPct(n) : '—';
+    return `<span class="co-sector-chip" title="${s.name}">
+      <span class="co-sector-chip-dot" style="background:${s.color}"></span>
+      <span class="co-sector-chip-name">${s.name}</span>
+      <span class="co-sector-chip-pct" style="color:${color}">${pctStr}</span>
+    </span>`;
+  }).join('');
 }
 
 function renderTopMovers(enriched, tf) {
@@ -1756,19 +1814,31 @@ function renderEtfPanel(sortedSids, sectorData, tf) {
 
   const html = sortedSids.map(sid => {
     const s = sectorData[sid];
-    const pctVal = s.change;
+    const pctVal = s.change != null ? Number(s.change) : null;
     const pctStr = pctVal != null ? fmtPct(pctVal) : '—';
     const pctColor = pctVal == null ? 'var(--text-dim)' : pctVal > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
 
-    const etfRows = (ETF_BY_SECTOR[sid] ?? []).slice(0, 3).map(sym => {
+    const etfSyms = (ETF_BY_SECTOR[sid] ?? []).slice(0, 3);
+    const etfEntries = etfSyms.map(sym => {
       const d = flowAllData[sym];
-      const p = d?.changes?.[tf];
+      const raw = d?.changes?.[tf];
+      return { sym, p: raw != null ? Number(raw) : null };
+    });
+    const withData = etfEntries.filter(e => e.p != null);
+    const bestSym  = withData.length > 1 ? withData.reduce((a, b) => a.p > b.p ? a : b).sym : null;
+    const worstSym = withData.length > 1 ? withData.reduce((a, b) => a.p < b.p ? a : b).sym : null;
+    const etfRows = etfEntries.map(({ sym, p }) => {
       const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
       const fullName = etfNameMap[sym] || sym;
       const shortName = ETF_SHORT_NAMES[sym] || fullName;
+      const marker = sym === bestSym
+        ? '<span class="co-etf-marker co-etf-best">↑</span>'
+        : sym === worstSym
+          ? '<span class="co-etf-marker co-etf-worst">↓</span>'
+          : '';
       return `<div class="co-etf-row" data-sym="${sym}" title="${fullName}">
-        <span class="co-etf-label"><span class="co-etf-short">${shortName}</span><span class="co-etf-sym">${sym}</span></span>
-        <span class="co-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}</span>
+        <span class="co-etf-label"><span class="co-etf-short">${shortName}</span><span class="co-etf-sym">(${sym})</span></span>
+        <span class="co-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}${marker}</span>
       </div>`;
     }).join('');
 
@@ -1804,14 +1874,14 @@ function renderSectorSidebar(sortedSids, sectorData, tf) {
 
   const html = sortedSids.map(sid => {
     const s = sectorData[sid];
-    const pctVal = s.change;
+    const pctVal = s.change != null ? Number(s.change) : null;
     const pctStr = pctVal != null ? fmtPct(pctVal) : '—';
     const pctColor = pctVal == null ? 'var(--text-dim)' : pctVal > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
     const isActive = companiesActiveSector === sid;
 
     const etfRows = (ETF_BY_SECTOR[sid] ?? []).slice(0, 3).map(sym => {
       const d = flowAllData[sym];
-      const p = d?.changes?.[tf];
+      const p = d?.changes?.[tf] != null ? Number(d.changes[tf]) : null;
       const price = d?.price;
       const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
       const fullName = etfNames[sym] || sym;
@@ -1853,22 +1923,25 @@ function renderSectorBlocks(sortedSids, grouped, sectorData) {
     const companies = grouped[sid] ?? [];
     if (!companies.length) return;
     const hidden = companiesActiveSector && companiesActiveSector !== sid ? ' filtered-out' : '';
-    const pctStr = s.change != null ? fmtPct(s.change) : '—';
-    const pctColor = s.change == null ? 'var(--text-dim)' : s.change > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+    const _chg = s.change != null ? Number(s.change) : null;
+    const pctStr = _chg != null ? fmtPct(_chg) : '—';
+    const pctColor = _chg == null ? 'var(--text-dim)' : _chg > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
 
     // Ordenar por market cap (estable, independiente de timeframe)
     const byMcap = [...companies].sort((a, b) => (a.mcap ?? 99) - (b.mcap ?? 99));
 
     // Identificar extremos para highlight (sin cambiar orden)
     const withVar = byMcap.filter(c => c.coChange != null);
-    const byVar   = [...withVar].sort((a, b) => b.coChange - a.coChange);
-    const bestSet  = new Set(byVar.slice(0, 2).map(c => c.ticker));
-    const worstSet = new Set(byVar.slice(-2).map(c => c.ticker));
+    const byVar   = [...withVar].sort((a, b) => Number(b.coChange) - Number(a.coChange));
+    const bestSet  = new Set(byVar.slice(0, 1).map(c => c.ticker));
+    const worstSet = new Set(byVar.length > 1 ? byVar.slice(-1).map(c => c.ticker) : []);
 
-    // Aplicar filtro de positivas/negativas
+    // Aplicar filtro de positivas/negativas + búsqueda
+    const q = companiesSearch.toLowerCase().trim();
     const visible = byMcap.filter(co => {
-      if (companiesFilter === 'positive') return co.coChange != null && co.coChange > 0;
-      if (companiesFilter === 'negative') return co.coChange != null && co.coChange < 0;
+      if (q && !co.ticker.toLowerCase().includes(q) && !co.name.toLowerCase().includes(q)) return false;
+      if (companiesFilter === 'positive') return co.coChange != null && Number(co.coChange) > 0;
+      if (companiesFilter === 'negative') return co.coChange != null && Number(co.coChange) < 0;
       return true;
     });
 
@@ -1948,6 +2021,7 @@ function renderCompaniesView(tf) {
 
   // 5. Render
   renderTopMovers(enriched, tf);
+  renderSectorStrip(sortedSids, sectorData);
   renderEtfPanel(sortedSids, sectorData, tf);
   renderSectorSidebar(sortedSids, sectorData, tf);
   renderSectorBlocks(sortedSids, grouped, sectorData);
@@ -1969,6 +2043,11 @@ function setupCompaniesView() {
     document.querySelectorAll('.co-filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     companiesFilter = btn.dataset.filter;
+    renderCompaniesView(companiesCurrentTf);
+  });
+
+  document.getElementById('coSearchInput').addEventListener('input', e => {
+    companiesSearch = e.target.value;
     renderCompaniesView(companiesCurrentTf);
   });
 
