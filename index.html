@@ -503,90 +503,107 @@
 
   /* ——— COMPANIES VIEW ——— */
   .companies-header {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
   }
-  .companies-title { font-family: var(--font-serif); font-weight: 500; font-size: 22px; letter-spacing: -0.015em; }
-  .companies-subtitle { font-family: var(--font-serif); font-style: italic; font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .companies-title { font-family: var(--font-serif); font-weight: 500; font-size: 20px; letter-spacing: -0.015em; }
+  .companies-subtitle { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-top: 3px; }
   .companies-tf-selector {
     display: inline-flex; border: 1px solid var(--border);
     border-radius: 2px; overflow: hidden; background: #fafaf9;
   }
   .companies-tf-selector button {
     font-family: var(--font-mono); font-size: 11px; font-weight: 500;
-    padding: 7px 14px; background: transparent; border: none;
+    padding: 6px 13px; background: transparent; border: none;
     color: var(--text-muted); cursor: pointer; letter-spacing: 0.08em;
-    transition: all 0.12s; border-right: 1px solid var(--border);
+    transition: all 0.1s; border-right: 1px solid var(--border);
   }
   .companies-tf-selector button:last-child { border-right: none; }
   .companies-tf-selector button:hover { color: var(--text); background: white; }
   .companies-tf-selector button.active { background: var(--text); color: var(--bg); font-weight: 600; }
 
   /* Layout dos columnas */
-  .companies-layout { display: grid; grid-template-columns: 1fr 210px; gap: 20px; align-items: start; }
+  .companies-layout { display: grid; grid-template-columns: 1fr 230px; gap: 16px; align-items: start; }
 
-  /* Sector blocks */
+  /* Sector blocks — ultra compactos */
   .sector-block {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 2px; margin-bottom: 14px; overflow: hidden;
-    opacity: 0; animation: fadeUp 0.35s ease-out forwards;
+    border-radius: 2px; margin-bottom: 8px; overflow: hidden;
+    opacity: 0; animation: fadeUp 0.3s ease-out forwards;
   }
   .sector-block.filtered-out { display: none; }
   .sector-block-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px; background: #fafaf9; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; background: #f9f8f7;
+    border-bottom: 1px solid var(--border); cursor: pointer;
+    user-select: none;
   }
-  .sector-block-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .sector-block-name { font-family: var(--font-serif); font-weight: 500; font-size: 17px; letter-spacing: -0.01em; flex: 1; }
-  .sector-block-change { font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
-  .sector-block-etfs { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.04em; margin-left: 4px; }
+  .sector-block-header:hover { background: #f4f3f1; }
+  .sector-block-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sector-block-name {
+    font-family: var(--font-mono); font-weight: 600; font-size: 11px;
+    letter-spacing: 0.08em; text-transform: uppercase; flex: 1; color: var(--text);
+  }
+  .sector-block-change { font-family: var(--font-mono); font-weight: 700; font-size: 12px; }
+  .sector-block-count { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
 
-  /* Tabla interna de empresas */
+  /* Tabla ultra compacta — sin thead */
   .co-table { width: 100%; border-collapse: collapse; }
-  .co-table thead th {
-    font-family: var(--font-mono); font-weight: 500; font-size: 10px;
-    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted);
-    padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--border-soft);
-    background: #fdfdfc;
+  .co-table tbody tr {
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.08s; cursor: pointer;
   }
-  .co-table thead th.al { text-align: left; }
-  .co-table tbody tr { border-bottom: 1px solid var(--border-soft); transition: background 0.1s; cursor: pointer; }
   .co-table tbody tr:last-child { border-bottom: none; }
-  .co-table tbody tr:hover { background: #fafaf9; }
-  .co-table tbody tr.anomaly-row-high { background: rgba(239,68,68,0.04); }
-  .co-table tbody tr.anomaly-row-high:hover { background: rgba(239,68,68,0.08); }
-  .co-table tbody tr.anomaly-row-mid { background: rgba(234,179,8,0.03); }
-  .co-table td { padding: 10px 12px; font-family: var(--font-mono); font-size: 13px; text-align: right; white-space: nowrap; }
-  .co-table td.al { text-align: left; }
-  .col-cotick { width: 70px; }
-  .col-coname { width: 24%; }
-  .col-coetf  { width: 78px; }
-  .col-cov    { width: 78px; }
-  .col-cosec  { width: 78px; }
-  .col-coanom { width: 110px; }
-  .co-ticker { font-weight: 600; font-size: 13px; color: var(--patrimonio); }
-  .co-name-cell { font-family: var(--font-sans) !important; font-size: 12px; color: var(--text-muted); }
-  .co-etf-badge {
-    display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 600;
-    padding: 2px 6px; background: #f1efec; border: 1px solid var(--border); border-radius: 2px; color: var(--text-muted);
+  .co-table tbody tr:hover { background: #f9f8f7; }
+  .co-table tbody tr.anomaly-row-high { background: rgba(185,28,28,0.055); }
+  .co-table tbody tr.anomaly-row-high:hover { background: rgba(185,28,28,0.1); }
+  .co-table tbody tr.anomaly-row-mid { background: rgba(161,98,7,0.04); }
+  .co-table td { padding: 5px 8px; font-family: var(--font-mono); font-size: 12px; text-align: right; white-space: nowrap; }
+  .col-cotick { width: 60px; text-align: left !important; }
+  .col-cov    { width: 66px; }
+  .col-coanom { width: 84px; }
+  .co-ticker { font-weight: 700; font-size: 12px; color: var(--text); letter-spacing: 0.02em; }
+
+  /* Δ sector — texto inline sin caja */
+  .vs-high-up   { color: var(--up-strong);   font-weight: 700; }
+  .vs-high-down { color: var(--down-strong); font-weight: 700; }
+  .vs-mid-up    { color: #16a34a; font-weight: 500; }
+  .vs-mid-down  { color: #dc2626; font-weight: 500; }
+  .vs-low       { color: var(--text-dim); font-size: 11px; }
+
+  /* Sidebar ETFs */
+  .sector-sidebar {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 2px; overflow: hidden; position: sticky; top: 16px;
   }
-
-  /* Anomaly badges */
-  .anomaly-badge { display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; }
-  .anomaly-badge.high { background: rgba(239,68,68,0.14); color: #b91c1c; }
-  .anomaly-badge.mid  { background: rgba(234,179,8,0.18);  color: #854d0e; }
-  .anomaly-badge.low  { color: var(--text-dim); font-weight: 400; font-size: 11px; }
-
-  /* Sidebar sectores */
-  .sector-sidebar { background: var(--card); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; position: sticky; top: 20px; }
-  .sector-sidebar-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); padding: 10px 14px; border-bottom: 1px solid var(--border); background: #fafaf9; }
-  .sector-sidebar-row { display: flex; align-items: center; gap: 9px; padding: 9px 14px; border-bottom: 1px solid var(--border-soft); cursor: pointer; transition: background 0.1s; border-left: 2px solid transparent; }
-  .sector-sidebar-row:last-child { border-bottom: none; }
-  .sector-sidebar-row:hover { background: #f5f5f4; }
-  .sector-sidebar-row.sb-active { background: #f5f5f4; border-left-color: var(--text); }
-  .sector-sidebar-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .sector-sidebar-name { font-family: var(--font-sans); font-size: 12px; flex: 1; color: var(--text); }
-  .sector-sidebar-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+  .sector-sidebar-title {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 8px 12px; border-bottom: 1px solid var(--border); background: #fafaf9;
+  }
+  .sb-sector {
+    border-bottom: 1px solid var(--border-soft); border-left: 2px solid transparent;
+    transition: background 0.1s; cursor: pointer;
+  }
+  .sb-sector:last-child { border-bottom: none; }
+  .sb-sector:hover { background: #f7f6f4; }
+  .sb-sector.sb-active { border-left-color: var(--text); background: #f5f4f2; }
+  .sb-sector-head {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 12px 5px;
+  }
+  .sb-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .sb-name { font-family: var(--font-sans); font-size: 12px; font-weight: 500; flex: 1; color: var(--text); }
+  .sb-pct  { font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
+  .sb-etfs { padding: 0 12px 6px 26px; display: flex; flex-direction: column; gap: 2px; }
+  .sb-etf-row {
+    display: grid; grid-template-columns: 36px 1fr 48px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+    align-items: baseline;
+  }
+  .sb-etf-sym { font-weight: 600; color: var(--text); }
+  .sb-etf-pct { text-align: right; }
+  .sb-etf-price { text-align: right; color: var(--text-dim); }
 
   /* ——— COMPANY MODAL ——— */
   .co-modal-etf-list { margin-top: 4px; }
@@ -624,8 +641,6 @@
     .companies-layout { grid-template-columns: 1fr; }
     .sector-sidebar { display: none; }
     .companies-header { flex-direction: column; align-items: flex-start; }
-    .co-table { display: block; overflow-x: auto; }
-    .col-cosec { display: none; }
   }
   @media (max-width: 600px) {
     .header-left h1 { font-size: 38px; }
@@ -1614,36 +1629,54 @@ function computeSectorChange(sectorId, tf) {
   return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
 
-function anomalyBadge(anomaly) {
-  if (anomaly == null) return '<span class="anomaly-badge low">—</span>';
+function vsSectorCell(anomaly) {
+  if (anomaly == null) return '<span class="vs-low">—</span>';
   const abs = Math.abs(anomaly);
   const sign = anomaly > 0 ? '+' : '';
   const val = `${sign}${anomaly.toFixed(2)}%`;
-  if (abs > 3) return `<span class="anomaly-badge high" title="Alta anomalía vs sector">▲ ${val}</span>`;
-  if (abs > 1) return `<span class="anomaly-badge mid" title="Anomalía moderada">◆ ${val}</span>`;
-  return `<span class="anomaly-badge low">${val}</span>`;
+  if (abs > 3) return `<span class="${anomaly > 0 ? 'vs-high-up' : 'vs-high-down'}">${val}</span>`;
+  if (abs > 1) return `<span class="${anomaly > 0 ? 'vs-mid-up' : 'vs-mid-down'}">${val}</span>`;
+  return `<span class="vs-low">${val}</span>`;
 }
 
-function renderSectorSidebar(sortedSids, sectorData) {
+function renderSectorSidebar(sortedSids, sectorData, tf) {
   const sidebar = document.getElementById('sectorSidebar');
   if (!sidebar) return;
-  const rows = sortedSids.map(sid => {
+
+  const html = sortedSids.map(sid => {
     const s = sectorData[sid];
     const pctVal = s.change;
     const pctStr = pctVal != null ? fmtPct(pctVal) : '—';
     const pctColor = pctVal == null ? 'var(--text-dim)' : pctVal > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
     const isActive = companiesActiveSector === sid;
-    return `<div class="sector-sidebar-row${isActive ? ' sb-active' : ''}" data-sid="${sid}">
-      <span class="sector-sidebar-dot" style="background:${s.color}"></span>
-      <span class="sector-sidebar-name">${s.name}</span>
-      <span class="sector-sidebar-pct" style="color:${pctColor}">${pctStr}</span>
+
+    const etfRows = (ETF_BY_SECTOR[sid] ?? []).slice(0, 3).map(sym => {
+      const d = flowAllData[sym];
+      const p = d?.changes?.[tf];
+      const price = d?.price;
+      const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+      return `<div class="sb-etf-row">
+        <span class="sb-etf-sym">${sym}</span>
+        <span class="sb-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}</span>
+        <span class="sb-etf-price">${price != null ? price.toFixed(0) : '—'}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="sb-sector${isActive ? ' sb-active' : ''}" data-sid="${sid}">
+      <div class="sb-sector-head">
+        <span class="sb-dot" style="background:${s.color}"></span>
+        <span class="sb-name">${s.name}</span>
+        <span class="sb-pct" style="color:${pctColor}">${pctStr}</span>
+      </div>
+      <div class="sb-etfs">${etfRows}</div>
     </div>`;
   }).join('');
-  sidebar.innerHTML = `<div class="sector-sidebar-title">Sectores</div>${rows}`;
 
-  sidebar.querySelectorAll('.sector-sidebar-row').forEach(row => {
-    row.addEventListener('click', () => {
-      const sid = row.dataset.sid;
+  sidebar.innerHTML = `<div class="sector-sidebar-title">ETFs por sector</div>${html}`;
+
+  sidebar.querySelectorAll('.sb-sector').forEach(el => {
+    el.addEventListener('click', () => {
+      const sid = el.dataset.sid;
       companiesActiveSector = companiesActiveSector === sid ? null : sid;
       renderCompaniesView(companiesCurrentTf);
     });
@@ -1661,44 +1694,40 @@ function renderSectorBlocks(sortedSids, grouped, sectorData) {
     const hidden = companiesActiveSector && companiesActiveSector !== sid ? ' filtered-out' : '';
     const pctStr = s.change != null ? fmtPct(s.change) : '—';
     const pctColor = s.change == null ? 'var(--text-dim)' : s.change > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
-    const etfList = (ETF_BY_SECTOR[sid] ?? []).join(' · ');
-    html += `<div class="sector-block${hidden}" style="animation-delay:${i * 0.06}s" data-sid="${sid}">
-      <div class="sector-block-header">
+
+    const rows = companies.map(co => {
+      const abs = Math.abs(co.anomaly ?? 0);
+      const rowCls = co.anomaly != null && abs > 3 ? ' anomaly-row-high' : abs > 1 ? ' anomaly-row-mid' : '';
+      const coColor = co.coChange == null ? 'var(--text-dim)' : co.coChange > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+      return `<tr class="${rowCls}" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}">
+        <td class="col-cotick"><span class="co-ticker">${co.ticker}</span></td>
+        <td class="col-cov" style="color:${coColor};font-weight:600">${fmtPct(co.coChange)}</td>
+        <td class="col-coanom">${vsSectorCell(co.anomaly)}</td>
+      </tr>`;
+    }).join('');
+
+    html += `<div class="sector-block${hidden}" style="animation-delay:${i * 0.05}s" data-sid="${sid}">
+      <div class="sector-block-header" data-sid="${sid}">
         <span class="sector-block-dot" style="background:${s.color}"></span>
         <span class="sector-block-name">${s.name}</span>
         <span class="sector-block-change" style="color:${pctColor}">${pctStr}</span>
-        <span class="sector-block-etfs">${etfList}</span>
+        <span class="sector-block-count">${companies.length} co.</span>
       </div>
-      <table class="co-table">
-        <thead><tr>
-          <th class="col-cotick al">Ticker</th>
-          <th class="col-coname al">Empresa</th>
-          <th class="col-coetf">ETF</th>
-          <th class="col-cov">Empresa</th>
-          <th class="col-cosec">Sector</th>
-          <th class="col-coanom">Anomalía</th>
-        </tr></thead>
-        <tbody>
-          ${companies.map(co => {
-            const abs = Math.abs(co.anomaly ?? 0);
-            const rowCls = co.anomaly == null ? '' : abs > 3 ? ' anomaly-row-high' : abs > 1 ? ' anomaly-row-mid' : '';
-            const coColor = co.coChange == null ? 'var(--text-dim)' : co.coChange > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
-            const secColor = s.change == null ? 'var(--text-dim)' : s.change > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
-            return `<tr class="${rowCls}" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}">
-              <td class="al"><span class="co-ticker">${co.ticker}</span></td>
-              <td class="al co-name-cell">${co.name}</td>
-              <td><span class="co-etf-badge">${co.etfs[0]}</span></td>
-              <td style="color:${coColor};font-weight:500">${fmtPct(co.coChange)}</td>
-              <td style="color:${secColor}">${fmtPct(s.change)}</td>
-              <td>${anomalyBadge(co.anomaly)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
+      <table class="co-table"><tbody>${rows}</tbody></table>
     </div>`;
   });
-  main.innerHTML = html || '<div style="padding:32px;font-family:var(--font-serif);font-style:italic;color:var(--text-dim)">Sin datos disponibles.</div>';
 
+  main.innerHTML = html || '<div style="padding:28px;font-family:var(--font-serif);font-style:italic;color:var(--text-dim)">Sin datos disponibles.</div>';
+
+  // Click en header → toggle filtro
+  main.querySelectorAll('.sector-block-header').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const sid = hdr.dataset.sid;
+      companiesActiveSector = companiesActiveSector === sid ? null : sid;
+      renderCompaniesView(companiesCurrentTf);
+    });
+  });
+  // Click en fila → modal
   main.querySelectorAll('tr[data-ticker]').forEach(row => {
     row.addEventListener('click', () => openCompanyModal(row.dataset.ticker, row.dataset.name));
   });
@@ -1735,7 +1764,7 @@ function renderCompaniesView(tf) {
   });
 
   // 5. Render
-  renderSectorSidebar(sortedSids, sectorData);
+  renderSectorSidebar(sortedSids, sectorData, tf);
   renderSectorBlocks(sortedSids, grouped, sectorData);
 }
 
