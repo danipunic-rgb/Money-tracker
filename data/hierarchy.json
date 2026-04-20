@@ -1,0 +1,80 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-20",
+  "curated_by": "founder",
+  "indices": [
+    {
+      "id": "msci_acwi",
+      "name": "MSCI ACWI",
+      "short_name": "ACWI",
+      "provider": "MSCI",
+      "scope": "global",
+      "proxy_etf": "ACWI",
+      "children": ["msci_world", "msci_em"]
+    },
+    {
+      "id": "msci_world",
+      "name": "MSCI World",
+      "short_name": "World",
+      "provider": "MSCI",
+      "scope": "developed",
+      "proxy_etf": "URTH",
+      "parent": "msci_acwi",
+      "key_indices": ["sp500", "nasdaq100", "russell2000"],
+      "sectors_applicable": ["technology","energy","financials","healthcare","defense","real_estate","consumer","crypto"]
+    },
+    {
+      "id": "msci_em",
+      "name": "MSCI Emerging Markets",
+      "short_name": "EM",
+      "provider": "MSCI",
+      "scope": "emerging",
+      "proxy_etf": "IEMG",
+      "parent": "msci_acwi"
+    },
+    {
+      "id": "sp500",
+      "name": "S&P 500",
+      "short_name": "S&P 500",
+      "provider": "S&P",
+      "scope": "us_large_cap",
+      "proxy_etf": "SPY",
+      "parent": "msci_world"
+    },
+    {
+      "id": "nasdaq100",
+      "name": "Nasdaq 100",
+      "short_name": "Nasdaq 100",
+      "provider": "Nasdaq",
+      "scope": "us_tech_large_cap",
+      "proxy_etf": "QQQ",
+      "parent": "msci_world"
+    },
+    {
+      "id": "russell2000",
+      "name": "Russell 2000",
+      "short_name": "R2K",
+      "provider": "FTSE Russell",
+      "scope": "us_small_cap",
+      "proxy_etf": "IWM",
+      "parent": "msci_world"
+    }
+  ],
+  "subsectors": [
+    { "id": "semiconductors", "name": "Semiconductores", "parent_sector": "technology" },
+    { "id": "biotech",        "name": "Biotech",          "parent_sector": "healthcare" },
+    { "id": "renewables",     "name": "Renovables",       "parent_sector": "energy" },
+    { "id": "uranium",        "name": "Uranio",           "parent_sector": "energy" },
+    { "id": "banks_regional", "name": "Banca regional",   "parent_sector": "financials" },
+    { "id": "banks_big",      "name": "Banca grande",     "parent_sector": "financials" }
+  ],
+  "etf_to_subsector": {
+    "SMH":  "semiconductors",
+    "KRE":  "banks_regional",
+    "KBE":  "banks_big",
+    "IBB":  "biotech",
+    "XBI":  "biotech",
+    "ICLN": "renewables",
+    "URA":  "uranium"
+  }
+}

@@ -25,6 +25,10 @@
     {"symbol": "BITO", "name": "ProShares Bitcoin Strategy ETF", "isin": "US74347G1049", "sector_id": "crypto",      "sector_name": "Crypto",      "sector_color": "#6d28d9"},
     {"symbol": "SPY",  "name": "SPDR S&P 500",                  "isin": "US78462F1030", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
     {"symbol": "IWM",  "name": "iShares Russell 2000",          "isin": "US4642876555", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
-    {"symbol": "GLD",  "name": "SPDR Gold Shares",              "isin": "US78463V1070", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"}
-  ]
+    {"symbol": "GLD",  "name": "SPDR Gold Shares",              "isin": "US78463V1070", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
+    {"symbol": "ACWI", "name": "iShares MSCI ACWI ETF",                 "isin": "US4642882819", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
+    {"symbol": "URTH", "name": "iShares MSCI World ETF",                 "isin": "US46434V6213", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"},
+    {"symbol": "IEMG", "name": "iShares Core MSCI Emerging Markets ETF", "isin": "US46434G1031", "sector_id": "reference",  "sector_name": "Referencias", "sector_color": "#78716c"}
+  ],
+  "total": 25
 }

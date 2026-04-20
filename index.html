@@ -704,6 +704,59 @@
     color: #854d0e; border-radius: 2px; margin-left: 8px; vertical-align: middle;
   }
 
+  /* ===================================================
+     MARKET VISION — árbol jerárquico Índice→Sector→ETF→Empresa
+     =================================================== */
+  .mv-section { margin-bottom: 28px; }
+  .mv-section-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .mv-divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .mv-tree {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 2px; overflow: hidden;
+  }
+  .mv-node { border-bottom: 1px solid var(--border-soft); }
+  .mv-node:last-child { border-bottom: none; }
+  .mv-row {
+    display: flex; align-items: baseline; gap: 6px;
+    padding: 5px 10px; cursor: pointer; transition: background 0.06s; user-select: none;
+  }
+  .mv-row:hover { background: #f7f6f4; }
+  .mv-caret { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); width: 12px; flex-shrink: 0; }
+  .mv-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; vertical-align: middle; }
+  .mv-name    { font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--text); flex: 1; min-width: 0; }
+  .mv-etfname { font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; }
+  .mv-subname { font-family: var(--font-sans); font-size: 11px; font-weight: 500; color: var(--text-muted); flex: 1; }
+  .mv-sym {
+    font-family: var(--font-mono); font-size: 10px; color: var(--patrimonio); flex-shrink: 0;
+    cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px;
+  }
+  .mv-sym:hover { color: var(--text); }
+  .mv-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 700; flex-shrink: 0; min-width: 60px; text-align: right; }
+  .mv-pos  { color: var(--up-strong); }
+  .mv-neg  { color: var(--down-strong); }
+  .mv-flat { color: var(--text-dim); }
+  .mv-children { display: none; }
+  .mv-node.mv-open > .mv-children { display: block; }
+  .mv-chips {
+    display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 10px 7px;
+  }
+  .mv-chip {
+    display: inline-flex; align-items: baseline; gap: 4px;
+    font-family: var(--font-mono); font-size: 10px;
+    padding: 1px 7px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 2px; cursor: pointer; transition: background 0.06s;
+  }
+  .mv-chip:hover { background: var(--card); border-color: var(--text-dim); }
+  .mv-chip-tick { font-weight: 700; color: var(--text) !important; }
+  .mv-chip-pct  { font-weight: 600; }
+  .mv-empty { padding: 20px 10px; font-family: var(--font-sans); font-size: 13px; color: var(--text-dim); }
+  .mv-skel { display: block; height: 12px; border-radius: 2px; margin-bottom: 5px;
+    background: linear-gradient(90deg,#e8e3d9 25%,#f0ebe0 50%,#e8e3d9 75%);
+    background-size: 400%; animation: shimmer 1.4s infinite; }
+
   @media (max-width: 960px) {
     body { padding: 24px 16px 48px; }
     .header { flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -764,7 +817,7 @@
     <!-- Tab navigation -->
     <nav class="view-tabs">
       <button class="view-tab active" data-view="companies">Empresas</button>
-      <button class="view-tab" data-view="etfs">ETFs &amp; Sectores</button>
+      <button class="view-tab" data-view="etfs">Mercado</button>
     </nav>
 
     <!-- ====== COMPANIES VIEW ====== -->
@@ -801,8 +854,33 @@
       <div id="sectorSidebar" style="display:none"></div>
     </div>
 
-    <!-- ====== ETFs & SECTORS VIEW ====== -->
+    <!-- ====== MERCADO VIEW (ex ETFs & Sectores) ====== -->
     <div id="etfsView" style="display:none;">
+
+    <!-- Market Vision — árbol jerárquico -->
+    <section class="mv-section">
+      <div class="mv-section-header">
+        <div>
+          <span class="flow-eyebrow">Índice → Sector → ETF → Empresa</span>
+          <h2 style="font-family:var(--font-serif);font-weight:500;font-size:22px;letter-spacing:-.015em">Market Vision</h2>
+        </div>
+        <div class="companies-tf-selector" id="mvTfSelector">
+          <button data-tf="d1" class="active">1D</button>
+          <button data-tf="w1">1S</button>
+          <button data-tf="m1">1M</button>
+          <button data-tf="m3">3M</button>
+          <button data-tf="m6">6M</button>
+        </div>
+      </div>
+      <div class="mv-tree" id="mvContainer">
+        <div style="padding:10px 14px">
+          <span class="mv-skel" style="width:52%"></span>
+          <span class="mv-skel" style="width:44%;margin-left:18px"></span>
+          <span class="mv-skel" style="width:36%;margin-left:36px"></span>
+        </div>
+      </div>
+    </section>
+    <hr class="mv-divider">
 
     <div id="infoBar" class="info-bar" style="display:none;">
       <div class="left" id="infoLeft"></div>
@@ -1576,8 +1654,9 @@ async function loadAll() {
     renderFlow(flowSectors, flowAllData, flowCurrentTf);
     renderHeatmap(flowSectors, flowAllData, flowCurrentTf);
 
-    // 3b. Actualizar vista empresas con sector_change reales
+    // 3b. Actualizar vista empresas + Market Vision con datos reales
     renderCompaniesView(companiesCurrentTf);
+    renderMarketVision(mvCurrentTf);
 
     // 4. Daily Brief + Highlights
     renderBrief(flowSectors, allData);
@@ -2140,6 +2219,204 @@ function setupCompanyModal() {
 }
 
 // ================================================================
+// MARKET VISION — navegador jerárquico
+// ================================================================
+let mvCurrentTf = 'd1';
+let mvHierarchy = null;
+
+async function loadHierarchy() {
+  if (mvHierarchy) return;
+  try {
+    const r = await fetch('data/hierarchy.json');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    mvHierarchy = await r.json();
+  } catch (e) {
+    console.error('Market Vision: no se pudo cargar hierarchy.json', e);
+  }
+}
+
+function mvPct(sym, tf) {
+  const v = flowAllData[sym]?.changes?.[tf];
+  return v != null ? Number(v) : null;
+}
+
+function mvPctHTML(v) {
+  const n = (v == null) ? null : Number(v);
+  if (n == null || isNaN(n)) return '<span class="mv-pct mv-flat">—</span>';
+  const cls = Math.abs(n) < 0.05 ? 'mv-flat' : n > 0 ? 'mv-pos' : 'mv-neg';
+  return `<span class="mv-pct ${cls}">${n > 0 ? '+' : ''}${n.toFixed(2)}%</span>`;
+}
+
+function mvChipsHTML(sym, tf, indentPx) {
+  const cos = MOCK_COMPANIES.filter(c => c.etfs.includes(sym)).slice(0, 10);
+  if (!cos.length) return '';
+  const chips = cos.map(co => {
+    const v = getCoVar(co, tf);
+    const n = v != null ? Number(v) : null;
+    const cls = n == null ? 'mv-flat' : n > 0 ? 'mv-pos' : n < 0 ? 'mv-neg' : 'mv-flat';
+    return `<span class="mv-chip" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}">` +
+      `<span class="mv-chip-tick">${co.ticker}</span>` +
+      `<span class="mv-chip-pct ${cls}">${n != null ? fmtPct(n) : '—'}</span>` +
+    `</span>`;
+  }).join('');
+  return `<div class="mv-chips" style="padding-left:${indentPx}px">${chips}</div>`;
+}
+
+function mvEtfNode(sym, depth, tf) {
+  const pct = mvPct(sym, tf);
+  const name = ETF_SHORT_NAMES[sym] || sym;
+  const hasCos = MOCK_COMPANIES.some(c => c.etfs.includes(sym));
+  const indent = depth * 18;
+  return `<div class="mv-node${hasCos ? '' : ' mv-leaf'}" data-nid="etf_${sym}" data-etf="${sym}">` +
+    `<div class="mv-row" style="padding-left:${indent}px">` +
+      `<span class="mv-caret">${hasCos ? '▸' : ''}</span>` +
+      `<span class="mv-etfname">${name}</span>` +
+      `<span class="mv-sym" data-open-etf="${sym}">(${sym})</span>` +
+      mvPctHTML(pct) +
+    `</div>` +
+    (hasCos ? `<div class="mv-children">${mvChipsHTML(sym, tf, (depth + 1) * 18)}</div>` : '') +
+  `</div>`;
+}
+
+function mvSubsectorNode(subId, etfSyms, depth, tf) {
+  const sub = (mvHierarchy.subsectors || []).find(s => s.id === subId);
+  if (!sub) return '';
+  const vals = etfSyms.map(s => mvPct(s, tf)).filter(v => v != null);
+  const avg = vals.length ? vals.reduce((a, b) => a + b) / vals.length : null;
+  const indent = depth * 18;
+  return `<div class="mv-node" data-nid="sub_${subId}">` +
+    `<div class="mv-row" style="padding-left:${indent}px">` +
+      `<span class="mv-caret">▸</span>` +
+      `<span class="mv-subname">${sub.name}</span>` +
+      mvPctHTML(avg) +
+    `</div>` +
+    `<div class="mv-children">${etfSyms.map(sym => mvEtfNode(sym, depth + 1, tf)).join('')}</div>` +
+  `</div>`;
+}
+
+function mvSectorNode(sid, depth, tf) {
+  const meta = SECTOR_META[sid];
+  if (!meta) return '';
+  const etfs = ETF_BY_SECTOR[sid] || [];
+  const sectorPct = computeSectorChange(sid, tf);
+  const subMap = {};
+  const directEtfs = [];
+  etfs.forEach(sym => {
+    const subId = (mvHierarchy.etf_to_subsector || {})[sym];
+    if (subId) { (subMap[subId] = subMap[subId] || []).push(sym); }
+    else { directEtfs.push(sym); }
+  });
+  const childHTML =
+    directEtfs.map(sym => mvEtfNode(sym, depth + 1, tf)).join('') +
+    Object.entries(subMap).map(([sid2, syms]) => mvSubsectorNode(sid2, syms, depth + 1, tf)).join('');
+  const indent = depth * 18;
+  return `<div class="mv-node" data-nid="s_${sid}">` +
+    `<div class="mv-row" style="padding-left:${indent}px">` +
+      `<span class="mv-caret">▸</span>` +
+      `<span class="mv-dot" style="background:${meta.color}"></span>` +
+      `<span class="mv-name">${meta.name}</span>` +
+      mvPctHTML(sectorPct) +
+    `</div>` +
+    `<div class="mv-children">${childHTML}</div>` +
+  `</div>`;
+}
+
+function mvIndexNode(node, depth, tf, startOpen) {
+  const pct = node.proxy_etf ? mvPct(node.proxy_etf, tf) : null;
+  const symTag = node.proxy_etf
+    ? `<span class="mv-sym" data-open-etf="${node.proxy_etf}">(${node.proxy_etf})</span>`
+    : '';
+  const indent = depth * 18;
+  const parts = [];
+  // key_indices shown first (S&P 500, Nasdaq 100, R2K)
+  (node.key_indices || []).forEach(kid => {
+    const n = mvHierarchy.indices.find(i => i.id === kid);
+    if (n) parts.push(mvIndexNode(n, depth + 1, tf, false));
+  });
+  // direct sub-indices (MSCI World, MSCI EM)
+  (node.children || []).forEach(cid => {
+    const n = mvHierarchy.indices.find(i => i.id === cid);
+    if (n) parts.push(mvIndexNode(n, depth + 1, tf, false));
+  });
+  // sectors
+  if (node.sectors_applicable?.length) {
+    parts.push(...node.sectors_applicable.map(sid => mvSectorNode(sid, depth + 1, tf)));
+  }
+  const hasChildren = parts.length > 0;
+  return `<div class="mv-node${startOpen ? ' mv-open' : ''}" data-nid="${node.id}">` +
+    `<div class="mv-row" style="padding-left:${indent}px">` +
+      `<span class="mv-caret">${hasChildren ? (startOpen ? '▾' : '▸') : ''}</span>` +
+      `<span class="mv-name">${node.name}</span>` +
+      symTag +
+      mvPctHTML(pct) +
+    `</div>` +
+    (hasChildren ? `<div class="mv-children">${parts.join('')}</div>` : '') +
+  `</div>`;
+}
+
+function renderMarketVision(tf) {
+  const el = document.getElementById('mvContainer');
+  if (!el) return;
+  if (!mvHierarchy) {
+    el.innerHTML = '<div class="mv-empty">Cargando jerarquía…</div>';
+    loadHierarchy().then(() => { if (mvHierarchy) renderMarketVision(tf); });
+    return;
+  }
+  const root = mvHierarchy.indices.find(i => i.id === 'msci_acwi');
+  if (!root) { el.innerHTML = '<div class="mv-empty">Sin datos de jerarquía.</div>'; return; }
+  el.innerHTML = mvIndexNode(root, 0, tf, true);
+}
+
+function setupMarketVision() {
+  const sel = document.getElementById('mvTfSelector');
+  if (sel) {
+    sel.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-tf]');
+      if (!btn) return;
+      sel.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mvCurrentTf = btn.dataset.tf;
+      renderMarketVision(mvCurrentTf);
+    });
+  }
+  // Single delegated listener on the container
+  const el = document.getElementById('mvContainer');
+  if (el) {
+    el.addEventListener('click', e => {
+      // ETF sym click → open ETF modal
+      const symEl = e.target.closest('[data-open-etf]');
+      if (symEl) {
+        e.stopPropagation();
+        const sym = symEl.dataset.openEtf;
+        if (sym && flowAllData[sym]) {
+          const name = symEl.closest('.mv-node')?.querySelector('.mv-etfname,.mv-name')?.textContent || sym;
+          openModal(sym, name);
+        }
+        return;
+      }
+      // Company chip click → open company modal
+      const chip = e.target.closest('.mv-chip[data-ticker]');
+      if (chip) {
+        e.stopPropagation();
+        openCompanyModal(chip.dataset.ticker, chip.dataset.name);
+        return;
+      }
+      // Row click → toggle expand/collapse
+      const row = e.target.closest('.mv-row');
+      if (!row) return;
+      const node = row.closest('.mv-node');
+      if (!node) return;
+      const children = node.querySelector(':scope > .mv-children');
+      if (!children) return;
+      node.classList.toggle('mv-open');
+      const caret = row.querySelector('.mv-caret');
+      if (caret) caret.textContent = node.classList.contains('mv-open') ? '▾' : '▸';
+    });
+  }
+  loadHierarchy().then(() => renderMarketVision(mvCurrentTf));
+}
+
+// ================================================================
 // VIEW TABS
 // ================================================================
 function setupViewTabs() {
@@ -2159,6 +2436,7 @@ document.getElementById('refreshBtn').addEventListener('click', loadAll);
 document.getElementById('fetchBtn').addEventListener('click', forceFetch);
 setupViewTabs();
 setupCompaniesView();
+setupMarketVision();
 setupCompanyModal();
 setupFlowSelector();
 setupModal();

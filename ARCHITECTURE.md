@@ -121,8 +121,8 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZXl5d2Z
 **etf_metadata** — Qué ETFs rastreamos
 ```sql
 symbol (PK), name, sector, sector_color, sector_desc, display_order, enabled, created_at
--- 22 ETFs en 9 sectores: Tecnología, Energía, Financieros, Salud, Defensa,
---   Inmobiliario, Consumo, Crypto, Referencias
+-- 25 ETFs en 9 sectores: Tecnología, Energía, Financieros, Salud, Defensa,
+--   Inmobiliario, Consumo, Crypto, Referencias (incl. ACWI/URTH/IEMG como proxies de índice)
 ```
 
 **etf_daily** — Precios históricos
@@ -286,7 +286,45 @@ Trigger manual: `workflow_dispatch` con inputs `dry_run`, `timeframe`, `intro`, 
 
 ---
 
-## 9. SECTORES Y ETFs ACTUALES
+## 9. MARKET VISION — Navegador jerárquico
+
+### Concepto
+Árbol interactivo Índice→Sector→ETF→Empresa en la pestaña "Mercado". El usuario navega colapsando/expandiendo nodos. Cada nodo muestra el % cambio del ETF proxy en el timeframe seleccionado.
+
+### Estructura de datos: `data/hierarchy.json`
+```json
+{
+  "indices": [
+    { "id": "msci_acwi", "proxy_etf": "ACWI", "children": ["msci_world", "msci_em"] },
+    { "id": "msci_world", "proxy_etf": "URTH", "parent": "msci_acwi",
+      "key_indices": ["sp500","nasdaq100","russell2000"],
+      "sectors_applicable": ["technology","energy","financials","healthcare","defense","real_estate","consumer","crypto"] },
+    { "id": "msci_em",     "proxy_etf": "IEMG", "parent": "msci_acwi" },
+    { "id": "sp500",       "proxy_etf": "SPY",  "parent": "msci_world" },
+    { "id": "nasdaq100",   "proxy_etf": "QQQ",  "parent": "msci_world" },
+    { "id": "russell2000", "proxy_etf": "IWM",  "parent": "msci_world" }
+  ],
+  "subsectors": [
+    {"id":"semiconductors","parent_sector":"technology"},
+    {"id":"biotech","parent_sector":"healthcare"},
+    {"id":"renewables","parent_sector":"energy"},
+    {"id":"uranium","parent_sector":"energy"},
+    {"id":"banks_regional","parent_sector":"financials"},
+    {"id":"banks_big","parent_sector":"financials"}
+  ],
+  "etf_to_subsector": { "SMH":"semiconductors","KRE":"banks_regional",... }
+}
+```
+
+### Implementación
+- `renderMarketVision(tf)` — renderiza el árbol en `#mvContainer` como HTML estático con collapse/expand por class `mv-open`
+- Event delegation único en `#mvContainer` (click en `.mv-row` → toggle; `[data-open-etf]` → modal ETF; `.mv-chip` → modal empresa)
+- `data/hierarchy.json` se carga una vez por sesión y se cachea en `mvHierarchy`
+- Validación automática en CI: `python scripts/validate_hierarchy.py` en `update-holdings.yml`
+
+---
+
+## 10. SECTORES Y ETFs ACTUALES  <!-- was §9 before Market Vision section -->
 
 | Sector | ETFs | Justificación |
 |--------|------|---------------|
@@ -298,7 +336,7 @@ Trigger manual: `workflow_dispatch` con inputs `dry_run`, `timeframe`, `intro`, 
 | Inmobiliario | VNQ | REITs diversificados — sensible a tipos de interés |
 | Consumo | XLY, XLP | Discrecional + básico — spread indica apetito de riesgo |
 | Crypto | IBIT, BITO | Bitcoin spot + futures — proxy de risk-on extremo |
-| Referencias | SPY, IWM, GLD | Mercado amplio + small caps + oro |
+| Referencias | SPY, IWM, GLD, ACWI, URTH, IEMG | Mercado amplio + small caps + oro + proxies MSCI (Market Vision) |
 
 ### Sectores candidatos (para investigar con Cowork)
 - Mercados emergentes (EEM, VWO)
@@ -393,6 +431,7 @@ Tú describes la feature → Cowork implementa → tú revisas → push
 - [x] UI: highlights 4 columnas (1D/1S/1M/3M), filas clicables abren modal
 - [x] Edge Function v2: soporte ?symbols=X,Y para fetch selectivo
 - [x] Nuevos sectores: Defensa (ITA, XAR), Inmobiliario (VNQ), Consumo (XLY, XLP), Crypto (IBIT, BITO)
+- [x] Market Vision: árbol Índice→Sector→ETF→Empresa (pestaña "Mercado", hierarchy.json, validate_hierarchy.py, CI step)
 - [ ] Poblar holdings reales (ejecutar update-holdings workflow manualmente la 1ª vez — requiere SUPABASE_SERVICE_ROLE_KEY en GitHub Secrets)
 
 ### FASE 2 — Auth + Watchlist + Snapshot
@@ -427,3 +466,5 @@ Tú describes la feature → Cowork implementa → tú revisas → push
 | 19-abr-2026 | Pipeline X: cron 21:05 UTC L-V | Capta cierre NYSE + prime time Twitter US + Europa tarde + Asia amanece |
 | 19-abr-2026 | Agregación del flujo: promedio simple por sector, excluye Referencias | Sin pesos arbitrarios = más objetivo. Benchmarks fuera del flujo por definición |
 | 19-abr-2026 | X API v2 via tweepy (OAuth 1.0a User Context) | Obligado por la API para `POST /2/tweets`. Free tier 500 posts/mes sobra |
+| 20-abr-2026 | Market Vision: reemplazar pestaña "ETFs & Sectores" (no añadir nueva) | Mantiene UX simple, un único punto de entrada jerárquico |
+| 20-abr-2026 | hierarchy.json como fuente única de verdad de la jerarquía + validate_hierarchy.py en CI | Evita que los datos queden desincronizados al añadir sectores/ETFs |
