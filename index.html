@@ -522,20 +522,46 @@
   .companies-tf-selector button:hover { color: var(--text); background: white; }
   .companies-tf-selector button.active { background: var(--text); color: var(--bg); font-weight: 600; }
 
-  /* Layout: grid de sectores + panel ETFs */
+  /* Layout: 4-col grid + panel ETFs */
   .co-layout {
     display: grid;
-    grid-template-columns: 1fr 192px;
+    grid-template-columns: 1fr 230px;
     gap: 12px;
     align-items: start;
   }
-
-  /* Grid de sectores */
   .companies-main {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 7px;
   }
+
+  /* Top movers bar */
+  .co-top-movers {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 5px 10px; margin-bottom: 8px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 2px;
+  }
+  .co-top-label {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-dim); margin-right: 2px; flex-shrink: 0;
+  }
+  .co-top-item { display: inline-flex; align-items: baseline; gap: 3px; }
+  .co-top-ticker { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text); }
+  .co-top-pct    { font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+  .co-top-sep    { color: var(--border); font-size: 11px; }
+
+  /* Filter bar */
+  .co-filter-bar { display: flex; gap: 0; margin-bottom: 8px; }
+  .co-filter-btn {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+    padding: 4px 11px; background: var(--card); border: 1px solid var(--border);
+    color: var(--text-muted); cursor: pointer; letter-spacing: 0.05em;
+    margin-right: -1px; position: relative; transition: all 0.1s;
+  }
+  .co-filter-btn:first-child { border-radius: 2px 0 0 2px; }
+  .co-filter-btn:last-child  { border-radius: 0 2px 2px 0; margin-right: 0; }
+  .co-filter-btn:hover { color: var(--text); z-index: 1; }
+  .co-filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); z-index: 2; }
 
   /* Panel lateral ETFs */
   .co-etf-panel {
@@ -566,12 +592,22 @@
   .co-etf-sector-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
   .co-etf-list { padding: 0 10px 5px 20px; }
   .co-etf-row {
-    display: flex; justify-content: space-between; align-items: baseline;
-    padding: 1px 0; cursor: pointer;
+    display: flex; align-items: baseline; gap: 3px;
+    padding: 1px 0; cursor: pointer; min-width: 0;
   }
-  .co-etf-row:hover .co-etf-sym { text-decoration: underline; }
-  .co-etf-sym { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--patrimonio); }
-  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
+  .co-etf-row:hover .co-etf-sym { color: var(--patrimonio); }
+  .co-etf-short {
+    font-family: var(--font-sans); font-size: 10px; color: var(--text-muted);
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .co-etf-sym { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 600; flex-shrink: 0; }
+
+  /* Extremos por sector — solo tipografía */
+  .co-row-best .co-pct  { font-weight: 800; color: var(--up-strong) !important; }
+  .co-row-best .co-tick { font-weight: 800; }
+  .co-row-worst .co-pct  { font-weight: 800; color: #b91c1c !important; }
+  .co-row-worst .co-tick { font-weight: 800; }
 
   /* Bloque de sector */
   .sector-block {
@@ -657,6 +693,7 @@
     .co-etf-panel { display: none; }
     .companies-main { grid-template-columns: repeat(2, 1fr); }
     .companies-header { flex-direction: column; align-items: flex-start; }
+    .co-filter-bar { flex-wrap: wrap; }
   }
   @media (max-width: 600px) {
     .header-left h1 { font-size: 38px; }
@@ -713,6 +750,12 @@
           <button data-tf="w1">1S</button>
           <button data-tf="m1">1M</button>
         </div>
+      </div>
+      <div id="coTopMovers" class="co-top-movers" style="display:none"></div>
+      <div class="co-filter-bar">
+        <button class="co-filter-btn active" data-filter="all">Todas</button>
+        <button class="co-filter-btn" data-filter="positive">Solo positivas</button>
+        <button class="co-filter-btn" data-filter="negative">Solo negativas</button>
       </div>
       <div class="co-layout">
         <div class="companies-main" id="companiesMain"></div>
@@ -1576,59 +1619,73 @@ const SECTOR_META = {
   crypto:      { name:'Crypto',       color:'#6d28d9', order:8 },
 };
 
-// Empresas mock (sector_id alineado con etfs.json)
+// Nombres cortos de ETFs para el panel lateral
+const ETF_SHORT_NAMES = {
+  XLK:'Technology SPDR', SMH:'Semiconductors',   QQQ:'Nasdaq 100',
+  XLE:'Energy SPDR',     ICLN:'Clean Energy',     URA:'Uranium',
+  XLF:'Financials SPDR', KRE:'Regional Banking',  KBE:'Banks SPDR',
+  XLV:'Healthcare SPDR', IBB:'Biotechnology',     XBI:'Biotech SPDR',
+  ITA:'Aerospace & Def.',XAR:'A&D SPDR',
+  VNQ:'Real Estate',
+  XLY:'Consumer Disc.',  XLP:'Consumer Staples',
+  IBIT:'Bitcoin Trust',  BITO:'Bitcoin Strategy',
+  SPY:'S&P 500',         IWM:'Russell 2000',      GLD:'Gold Shares',
+};
+
+// Empresas mock — mcap: rango dentro del sector (1 = mayor market cap)
 const MOCK_COMPANIES = [
   // Tecnología
-  { ticker:'AAPL', name:'Apple Inc.',             sector_id:'technology',  etfs:['XLK','QQQ'],      d1: 0.82, w1: 2.15, m1: -3.4 },
-  { ticker:'MSFT', name:'Microsoft Corp.',         sector_id:'technology',  etfs:['XLK','QQQ'],      d1: 1.14, w1: 3.22, m1:  5.1 },
-  { ticker:'NVDA', name:'NVIDIA Corp.',            sector_id:'technology',  etfs:['SMH','QQQ'],      d1: 2.67, w1: 8.43, m1: 18.2 },
-  { ticker:'AMD',  name:'Advanced Micro Devices',  sector_id:'technology',  etfs:['SMH'],            d1: 4.22, w1: 9.10, m1: 21.5 },
-  { ticker:'AVGO', name:'Broadcom Inc.',           sector_id:'technology',  etfs:['XLK','SMH'],      d1: 0.55, w1:-1.20, m1: -2.1 },
-  { ticker:'INTC', name:'Intel Corp.',             sector_id:'technology',  etfs:['SMH','XLK'],      d1:-2.10, w1:-4.80, m1:-12.3 },
-  { ticker:'META', name:'Meta Platforms',          sector_id:'technology',  etfs:['QQQ'],            d1: 1.38, w1: 4.10, m1:  9.3 },
+  { ticker:'AAPL', name:'Apple Inc.',            sector_id:'technology',  etfs:['XLK','QQQ'],       mcap:1, d1: 0.82, w1: 2.15, m1: -3.4 },
+  { ticker:'MSFT', name:'Microsoft Corp.',        sector_id:'technology',  etfs:['XLK','QQQ'],       mcap:2, d1: 1.14, w1: 3.22, m1:  5.1 },
+  { ticker:'NVDA', name:'NVIDIA Corp.',           sector_id:'technology',  etfs:['SMH','QQQ'],       mcap:3, d1: 2.67, w1: 8.43, m1: 18.2 },
+  { ticker:'META', name:'Meta Platforms',         sector_id:'technology',  etfs:['QQQ'],             mcap:4, d1: 1.38, w1: 4.10, m1:  9.3 },
+  { ticker:'AVGO', name:'Broadcom Inc.',          sector_id:'technology',  etfs:['XLK','SMH'],       mcap:5, d1: 0.55, w1:-1.20, m1: -2.1 },
+  { ticker:'AMD',  name:'Advanced Micro Devices', sector_id:'technology',  etfs:['SMH'],             mcap:6, d1: 4.22, w1: 9.10, m1: 21.5 },
+  { ticker:'INTC', name:'Intel Corp.',            sector_id:'technology',  etfs:['SMH','XLK'],       mcap:7, d1:-2.10, w1:-4.80, m1:-12.3 },
   // Energía
-  { ticker:'XOM',  name:'Exxon Mobil Corp.',       sector_id:'energy',      etfs:['XLE'],            d1:-0.44, w1:-1.20, m1: -4.2 },
-  { ticker:'CVX',  name:'Chevron Corp.',           sector_id:'energy',      etfs:['XLE'],            d1:-0.82, w1:-2.10, m1: -5.8 },
-  { ticker:'CCJ',  name:'Cameco Corp.',            sector_id:'energy',      etfs:['URA'],            d1: 3.15, w1: 7.40, m1: 15.2 },
-  { ticker:'NEE',  name:'NextEra Energy',          sector_id:'energy',      etfs:['ICLN'],           d1: 0.43, w1: 1.05, m1:  2.1 },
-  { ticker:'ENPH', name:'Enphase Energy',          sector_id:'energy',      etfs:['ICLN'],           d1:-3.20, w1:-8.50, m1:-18.4 },
+  { ticker:'XOM',  name:'Exxon Mobil Corp.',      sector_id:'energy',      etfs:['XLE'],             mcap:1, d1:-0.44, w1:-1.20, m1: -4.2 },
+  { ticker:'CVX',  name:'Chevron Corp.',          sector_id:'energy',      etfs:['XLE'],             mcap:2, d1:-0.82, w1:-2.10, m1: -5.8 },
+  { ticker:'NEE',  name:'NextEra Energy',         sector_id:'energy',      etfs:['ICLN'],            mcap:3, d1: 0.43, w1: 1.05, m1:  2.1 },
+  { ticker:'ENPH', name:'Enphase Energy',         sector_id:'energy',      etfs:['ICLN'],            mcap:4, d1:-3.20, w1:-8.50, m1:-18.4 },
+  { ticker:'CCJ',  name:'Cameco Corp.',           sector_id:'energy',      etfs:['URA'],             mcap:5, d1: 3.15, w1: 7.40, m1: 15.2 },
   // Financieros
-  { ticker:'JPM',  name:'JPMorgan Chase',          sector_id:'financials',  etfs:['XLF','KBE'],      d1: 0.92, w1: 2.40, m1:  6.5 },
-  { ticker:'BAC',  name:'Bank of America',         sector_id:'financials',  etfs:['XLF','KRE','KBE'],d1: 1.34, w1: 3.10, m1:  8.2 },
-  { ticker:'WFC',  name:'Wells Fargo & Co.',       sector_id:'financials',  etfs:['XLF','KBE'],      d1:-0.55, w1: 0.80, m1:  3.4 },
-  { ticker:'GS',   name:'Goldman Sachs',           sector_id:'financials',  etfs:['XLF'],            d1: 1.88, w1: 4.20, m1: 11.3 },
-  { ticker:'USB',  name:'U.S. Bancorp',            sector_id:'financials',  etfs:['KRE','KBE'],      d1:-1.20, w1:-2.80, m1: -4.1 },
+  { ticker:'JPM',  name:'JPMorgan Chase',         sector_id:'financials',  etfs:['XLF','KBE'],       mcap:1, d1: 0.92, w1: 2.40, m1:  6.5 },
+  { ticker:'BAC',  name:'Bank of America',        sector_id:'financials',  etfs:['XLF','KRE','KBE'], mcap:2, d1: 1.34, w1: 3.10, m1:  8.2 },
+  { ticker:'WFC',  name:'Wells Fargo & Co.',      sector_id:'financials',  etfs:['XLF','KBE'],       mcap:3, d1:-0.55, w1: 0.80, m1:  3.4 },
+  { ticker:'GS',   name:'Goldman Sachs',          sector_id:'financials',  etfs:['XLF'],             mcap:4, d1: 1.88, w1: 4.20, m1: 11.3 },
+  { ticker:'USB',  name:'U.S. Bancorp',           sector_id:'financials',  etfs:['KRE','KBE'],       mcap:5, d1:-1.20, w1:-2.80, m1: -4.1 },
   // Salud
-  { ticker:'LLY',  name:'Eli Lilly & Co.',         sector_id:'healthcare',  etfs:['XLV'],            d1:-2.45, w1:-6.80, m1:-14.2 },
-  { ticker:'UNH',  name:'UnitedHealth Group',      sector_id:'healthcare',  etfs:['XLV'],            d1:-4.20, w1:-9.50, m1:-22.1 },
-  { ticker:'ABBV', name:'AbbVie Inc.',             sector_id:'healthcare',  etfs:['XLV'],            d1: 0.34, w1: 0.90, m1:  2.8 },
-  { ticker:'MRNA', name:'Moderna Inc.',            sector_id:'healthcare',  etfs:['IBB','XBI'],      d1: 5.60, w1:12.30, m1: 28.4 },
-  { ticker:'REGN', name:'Regeneron Pharma.',       sector_id:'healthcare',  etfs:['IBB'],            d1: 1.10, w1: 2.60, m1:  5.9 },
+  { ticker:'UNH',  name:'UnitedHealth Group',     sector_id:'healthcare',  etfs:['XLV'],             mcap:1, d1:-4.20, w1:-9.50, m1:-22.1 },
+  { ticker:'LLY',  name:'Eli Lilly & Co.',        sector_id:'healthcare',  etfs:['XLV'],             mcap:2, d1:-2.45, w1:-6.80, m1:-14.2 },
+  { ticker:'ABBV', name:'AbbVie Inc.',            sector_id:'healthcare',  etfs:['XLV'],             mcap:3, d1: 0.34, w1: 0.90, m1:  2.8 },
+  { ticker:'REGN', name:'Regeneron Pharma.',      sector_id:'healthcare',  etfs:['IBB'],             mcap:4, d1: 1.10, w1: 2.60, m1:  5.9 },
+  { ticker:'MRNA', name:'Moderna Inc.',           sector_id:'healthcare',  etfs:['IBB','XBI'],       mcap:5, d1: 5.60, w1:12.30, m1: 28.4 },
   // Defensa
-  { ticker:'LMT',  name:'Lockheed Martin',         sector_id:'defense',     etfs:['ITA','XAR'],      d1: 0.34, w1: 1.82, m1:  6.7 },
-  { ticker:'RTX',  name:'RTX Corp. (Raytheon)',    sector_id:'defense',     etfs:['ITA','XAR'],      d1:-0.21, w1: 0.65, m1:  4.2 },
-  { ticker:'NOC',  name:'Northrop Grumman',        sector_id:'defense',     etfs:['ITA','XAR'],      d1: 0.78, w1: 2.40, m1:  8.1 },
-  { ticker:'BA',   name:'Boeing Co.',              sector_id:'defense',     etfs:['ITA','XAR'],      d1:-1.12, w1:-3.45, m1: -8.6 },
+  { ticker:'RTX',  name:'RTX Corp.',             sector_id:'defense',     etfs:['ITA','XAR'],        mcap:1, d1:-0.21, w1: 0.65, m1:  4.2 },
+  { ticker:'LMT',  name:'Lockheed Martin',        sector_id:'defense',     etfs:['ITA','XAR'],       mcap:2, d1: 0.34, w1: 1.82, m1:  6.7 },
+  { ticker:'NOC',  name:'Northrop Grumman',       sector_id:'defense',     etfs:['ITA','XAR'],       mcap:3, d1: 0.78, w1: 2.40, m1:  8.1 },
+  { ticker:'BA',   name:'Boeing Co.',             sector_id:'defense',     etfs:['ITA','XAR'],       mcap:4, d1:-1.12, w1:-3.45, m1: -8.6 },
   // Inmobiliario
-  { ticker:'AMT',  name:'American Tower Corp.',    sector_id:'real_estate', etfs:['VNQ'],            d1: 0.44, w1:-0.87, m1: -1.4 },
-  { ticker:'PLD',  name:'Prologis Inc.',           sector_id:'real_estate', etfs:['VNQ'],            d1:-0.68, w1:-2.10, m1: -5.2 },
-  { ticker:'EQIX', name:'Equinix Inc.',            sector_id:'real_estate', etfs:['VNQ'],            d1: 0.92, w1: 1.34, m1:  3.1 },
-  { ticker:'SPG',  name:'Simon Property Group',    sector_id:'real_estate', etfs:['VNQ'],            d1:-0.30, w1:-1.20, m1: -2.8 },
+  { ticker:'AMT',  name:'American Tower Corp.',   sector_id:'real_estate', etfs:['VNQ'],             mcap:1, d1: 0.44, w1:-0.87, m1: -1.4 },
+  { ticker:'PLD',  name:'Prologis Inc.',          sector_id:'real_estate', etfs:['VNQ'],             mcap:2, d1:-0.68, w1:-2.10, m1: -5.2 },
+  { ticker:'EQIX', name:'Equinix Inc.',           sector_id:'real_estate', etfs:['VNQ'],             mcap:3, d1: 0.92, w1: 1.34, m1:  3.1 },
+  { ticker:'SPG',  name:'Simon Property Group',   sector_id:'real_estate', etfs:['VNQ'],             mcap:4, d1:-0.30, w1:-1.20, m1: -2.8 },
   // Consumo
-  { ticker:'AMZN', name:'Amazon.com Inc.',         sector_id:'consumer',    etfs:['XLY'],            d1: 1.55, w1: 3.88, m1:  7.4 },
-  { ticker:'TSLA', name:'Tesla Inc.',              sector_id:'consumer',    etfs:['XLY'],            d1:-2.34, w1:-7.22, m1:-14.8 },
-  { ticker:'WMT',  name:'Walmart Inc.',            sector_id:'consumer',    etfs:['XLP'],            d1: 0.48, w1: 1.20, m1:  4.5 },
-  { ticker:'KO',   name:'Coca-Cola Co.',           sector_id:'consumer',    etfs:['XLP'],            d1: 0.22, w1: 0.55, m1:  1.8 },
-  { ticker:'MCD',  name:"McDonald's Corp.",        sector_id:'consumer',    etfs:['XLY','XLP'],      d1:-0.15, w1:-0.40, m1:  0.9 },
+  { ticker:'AMZN', name:'Amazon.com Inc.',        sector_id:'consumer',    etfs:['XLY'],             mcap:1, d1: 1.55, w1: 3.88, m1:  7.4 },
+  { ticker:'WMT',  name:'Walmart Inc.',           sector_id:'consumer',    etfs:['XLP'],             mcap:2, d1: 0.48, w1: 1.20, m1:  4.5 },
+  { ticker:'MCD',  name:"McDonald's Corp.",       sector_id:'consumer',    etfs:['XLY','XLP'],       mcap:3, d1:-0.15, w1:-0.40, m1:  0.9 },
+  { ticker:'KO',   name:'Coca-Cola Co.',          sector_id:'consumer',    etfs:['XLP'],             mcap:4, d1: 0.22, w1: 0.55, m1:  1.8 },
+  { ticker:'TSLA', name:'Tesla Inc.',             sector_id:'consumer',    etfs:['XLY'],             mcap:5, d1:-2.34, w1:-7.22, m1:-14.8 },
   // Crypto
-  { ticker:'COIN', name:'Coinbase Global',         sector_id:'crypto',      etfs:['IBIT','BITO'],    d1: 3.22, w1:11.40, m1: 22.5 },
-  { ticker:'MSTR', name:'MicroStrategy Inc.',      sector_id:'crypto',      etfs:['IBIT'],           d1: 4.15, w1:14.80, m1: 31.2 },
-  { ticker:'RIOT', name:'Riot Platforms',          sector_id:'crypto',      etfs:['BITO'],           d1:-1.88, w1:-5.40, m1:-12.3 },
-  { ticker:'MARA', name:'Marathon Digital',        sector_id:'crypto',      etfs:['BITO'],           d1: 2.55, w1: 8.20, m1: 19.4 },
+  { ticker:'COIN', name:'Coinbase Global',        sector_id:'crypto',      etfs:['IBIT','BITO'],     mcap:1, d1: 3.22, w1:11.40, m1: 22.5 },
+  { ticker:'MSTR', name:'MicroStrategy Inc.',     sector_id:'crypto',      etfs:['IBIT'],            mcap:2, d1: 4.15, w1:14.80, m1: 31.2 },
+  { ticker:'MARA', name:'Marathon Digital',       sector_id:'crypto',      etfs:['BITO'],            mcap:3, d1: 2.55, w1: 8.20, m1: 19.4 },
+  { ticker:'RIOT', name:'Riot Platforms',         sector_id:'crypto',      etfs:['BITO'],            mcap:4, d1:-1.88, w1:-5.40, m1:-12.3 },
 ];
 
 let companiesCurrentTf = 'd1';
 let companiesActiveSector = null;
+let companiesFilter = 'all';
 
 function getCoVar(co, tf) {
   return { d1: co.d1, w1: co.w1, m1: co.m1 }[tf] ?? null;
@@ -1664,6 +1721,24 @@ function vsSectorCell(anomaly) {
   return `<span class="vs-low">${val}</span>`;
 }
 
+function renderTopMovers(enriched, tf) {
+  const el = document.getElementById('coTopMovers');
+  if (!el) return;
+  const valid = enriched.filter(co => co.coChange != null);
+  if (!valid.length) { el.style.display = 'none'; return; }
+  const top = [...valid].sort((a, b) => Math.abs(b.coChange) - Math.abs(a.coChange)).slice(0, 6);
+  const tfHuman = { d1:'Hoy', w1:'Semana', m1:'Mes' }[tf] || 'Hoy';
+  el.style.display = 'flex';
+  el.innerHTML = `<span class="co-top-label">▸ ${tfHuman}</span>` +
+    top.map((co, i) => {
+      const c = colorFor(co.coChange);
+      return `${i > 0 ? '<span class="co-top-sep">·</span>' : ''}<span class="co-top-item">
+        <span class="co-top-ticker">${co.ticker}</span>
+        <span class="co-top-pct" style="color:${c}">${fmtPct(co.coChange)}</span>
+      </span>`;
+    }).join('');
+}
+
 function renderEtfPanel(sortedSids, sectorData, tf) {
   const panel = document.getElementById('coEtfPanel');
   if (!panel) return;
@@ -1682,8 +1757,10 @@ function renderEtfPanel(sortedSids, sectorData, tf) {
       const p = d?.changes?.[tf];
       const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
       const fullName = etfNameMap[sym] || sym;
+      const shortName = ETF_SHORT_NAMES[sym] || fullName;
       return `<div class="co-etf-row" title="${fullName}">
-        <span class="co-etf-sym">${sym}</span>
+        <span class="co-etf-short">${shortName}</span>
+        <span class="co-etf-sym"> (${sym})</span>
         <span class="co-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}</span>
       </div>`;
     }).join('');
@@ -1772,16 +1849,33 @@ function renderSectorBlocks(sortedSids, grouped, sectorData) {
     const pctStr = s.change != null ? fmtPct(s.change) : '—';
     const pctColor = s.change == null ? 'var(--text-dim)' : s.change > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
 
-    // Ordenar por variación descendente (mejor primero)
-    const sorted = [...companies].sort((a, b) => (b.coChange ?? -Infinity) - (a.coChange ?? -Infinity));
+    // Ordenar por market cap (estable, independiente de timeframe)
+    const byMcap = [...companies].sort((a, b) => (a.mcap ?? 99) - (b.mcap ?? 99));
 
-    const rows = sorted.map(co => {
+    // Identificar extremos para highlight (sin cambiar orden)
+    const withVar = byMcap.filter(c => c.coChange != null);
+    const byVar   = [...withVar].sort((a, b) => b.coChange - a.coChange);
+    const bestSet  = new Set(byVar.slice(0, 2).map(c => c.ticker));
+    const worstSet = new Set(byVar.slice(-2).map(c => c.ticker));
+
+    // Aplicar filtro de positivas/negativas
+    const visible = byMcap.filter(co => {
+      if (companiesFilter === 'positive') return co.coChange != null && co.coChange > 0;
+      if (companiesFilter === 'negative') return co.coChange != null && co.coChange < 0;
+      return true;
+    });
+
+    if (!visible.length) return; // ocultar bloque si el filtro deja vacío el sector
+
+    const rows = visible.map(co => {
       const v = co.coChange;
       const vColor = colorFor(v);
-      // Nombre truncado: máx 14 char antes del ticker
       const shortName = co.name.length > 14 ? co.name.slice(0, 13) + '…' : co.name;
       const needsTitle = co.name.length > 14;
-      return `<div class="co-row" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}"${needsTitle ? ` title="${co.name}"` : ''}>
+      const etfInfo = co.etfs.join(', ');
+      const titleText = needsTitle ? `${co.name} · ETF: ${etfInfo}` : `ETF: ${etfInfo}`;
+      const highlightCls = bestSet.has(co.ticker) ? ' co-row-best' : worstSet.has(co.ticker) ? ' co-row-worst' : '';
+      return `<div class="co-row${highlightCls}" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}" title="${titleText}">
         <span class="co-label">
           <span class="co-name">${shortName}</span>
           <span class="co-tick">(${co.ticker})</span>
@@ -1846,6 +1940,7 @@ function renderCompaniesView(tf) {
   });
 
   // 5. Render
+  renderTopMovers(enriched, tf);
   renderEtfPanel(sortedSids, sectorData, tf);
   renderSectorSidebar(sortedSids, sectorData, tf);
   renderSectorBlocks(sortedSids, grouped, sectorData);
@@ -1860,6 +1955,16 @@ function setupCompaniesView() {
     companiesCurrentTf = btn.dataset.tf;
     renderCompaniesView(companiesCurrentTf);
   });
+
+  document.querySelector('.co-filter-bar').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-filter]');
+    if (!btn) return;
+    document.querySelectorAll('.co-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    companiesFilter = btn.dataset.filter;
+    renderCompaniesView(companiesCurrentTf);
+  });
+
   renderCompaniesView(companiesCurrentTf);
 }
 
