@@ -522,12 +522,56 @@
   .companies-tf-selector button:hover { color: var(--text); background: white; }
   .companies-tf-selector button.active { background: var(--text); color: var(--bg); font-weight: 600; }
 
-  /* Grid de sectores — ancho completo */
+  /* Layout: grid de sectores + panel ETFs */
+  .co-layout {
+    display: grid;
+    grid-template-columns: 1fr 192px;
+    gap: 12px;
+    align-items: start;
+  }
+
+  /* Grid de sectores */
   .companies-main {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 7px;
   }
+
+  /* Panel lateral ETFs */
+  .co-etf-panel {
+    position: sticky; top: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 2px; overflow: hidden;
+    max-height: calc(100vh - 120px); overflow-y: auto;
+  }
+  .co-etf-panel-title {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 7px 10px; border-bottom: 1px solid var(--border);
+    background: #fafaf9; position: sticky; top: 0;
+  }
+  .co-etf-sector {
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .co-etf-sector:last-child { border-bottom: none; }
+  .co-etf-sector-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 5px 10px 3px; gap: 6px;
+  }
+  .co-etf-sector-name {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+    color: var(--text); display: flex; align-items: center; gap: 4px;
+  }
+  .co-etf-sector-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .co-etf-sector-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
+  .co-etf-list { padding: 0 10px 5px 20px; }
+  .co-etf-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 1px 0; cursor: pointer;
+  }
+  .co-etf-row:hover .co-etf-sym { text-decoration: underline; }
+  .co-etf-sym { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--patrimonio); }
+  .co-etf-pct { font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
 
   /* Bloque de sector */
   .sector-block {
@@ -553,13 +597,22 @@
   /* Filas de empresa — ultra compactas */
   .co-row {
     display: flex; justify-content: space-between; align-items: baseline;
-    padding: 2px 8px; border-bottom: 1px solid var(--border-soft);
+    gap: 4px; padding: 2px 8px; border-bottom: 1px solid var(--border-soft);
     cursor: pointer; transition: background 0.06s;
   }
   .co-row:last-child { border-bottom: none; }
   .co-row:hover { background: #f7f6f4; }
-  .co-tick { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text); }
-  .co-pct  { font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+  .co-label {
+    display: flex; align-items: baseline; gap: 4px;
+    min-width: 0; flex: 1; overflow: hidden;
+  }
+  .co-name {
+    font-family: var(--font-sans); font-size: 11px; color: var(--text-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 90px; flex-shrink: 1;
+  }
+  .co-tick { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+  .co-pct  { font-family: var(--font-mono); font-size: 11px; font-weight: 600; flex-shrink: 0; }
 
   /* Sidebar (oculto en esta vista, lógica preservada) */
   .sector-sidebar { display: none; }
@@ -600,6 +653,8 @@
     .search-input { width: 100%; }
     .heatmap-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
     .flow-grid { grid-template-columns: 1fr; gap: 16px; }
+    .co-layout { grid-template-columns: 1fr; }
+    .co-etf-panel { display: none; }
     .companies-main { grid-template-columns: repeat(2, 1fr); }
     .companies-header { flex-direction: column; align-items: flex-start; }
   }
@@ -659,8 +714,10 @@
           <button data-tf="m1">1M</button>
         </div>
       </div>
-      <div class="companies-main" id="companiesMain"></div>
-      <!-- sidebar preservado para lógica, oculto vía CSS -->
+      <div class="co-layout">
+        <div class="companies-main" id="companiesMain"></div>
+        <aside class="co-etf-panel" id="coEtfPanel"></aside>
+      </div>
       <div id="sectorSidebar" style="display:none"></div>
     </div>
 
@@ -1607,6 +1664,52 @@ function vsSectorCell(anomaly) {
   return `<span class="vs-low">${val}</span>`;
 }
 
+function renderEtfPanel(sortedSids, sectorData, tf) {
+  const panel = document.getElementById('coEtfPanel');
+  if (!panel) return;
+
+  const etfNameMap = {};
+  for (const s of flowSectors) for (const e of s.etfs) etfNameMap[e.symbol] = e.name;
+
+  const html = sortedSids.map(sid => {
+    const s = sectorData[sid];
+    const pctVal = s.change;
+    const pctStr = pctVal != null ? fmtPct(pctVal) : '—';
+    const pctColor = pctVal == null ? 'var(--text-dim)' : pctVal > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+
+    const etfRows = (ETF_BY_SECTOR[sid] ?? []).slice(0, 3).map(sym => {
+      const d = flowAllData[sym];
+      const p = d?.changes?.[tf];
+      const pColor = p == null ? 'var(--text-dim)' : p > 0 ? 'var(--up-strong)' : 'var(--down-strong)';
+      const fullName = etfNameMap[sym] || sym;
+      return `<div class="co-etf-row" title="${fullName}">
+        <span class="co-etf-sym">${sym}</span>
+        <span class="co-etf-pct" style="color:${pColor}">${p != null ? fmtPct(p) : '—'}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="co-etf-sector">
+      <div class="co-etf-sector-head">
+        <span class="co-etf-sector-name">
+          <span class="co-etf-sector-dot" style="background:${s.color}"></span>
+          ${s.name}
+        </span>
+        <span class="co-etf-sector-pct" style="color:${pctColor}">${pctStr}</span>
+      </div>
+      <div class="co-etf-list">${etfRows}</div>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `<div class="co-etf-panel-title">ETFs por sector</div>${html}`;
+
+  panel.querySelectorAll('.co-etf-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const sym = row.querySelector('.co-etf-sym')?.textContent;
+      if (sym && flowAllData[sym]) openModal(sym, row.title || sym);
+    });
+  });
+}
+
 function renderSectorSidebar(sortedSids, sectorData, tf) {
   const sidebar = document.getElementById('sectorSidebar');
   if (!sidebar) return;
@@ -1675,8 +1778,14 @@ function renderSectorBlocks(sortedSids, grouped, sectorData) {
     const rows = sorted.map(co => {
       const v = co.coChange;
       const vColor = colorFor(v);
-      return `<div class="co-row" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}" title="${co.name}">
-        <span class="co-tick">${co.ticker}</span>
+      // Nombre truncado: máx 14 char antes del ticker
+      const shortName = co.name.length > 14 ? co.name.slice(0, 13) + '…' : co.name;
+      const needsTitle = co.name.length > 14;
+      return `<div class="co-row" data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}"${needsTitle ? ` title="${co.name}"` : ''}>
+        <span class="co-label">
+          <span class="co-name">${shortName}</span>
+          <span class="co-tick">(${co.ticker})</span>
+        </span>
         <span class="co-pct" style="color:${vColor}">${fmtPct(v)}</span>
       </div>`;
     }).join('');
@@ -1737,6 +1846,7 @@ function renderCompaniesView(tf) {
   });
 
   // 5. Render
+  renderEtfPanel(sortedSids, sectorData, tf);
   renderSectorSidebar(sortedSids, sectorData, tf);
   renderSectorBlocks(sortedSids, grouped, sectorData);
 }
