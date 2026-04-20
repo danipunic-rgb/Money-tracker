@@ -485,6 +485,110 @@
   .footer a { color: var(--patrimonio); text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
 
+  /* ——— VIEW TABS ——— */
+  .view-tabs {
+    display: flex; gap: 0; margin-bottom: 28px;
+    border-bottom: 2px solid var(--border);
+  }
+  .view-tab {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 12px 22px; background: transparent; border: none;
+    color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .view-tab:hover { color: var(--text); }
+  .view-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+  /* ——— COMPANIES VIEW ——— */
+  .companies-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .companies-title {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: 22px; letter-spacing: -0.015em;
+  }
+  .companies-subtitle {
+    font-family: var(--font-serif); font-style: italic;
+    font-size: 13px; color: var(--text-muted); margin-top: 4px;
+  }
+  .companies-tf-selector {
+    display: inline-flex; border: 1px solid var(--border);
+    border-radius: 2px; overflow: hidden; background: #fafaf9;
+  }
+  .companies-tf-selector button {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    padding: 7px 14px; background: transparent; border: none;
+    color: var(--text-muted); cursor: pointer; letter-spacing: 0.08em;
+    transition: all 0.12s; border-right: 1px solid var(--border);
+  }
+  .companies-tf-selector button:last-child { border-right: none; }
+  .companies-tf-selector button:hover { color: var(--text); background: white; }
+  .companies-tf-selector button.active { background: var(--text); color: var(--bg); font-weight: 600; }
+
+  .companies-table {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border); border-radius: 2px;
+    border-collapse: collapse; table-layout: fixed;
+  }
+  .companies-table thead th {
+    font-family: var(--font-mono); font-weight: 500;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted); padding: 12px 12px;
+    text-align: right; border-bottom: 1px solid var(--border);
+    background: #fafaf9;
+  }
+  .companies-table thead th.al { text-align: left; }
+  .companies-table thead th.sortable { cursor: pointer; user-select: none; }
+  .companies-table thead th.sortable:hover { color: var(--text); }
+  .companies-table thead th.sort-active { color: var(--text); }
+  .companies-table tbody tr {
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.12s; cursor: pointer;
+  }
+  .companies-table tbody tr:last-child { border-bottom: none; }
+  .companies-table tbody tr:hover { background: #fafaf9; }
+  .companies-table td {
+    padding: 13px 12px; font-family: var(--font-mono);
+    font-size: 13px; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .companies-table td.al { text-align: left; }
+  .col-co-tick { width: 80px; }
+  .col-co-name { width: 28%; }
+  .col-co-sector { width: 16%; }
+  .col-co-etf { width: 100px; }
+  .col-co-var { width: auto; }
+  .co-ticker { font-weight: 600; font-size: 14px; color: var(--patrimonio); }
+  .co-name { font-family: var(--font-sans) !important; color: var(--text); font-size: 13px; }
+  .co-sector { font-family: var(--font-sans) !important; font-size: 12px; color: var(--text-muted); }
+  .co-etf-badge {
+    display: inline-block; font-family: var(--font-mono); font-size: 10px;
+    font-weight: 600; padding: 2px 6px; background: #f1efec;
+    border: 1px solid var(--border); border-radius: 2px; color: var(--text-muted);
+  }
+
+  /* ——— COMPANY MODAL ——— */
+  .co-modal-etf-list { margin-top: 4px; }
+  .co-modal-etf-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+    font-family: var(--font-mono); font-size: 13px;
+  }
+  .co-modal-etf-row:last-child { border-bottom: none; }
+  .co-modal-etf-sym { font-weight: 600; color: var(--patrimonio); }
+  .co-modal-etf-name { font-family: var(--font-sans); font-size: 12px; color: var(--text-muted); flex: 1; padding: 0 12px; }
+  .co-modal-weight { font-size: 12px; color: var(--text-muted); }
+
+  .mock-badge {
+    display: inline-block; font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 7px; background: #fef9c3; border: 1px solid #fef08a;
+    color: #854d0e; border-radius: 2px; margin-left: 8px; vertical-align: middle;
+  }
+
   @media (max-width: 960px) {
     body { padding: 24px 16px 48px; }
     .header { flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -499,6 +603,9 @@
     .search-input { width: 100%; }
     .heatmap-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 4px; }
     .flow-grid { grid-template-columns: 1fr; gap: 16px; }
+    .companies-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .col-co-sector { display: none; }
+    .companies-header { flex-direction: column; align-items: flex-start; }
   }
   @media (max-width: 600px) {
     .header-left h1 { font-size: 38px; }
@@ -536,6 +643,44 @@
         </div>
       </div>
     </header>
+
+    <!-- Tab navigation -->
+    <nav class="view-tabs">
+      <button class="view-tab active" data-view="companies">Empresas</button>
+      <button class="view-tab" data-view="etfs">ETFs &amp; Sectores</button>
+    </nav>
+
+    <!-- ====== COMPANIES VIEW ====== -->
+    <div id="companiesView">
+      <div class="companies-header">
+        <div>
+          <div class="companies-title">Holdings <span class="mock-badge">Demo</span></div>
+          <div class="companies-subtitle">Empresas en cartera de los ETFs rastreados · click para ver exposición</div>
+        </div>
+        <div class="companies-tf-selector" id="companiesTfSelector">
+          <button data-tf="d1" class="active">1D</button>
+          <button data-tf="w1">1S</button>
+          <button data-tf="m1">1M</button>
+        </div>
+      </div>
+      <table class="companies-table" id="companiesTable">
+        <thead>
+          <tr>
+            <th class="col-co-tick al">Ticker</th>
+            <th class="col-co-name al">Empresa</th>
+            <th class="col-co-sector al">Sector</th>
+            <th class="col-co-etf">ETF principal</th>
+            <th class="col-co-var sortable sort-active" id="thVariacion">Variación ↕</th>
+          </tr>
+        </thead>
+        <tbody id="companiesTbody">
+          <tr><td colspan="5" style="text-align:center;padding:32px;font-family:var(--font-serif);font-style:italic;color:var(--text-dim);">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ====== ETFs & SECTORS VIEW ====== -->
+    <div id="etfsView" style="display:none;">
 
     <div id="infoBar" class="info-bar" style="display:none;">
       <div class="left" id="infoLeft"></div>
@@ -633,10 +778,22 @@
     </div>
     <div id="sectorsContainer"></div>
 
+    </div><!-- /etfsView -->
+
     <footer class="footer">
       Backend: <a href="https://supabase.com/dashboard/project/rieyywfkpprgkenljilm" target="_blank">Supabase money-tracker</a> ·
       Cron activo 22:30 UTC L-V · Datos vía Yahoo Finance (adj. close)
     </footer>
+  </div>
+
+  <!-- Modal empresa → ETFs donde aparece -->
+  <div class="modal-backdrop" id="coModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="coModalClose" aria-label="Cerrar">×</button>
+      <h3><span class="sym" id="coModalTicker">—</span> <span id="coModalName">—</span></h3>
+      <div class="modal-sub" id="coModalSub">Exposición a través de ETFs</div>
+      <div id="coModalBody"></div>
+    </div>
   </div>
 
   <!-- Modal drill-down ETF → holdings -->
@@ -1346,9 +1503,164 @@ async function forceFetch() {
   }
 }
 
+// ================================================================
+// COMPANIES VIEW — mock data + holdings.json merge
+// ================================================================
+const MOCK_COMPANIES = [
+  // Tecnología
+  { ticker: 'AAPL',  name: 'Apple Inc.',               sector: 'Tecnología',   etfs: ['QQQ','VGT'],      d1:  0.82, w1:  2.15, m1: -3.4  },
+  { ticker: 'MSFT',  name: 'Microsoft Corp.',           sector: 'Tecnología',   etfs: ['QQQ','VGT'],      d1:  1.14, w1:  3.22, m1:  5.1  },
+  { ticker: 'NVDA',  name: 'NVIDIA Corp.',              sector: 'Tecnología',   etfs: ['QQQ','VGT'],      d1:  2.67, w1:  8.43, m1: 18.2  },
+  { ticker: 'GOOGL', name: 'Alphabet Inc.',             sector: 'Tecnología',   etfs: ['QQQ'],            d1: -0.43, w1:  1.05, m1:  2.8  },
+  { ticker: 'META',  name: 'Meta Platforms',            sector: 'Tecnología',   etfs: ['QQQ'],            d1:  1.38, w1:  4.10, m1:  9.3  },
+  { ticker: 'AVGO',  name: 'Broadcom Inc.',             sector: 'Tecnología',   etfs: ['QQQ','VGT'],      d1:  0.55, w1: -1.20, m1: -2.1  },
+  // Defensa
+  { ticker: 'LMT',   name: 'Lockheed Martin',           sector: 'Defensa',      etfs: ['ITA','XAR'],      d1:  0.34, w1:  1.82, m1:  6.7  },
+  { ticker: 'RTX',   name: 'RTX Corp. (Raytheon)',      sector: 'Defensa',      etfs: ['ITA','XAR'],      d1: -0.21, w1:  0.65, m1:  4.2  },
+  { ticker: 'NOC',   name: 'Northrop Grumman',          sector: 'Defensa',      etfs: ['ITA','XAR'],      d1:  0.78, w1:  2.40, m1:  8.1  },
+  { ticker: 'GD',    name: 'General Dynamics',          sector: 'Defensa',      etfs: ['ITA'],            d1: -0.55, w1: -0.90, m1:  2.3  },
+  { ticker: 'BA',    name: 'Boeing Co.',                sector: 'Defensa',      etfs: ['ITA','XAR'],      d1: -1.12, w1: -3.45, m1: -8.6  },
+  // Inmobiliario
+  { ticker: 'AMT',   name: 'American Tower Corp.',      sector: 'Inmobiliario', etfs: ['VNQ'],            d1:  0.44, w1: -0.87, m1: -1.4  },
+  { ticker: 'PLD',   name: 'Prologis Inc.',             sector: 'Inmobiliario', etfs: ['VNQ'],            d1: -0.68, w1: -2.10, m1: -5.2  },
+  { ticker: 'EQIX',  name: 'Equinix Inc.',              sector: 'Inmobiliario', etfs: ['VNQ'],            d1:  0.92, w1:  1.34, m1:  3.1  },
+  { ticker: 'O',     name: 'Realty Income Corp.',       sector: 'Inmobiliario', etfs: ['VNQ'],            d1: -0.15, w1:  0.42, m1:  1.2  },
+  // Consumo Discrecional
+  { ticker: 'AMZN',  name: 'Amazon.com Inc.',           sector: 'Consumo',      etfs: ['XLY'],            d1:  1.55, w1:  3.88, m1:  7.4  },
+  { ticker: 'TSLA',  name: 'Tesla Inc.',                sector: 'Consumo',      etfs: ['XLY'],            d1: -2.34, w1: -7.22, m1:-14.8  },
+  { ticker: 'HD',    name: 'Home Depot Inc.',           sector: 'Consumo',      etfs: ['XLY','XLP'],      d1:  0.23, w1: -0.55, m1:  0.9  },
+  // Consumo Básico
+  { ticker: 'WMT',   name: 'Walmart Inc.',              sector: 'Consumo',      etfs: ['XLP'],            d1:  0.48, w1:  1.20, m1:  4.5  },
+  { ticker: 'PG',    name: 'Procter & Gamble Co.',      sector: 'Consumo',      etfs: ['XLP'],            d1: -0.12, w1:  0.33, m1:  1.8  },
+  { ticker: 'COST',  name: 'Costco Wholesale',          sector: 'Consumo',      etfs: ['XLP'],            d1:  0.71, w1:  2.05, m1:  5.3  },
+  // Crypto-proxy
+  { ticker: 'COIN',  name: 'Coinbase Global',           sector: 'Crypto',       etfs: ['IBIT','BITO'],    d1:  3.22, w1: 11.40, m1: 22.5  },
+  { ticker: 'MSTR',  name: 'MicroStrategy Inc.',        sector: 'Crypto',       etfs: ['IBIT'],           d1:  4.15, w1: 14.80, m1: 31.2  },
+  { ticker: 'RIOT',  name: 'Riot Platforms',            sector: 'Crypto',       etfs: ['BITO'],           d1: -1.88, w1: -5.40, m1:-12.3  },
+];
+
+let companiesCurrentTf = 'd1';
+let companiesSortDesc = true;
+
+function getCompanyVar(co, tf) {
+  return { d1: co.d1, w1: co.w1, m1: co.m1 }[tf] ?? null;
+}
+
+function renderCompanies(tf) {
+  const tbody = document.getElementById('companiesTbody');
+  if (!tbody) return;
+
+  const sorted = [...MOCK_COMPANIES].sort((a, b) => {
+    const va = getCompanyVar(a, tf), vb = getCompanyVar(b, tf);
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1; if (vb == null) return -1;
+    return companiesSortDesc ? vb - va : va - vb;
+  });
+
+  tbody.innerHTML = sorted.map(co => {
+    const v = getCompanyVar(co, tf);
+    const pctClass = v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
+    const bgClass  = bg(v);
+    return `<tr data-ticker="${co.ticker}" data-name="${co.name.replace(/"/g,'&quot;')}">
+      <td class="al"><span class="co-ticker">${co.ticker}</span></td>
+      <td class="al co-name">${co.name}</td>
+      <td class="al co-sector">${co.sector}</td>
+      <td><span class="co-etf-badge">${co.etfs[0]}</span>${co.etfs.length > 1 ? `<span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-left:4px">+${co.etfs.length-1}</span>` : ''}</td>
+      <td class="pct-cell ${pctClass} ${bgClass}" data-mag="${mag(v)}">${fmtPct(v)}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('tr').forEach(row => {
+    row.addEventListener('click', () => openCompanyModal(row.dataset.ticker, row.dataset.name));
+  });
+}
+
+function setupCompaniesView() {
+  // Timeframe selector
+  document.getElementById('companiesTfSelector').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-tf]');
+    if (!btn) return;
+    document.querySelectorAll('#companiesTfSelector button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    companiesCurrentTf = btn.dataset.tf;
+    renderCompanies(companiesCurrentTf);
+  });
+
+  // Sort toggle
+  document.getElementById('thVariacion').addEventListener('click', () => {
+    companiesSortDesc = !companiesSortDesc;
+    document.getElementById('thVariacion').textContent = 'Variación ' + (companiesSortDesc ? '↕' : '↑');
+    renderCompanies(companiesCurrentTf);
+  });
+
+  renderCompanies(companiesCurrentTf);
+}
+
+function openCompanyModal(ticker, name) {
+  const co = MOCK_COMPANIES.find(c => c.ticker === ticker);
+  document.getElementById('coModalTicker').textContent = ticker;
+  document.getElementById('coModalName').textContent = name;
+  document.getElementById('coModalSub').textContent = 'Presencia en ETFs rastreados';
+
+  const body = document.getElementById('coModalBody');
+  const etfNameMap = {};
+  for (const s of flowSectors) for (const e of s.etfs) etfNameMap[e.symbol] = e.name;
+
+  if (!co || !co.etfs.length) {
+    body.innerHTML = '<div class="modal-empty">Sin ETFs registrados.</div>';
+  } else {
+    body.innerHTML = `
+      <div class="co-modal-etf-list">
+        ${co.etfs.map(sym => `
+          <div class="co-modal-etf-row">
+            <span class="co-modal-etf-sym">${sym}</span>
+            <span class="co-modal-etf-name">${etfNameMap[sym] || '—'}</span>
+            <span class="co-modal-weight" style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim)">holding</span>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:16px;padding:10px 14px;background:#fafaf9;border-left:2px solid var(--border);font-family:var(--font-serif);font-style:italic;font-size:12px;color:var(--text-muted);">
+        Pesos reales disponibles cuando <code>holdings.json</code> se pueble vía cron semanal.
+      </div>`;
+  }
+
+  document.getElementById('coModalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function setupCompanyModal() {
+  document.getElementById('coModalClose').addEventListener('click', () => {
+    document.getElementById('coModalBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  });
+  document.getElementById('coModalBackdrop').addEventListener('click', e => {
+    if (e.target.id === 'coModalBackdrop') {
+      document.getElementById('coModalBackdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+}
+
+// ================================================================
+// VIEW TABS
+// ================================================================
+function setupViewTabs() {
+  document.querySelectorAll('.view-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const view = tab.dataset.view;
+      document.getElementById('companiesView').style.display = view === 'companies' ? '' : 'none';
+      document.getElementById('etfsView').style.display = view === 'etfs' ? '' : 'none';
+    });
+  });
+}
+
 // ——— INIT ———
 document.getElementById('refreshBtn').addEventListener('click', loadAll);
 document.getElementById('fetchBtn').addEventListener('click', forceFetch);
+setupViewTabs();
+setupCompaniesView();
+setupCompanyModal();
 setupFlowSelector();
 setupModal();
 setupSearch();

@@ -35,7 +35,7 @@ No negociable salvo que Dani las cambie explícitamente:
 **No hay múltiples agentes commiteando por separado.** Esto es un proyecto de 1 persona; la complejidad multi-agente no aporta. El modelo es:
 
 - **Dani (humano):** único autor humano. Decide qué hacer. Revisa y aprueba antes de push cuando toca algo sensible.
-- **Cowork / Claude Code (un solo agente por sesión):** lee este archivo, ejecuta tareas, escribe código, puede hacer commit y push por su cuenta cuando Dani le da luz verde.
+- **Cowork / Claude Code (un solo agente por sesión):** lee este archivo, ejecuta tareas, escribe código. **Siempre hace commit y push al terminar cualquier cambio pedido por Dani**, sin necesidad de pedir confirmación explícita.
 - **Subagentes (Task tool):** herramientas puntuales dentro de una sesión para investigación o tareas paralelas. No son entidades persistentes.
 - **Scripts Python en `agents/`:** NO son agentes LLM. Son scripts deterministas que corren en GitHub Actions. El nombre se mantuvo por legacy.
 
@@ -45,7 +45,7 @@ Cuando Dani abra una sesión de Cowork/Claude Code, el orden canónico es:
 2. Leer `ARCHITECTURE.md` si la tarea toca decisiones de diseño
 3. Ejecutar la tarea
 4. Si hay cambios estructurales → actualizar estos docs en el mismo commit
-5. Commit + push
+5. Commit + push (siempre, sin esperar confirmación)
 
 ---
 
