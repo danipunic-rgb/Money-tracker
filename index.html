@@ -783,29 +783,19 @@
      GLOBAL MARKET MAP — image + positioned cards
   ================================================================ */
   #global-market-map {
-    margin: 0 -40px 36px;
+    margin: 0 0 36px;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     background: #f3f4f6;
   }
   .gmm-hdr {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 16px; background: #fff;
-    border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; gap: 8px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 8px 16px 0;
   }
   .gmm-hdr-left { display: flex; flex-direction: column; gap: 1px; }
   .gmm-hdr-title { font-family: var(--font-sans); font-size: 13px; font-weight: 700; color: #111827; }
   .gmm-hdr-sub { font-size: 10px; color: #6b7280; }
-  .gmm-toggle-pill {
-    display: inline-flex; background: #f3f4f6;
-    border: 1px solid #d1d5db; border-radius: 4px; overflow: hidden;
-  }
-  .gmm-tog {
-    background: none; border: none; color: #6b7280;
-    padding: 4px 12px; cursor: pointer;
-    font-family: var(--font-sans); font-size: 11px; transition: all .15s;
-  }
-  .gmm-tog.active { background: #fff; color: #111827; font-weight: 600; }
   .gmm-body { display: grid; grid-template-columns: 65% 35%; }
   .gmm-map-wrap { background: #f3f4f6; border-right: 1px solid #e5e7eb; padding: 10px 12px 6px; }
   .gmm-map-frame {
@@ -902,14 +892,16 @@
     <section id="global-market-map">
 
       <div class="gmm-hdr">
-        <div class="gmm-hdr-left">
-          <span class="gmm-hdr-title">Las principales Bolsas</span>
-          <span class="gmm-hdr-sub">Datos orientativos · ETFs reales cuando disponibles</span>
+        <div class="companies-tf-selector" id="companiesTfSelector">
+          <button data-tf="d1" class="active">1D</button>
+          <button data-tf="w1">1S</button>
+          <button data-tf="m1">1M</button>
+          <button data-tf="ytd">YTD</button>
+          <button data-tf="y1">1A</button>
+          <button data-tf="y2">2A</button>
         </div>
-        <div class="gmm-toggle-pill" id="gmmToggle">
-          <button class="gmm-tog active" data-mode="ses">En la sesión</button>
-          <button class="gmm-tog" data-mode="sem">En la semana</button>
-        </div>
+        <div id="coTopMovers" class="co-top-movers" style="display:none"></div>
+        <div id="coSectorStrip" class="co-sector-strip"></div>
       </div>
 
       <div class="gmm-body">
@@ -917,7 +909,6 @@
           <div class="gmm-map-frame" id="gmmMapFrame">
             <img class="gmm-map-img" src="world-map.jpg" alt="World Map">
           </div>
-          <div class="gmm-map-footer">Fuente: Bloomberg · datos orientativos</div>
         </div>
         <div class="gmm-rank-panel">
           <div class="gmm-rank-title">Rendimientos <span class="gmm-rank-title-sub">En %</span></div>
@@ -930,31 +921,9 @@
       </div>
     </section>
 
-    <!-- ====== ETF SECTOR TABLES ====== -->
-    <div class="search-bar" style="margin-top:32px">
-      <input class="search-input" id="searchInput" type="search" placeholder="Buscar ETF…" autocomplete="off" spellcheck="false">
-      <span class="search-count" id="searchCount"></span>
-    </div>
-    <div id="sectorsContainer"></div>
-
     <!-- ====== COMPANIES ====== -->
     <div id="companiesView">
-      <div class="companies-header">
-        <div>
-          <div class="companies-title">Empresas <span class="mock-badge">Demo</span></div>
-          <div class="companies-subtitle">Ticker · % variación · selector cambia timeframe global</div>
-        </div>
-        <div class="companies-tf-selector" id="companiesTfSelector">
-          <button data-tf="d1" class="active">1D</button>
-          <button data-tf="w1">1S</button>
-          <button data-tf="m1">1M</button>
-          <button data-tf="ytd">YTD</button>
-          <button data-tf="y1">1A</button>
-          <button data-tf="y2">2A</button>
-        </div>
-      </div>
-      <div id="coTopMovers" class="co-top-movers" style="display:none"></div>
-      <div id="coSectorStrip" class="co-sector-strip"></div>
+
       <div class="co-search-bar">
         <span class="co-search-icon">⌕</span>
         <input type="text" id="coSearchInput" class="co-search-input" placeholder="Buscar empresa o ticker…" autocomplete="off">
@@ -1201,7 +1170,7 @@ function renderHeatmapSkeleton(sectors) {
 
 function renderSectors(sectors) {
   const container = document.getElementById('sectorsContainer');
-  container.innerHTML = '';
+  if (!container) return;
   for (const sector of sectors) {
     const section = document.createElement('section');
     section.className = 'sector';
@@ -1446,7 +1415,7 @@ function setupModal() {
     if (e.key === 'Escape') closeModal();
   });
   // Delegación: click en fila de ETF abre modal
-  document.getElementById('sectorsContainer').addEventListener('click', (e) => {
+  document.getElementById('sectorsContainer')?.addEventListener('click', (e) => {
     const row = e.target.closest('tr[id^="row-"]');
     if (!row) return;
     const symbol = row.id.replace('row-', '');
@@ -1551,6 +1520,7 @@ function renderBrief(sectors, allData) {
 // ================================================================
 function setupSearch() {
   const input = document.getElementById('searchInput');
+  if (!input) return;
   const countEl = document.getElementById('searchCount');
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
@@ -2207,45 +2177,44 @@ function setupCompanyModal() {
 const MARKETS = [
   { id:'eeuu', label:'EE UU', flag:'',
     indices:[{ name:'S&P 500', etfProxy:'SPY', mockD1:1.2, mockW1:4.54 },{ name:'Dow Jones', etfProxy:null, mockD1:1.79, mockW1:3.19 },{ name:'Nasdaq', etfProxy:'QQQ', mockD1:1.52, mockW1:6.84 }],
-    labelPos:{x:1,y:30} },
+    labelPos:{x:8,y:30} },
   { id:'ftse100', label:'FTSE 100 (R. Unido)', flag:String.fromCodePoint(0x1F1EC,0x1F1E7),
     indices:[{ name:'', etfProxy:null, mockD1:0.73, mockW1:0.63 }],
-    labelPos:{x:29,y:4} },
+    labelPos:{x:37,y:22} },
   { id:'dax', label:'DAX (Alemania)', flag:String.fromCodePoint(0x1F1E9,0x1F1EA),
     indices:[{ name:'', etfProxy:null, mockD1:2.27, mockW1:3.77 }],
-    labelPos:{x:45,y:4} },
+    labelPos:{x:48,y:29} },
   { id:'swiss', label:'Swiss MKT (Suiza)', flag:String.fromCodePoint(0x1F1E8,0x1F1ED),
     indices:[{ name:'', etfProxy:null, mockD1:1.92, mockW1:1.85 }],
-    labelPos:{x:58,y:4} },
+    labelPos:{x:57,y:22} },
   { id:'nikkei', label:'Nikkei (Japón)', flag:String.fromCodePoint(0x1F1EF,0x1F1F5),
     indices:[{ name:'', etfProxy:null, mockD1:-1.75, mockW1:2.73 }],
-    labelPos:{x:74,y:24} },
+    labelPos:{x:76,y:30} },
   { id:'ibex35', label:'Ibex 35 (España)', flag:String.fromCodePoint(0x1F1EA,0x1F1F8),
     indices:[{ name:'', etfProxy:null, mockD1:2.18, mockW1:1.54 }],
-    labelPos:{x:38,y:50} },
+    labelPos:{x:37,y:47} },
   { id:'eurostoxx', label:'Euro Stoxx 50', flag:String.fromCodePoint(0x1F1EA,0x1F1FA),
     indices:[{ name:'', etfProxy:null, mockD1:2.1, mockW1:2.22 }],
-    labelPos:{x:31,y:70} },
+    labelPos:{x:44,y:9} },
   { id:'cac40', label:'CAC 40 (Francia)', flag:String.fromCodePoint(0x1F1EB,0x1F1F7),
     indices:[{ name:'', etfProxy:null, mockD1:1.97, mockW1:2.0 }],
-    labelPos:{x:43,y:74} },
+    labelPos:{x:38,y:32} },
   { id:'ftse_mib', label:'FTSE Mib (Italia)', flag:String.fromCodePoint(0x1F1EE,0x1F1F9),
     indices:[{ name:'', etfProxy:null, mockD1:1.75, mockW1:2.65 }],
-    labelPos:{x:55,y:78} },
+    labelPos:{x:50,y:46} },
   { id:'hangseng', label:'China', flag:String.fromCodePoint(0x1F1E8,0x1F1F3),
     indices:[{ name:'Hang Seng', etfProxy:null, mockD1:-0.89, mockW1:1.03 },{ name:'CSI 300', etfProxy:null, mockD1:-0.17, mockW1:1.99 }],
-    labelPos:{x:65,y:46} }
+    labelPos:{x:64,y:44} }
 ];
 
-let gmmMode = 'ses'; // 'ses'=sesion/d1 | 'sem'=semana/w1
+let gmmMode = 'd1'; // matches companiesTfSelector data-tf values
 
 function gmmMarketPct(idx, mode) {
-  const tf = mode === 'ses' ? 'd1' : 'w1';
   if (idx.etfProxy) {
-    const v = flowAllData[idx.etfProxy]?.changes?.[tf];
+    const v = flowAllData[idx.etfProxy]?.changes?.[mode];
     if (v != null) return Number(v);
   }
-  return mode === 'ses' ? idx.mockD1 : idx.mockW1;
+  return mode === 'w1' ? idx.mockW1 : idx.mockD1;
 }
 
 function renderGlobalMarketMap() {
@@ -2275,7 +2244,7 @@ function renderGlobalMarketMap() {
   }
 
   // Ranking panel
-  const tf = gmmMode === 'ses' ? 'd1' : 'w1';
+  const tf = gmmMode;
   const scored = MOCK_COMPANIES.map(co => {
     const v = getCoVar(co, tf);
     return { co, v: v != null ? Number(v) : null };
@@ -2296,14 +2265,11 @@ function renderGlobalMarketMap() {
 }
 
 function setupGMM() {
-  const tog = document.getElementById('gmmToggle');
-  if (!tog) return;
-  tog.addEventListener('click', e => {
-    const btn = e.target.closest('[data-mode]');
+  // TF selector is shared with companies view; update gmmMode and re-render cards
+  document.getElementById('companiesTfSelector')?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-tf]');
     if (!btn) return;
-    tog.querySelectorAll('.gmm-tog').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    gmmMode = btn.dataset.mode;
+    gmmMode = btn.dataset.tf;
     renderGlobalMarketMap();
   });
 }
