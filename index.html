@@ -780,126 +780,95 @@
   }
 
   /* ================================================================
-     GLOBAL MARKET MAP — editorial / Bloomberg style
+     GLOBAL MARKET MAP — image + positioned cards
   ================================================================ */
   #global-market-map {
     margin: 0 -40px 36px;
-    border-top: 2px solid #1a1a1a;
-    border-bottom: 2px solid #1a1a1a;
-    background: #f5f0e8;
-    font-family: var(--font-mono);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: #f3f4f6;
   }
-  .gmm-masthead {
+  .gmm-hdr {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 7px 16px; background: #1a1a1a; flex-wrap: wrap; gap: 8px;
+    padding: 8px 16px; background: #fff;
+    border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; gap: 8px;
   }
-  .gmm-masthead-title {
-    font-family: var(--font-sans); font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.12em; color: #c8bfaa;
+  .gmm-hdr-left { display: flex; flex-direction: column; gap: 1px; }
+  .gmm-hdr-title { font-family: var(--font-sans); font-size: 13px; font-weight: 700; color: #111827; }
+  .gmm-hdr-sub { font-size: 10px; color: #6b7280; }
+  .gmm-toggle-pill {
+    display: inline-flex; background: #f3f4f6;
+    border: 1px solid #d1d5db; border-radius: 4px; overflow: hidden;
   }
-  .gmm-global-strip { display: flex; gap: 28px; align-items: center; }
-  .gmm-global-item { display: flex; align-items: center; gap: 10px; }
-  .gmm-global-sym {
-    font-family: var(--font-mono); font-size: 13px; font-weight: 700;
-    color: #f0ebe0; letter-spacing: 0.06em;
+  .gmm-tog {
+    background: none; border: none; color: #6b7280;
+    padding: 4px 12px; cursor: pointer;
+    font-family: var(--font-sans); font-size: 11px; transition: all .15s;
   }
-  .gmm-global-pct { font-family: var(--font-mono); font-size: 16px; font-weight: 700; }
-  .gmm-tf-bar { display: flex; gap: 1px; }
-  .gmm-tf-btn {
-    font-family: var(--font-mono); font-size: 10px; padding: 3px 9px;
-    border: 1px solid #5a5040; background: transparent; color: #c8bfaa;
-    cursor: pointer; letter-spacing: 0.05em;
-  }
-  .gmm-tf-btn.active { background: #f5f0e8; color: #1a1a1a; border-color: #f5f0e8; }
-  .gmm-tf-btn:hover:not(.active) { background: #2c2820; }
+  .gmm-tog.active { background: #fff; color: #111827; font-weight: 600; }
   .gmm-body { display: grid; grid-template-columns: 65% 35%; }
-  .gmm-left { position: relative; }
-  .gmm-left-inner { position: relative; width: 100%; height: 480px; overflow: hidden; }
-  .gmm-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; }
-  /* Editorial index blocks (overlaid on map) */
-  .gmm-block {
+  .gmm-map-wrap { background: #f3f4f6; border-right: 1px solid #e5e7eb; padding: 10px 12px 6px; }
+  .gmm-map-frame {
+    position: relative; padding-bottom: 52%;
+    background: #e8edf0; border: 1px solid #e5e7eb;
+    border-radius: 4px; overflow: visible;
+  }
+  .gmm-map-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: fill; display: block; border-radius: 4px;
+    filter: saturate(0.7) brightness(1.02);
+  }
+  .gmm-map-footer { font-size: 9px; color: #9ca3af; font-style: italic; margin-top: 4px; }
+  .gmm-mcard {
     position: absolute;
-    background: rgba(245,240,232,0.97);
-    border: 1px solid #7a7060;
-    padding: 4px 8px 5px;
-    min-width: 172px;
-    font-family: var(--font-mono);
-    line-height: 1.1;
+    background: rgba(255,255,255,0.93);
+    border: 1px solid #d1d5db; border-radius: 3px;
+    padding: 4px 7px; box-shadow: 0 1px 5px rgba(0,0,0,0.12);
+    z-index: 10; white-space: nowrap; pointer-events: none;
   }
-  .gmm-block-hdr {
-    font-size: 8px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.12em; color: #1a1a1a;
-    background: #e8e0d0;
-    border-bottom: 1px solid #9a9080;
-    padding: 2px 0 3px; margin: -4px -8px 4px;
-    padding-left: 8px;
+  .gmm-mcard-hdr { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+  .gmm-mcard-flag { font-size: 13px; line-height: 1; }
+  .gmm-mcard-label { font-family: var(--font-sans); font-size: 9px; font-weight: 600; color: #374151; }
+  .gmm-mcard-row {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 6px; margin-bottom: 1px;
   }
-  .gmm-block-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    gap: 0 5px; align-items: baseline; padding: 1.5px 0;
+  .gmm-mcard-iname { font-family: var(--font-sans); font-size: 9px; color: #6b7280; }
+  .gmm-mpct {
+    font-family: var(--font-mono); font-size: 10px;
+    font-weight: 600; padding: 1px 5px; border-radius: 2px;
   }
-  .gmm-bn { font-size: 9px; color: #4a4030; white-space: nowrap; }
-  .gmm-bv { font-size: 10px; font-weight: 700; color: #1a1a1a; text-align: right; }
-  .gmm-bd { font-size: 10px; font-weight: 700; text-align: right; }
-  .gmm-bw { font-size: 9px; text-align: right; opacity: 0.7; font-weight: 600; }
-  /* Colors */
-  .gmm-pos { color: #15803d; }
-  .gmm-neg { color: #b91c1c; }
-  .gmm-flat { color: #8a7f6e; }
-  /* Right ranking panel */
-  .gmm-right {
-    border-left: 2px solid #1a1a1a; background: #f5f0e8;
-    display: flex; flex-direction: column;
+  .gmm-pos { color: #16a34a; background: rgba(22,163,74,0.10); }
+  .gmm-neg { color: #dc2626; background: rgba(220,38,38,0.10); }
+  .gmm-rank-panel { background: #fff; padding: 10px 14px; overflow-y: auto; }
+  .gmm-rank-title {
+    font-family: var(--font-sans); font-size: 12px; font-weight: 700; color: #111827;
+    border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: baseline;
   }
-  .gmm-rank-hdr {
-    background: #1a1a1a; color: #f0ebe0; flex-shrink: 0;
-    padding: 7px 14px; font-family: var(--font-sans);
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.12em;
+  .gmm-rank-title-sub { font-size: 10px; color: #6b7280; font-weight: 400; }
+  .gmm-rank-sublabel {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em; color: #6b7280; margin-bottom: 5px;
   }
-  .gmm-rank-section { padding: 10px 14px; flex: 1; }
-  .gmm-rank-sub {
-    font-family: var(--font-mono); font-size: 7px; text-transform: uppercase;
-    letter-spacing: 0.12em; color: #6a6050;
-    border-bottom: 1px solid #c8bfaa;
-    padding-bottom: 4px; margin-bottom: 6px; font-weight: 700;
-  }
-  .gmm-rank-sub-best { color: #15803d; border-color: #16a34a; }
-  .gmm-rank-sub-worst { color: #b91c1c; border-color: #dc2626; }
-  .gmm-rank-sep { height: 1px; background: #c8bfaa; margin: 0; flex-shrink: 0; }
-  .gmm-rank-row {
-    display: grid; grid-template-columns: 52px 1fr 50px;
-    gap: 6px; align-items: center; padding: 3px 0;
-  }
-  .gmm-rank-ticker {
-    font-family: var(--font-mono); font-size: 11px;
-    font-weight: 700; color: #1a1a1a;
-  }
-  .gmm-rank-bar-wrap {
-    height: 9px; background: #ddd8cc;
-    position: relative; overflow: hidden;
-  }
-  .gmm-rank-bar { height: 100%; position: absolute; top: 0; }
+  .gmm-rank-row { display: grid; grid-template-columns: 68px 1fr 38px; gap: 6px; align-items: center; padding: 2px 0; }
+  .gmm-rank-ticker { font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gmm-rank-bar-wrap { height: 9px; background: #e5e7eb; border-radius: 1px; position: relative; overflow: hidden; }
+  .gmm-rank-bar { height: 100%; position: absolute; top: 0; border-radius: 1px; }
   .gmm-bar-pos { background: #16a34a; left: 0; }
   .gmm-bar-neg { background: #dc2626; right: 0; }
-  .gmm-rank-pct {
-    font-family: var(--font-mono); font-size: 11px;
-    font-weight: 700; text-align: right;
-  }
-  /* Responsive */
+  .gmm-rank-val { font-family: var(--font-mono); font-size: 10px; font-weight: 600; text-align: right; }
+  .gmm-rank-sep { height: 1px; background: #e5e7eb; margin: 8px 0; }
   @media (max-width: 960px) {
     #global-market-map { margin: 0 -16px 24px; }
     .gmm-body { grid-template-columns: 1fr; }
-    .gmm-left-inner { height: 340px; }
-    .gmm-right { border-left: none; border-top: 2px solid #1a1a1a; }
-    .gmm-block { min-width: 135px; }
-    .gmm-bn, .gmm-bv, .gmm-bd, .gmm-bw { font-size: 8px; }
+    .gmm-rank-panel { border-top: 1px solid #e5e7eb; }
+    .gmm-mcard { padding: 3px 5px; }
+    .gmm-mcard-flag { font-size: 11px; }
+    .gmm-mpct { font-size: 8px; }
   }
   @media (max-width: 600px) {
-    .gmm-left-inner { height: 220px; }
-    .gmm-block { padding: 3px 5px; min-width: 110px; }
-    .gmm-block-hdr { font-size: 7px; }
+    .gmm-map-frame { padding-bottom: 70%; }
   }
 
 
@@ -929,184 +898,36 @@
       </div>
     </header>
 
-    <!-- ====== GLOBAL MARKET MAP — editorial style ====== -->
+    <!-- ====== GLOBAL MARKET MAP — image + cards ====== -->
     <section id="global-market-map">
 
-      <!-- Dark masthead: title | ACWI WORLD EM | TF selector -->
-      <div class="gmm-masthead">
-        <span class="gmm-masthead-title">Mercados Mundiales</span>
-        <div class="gmm-global-strip" id="gmmGlobalBar"></div>
-        <div class="gmm-tf-bar" id="gmmTfBar">
-          <button class="gmm-tf-btn active" data-gtf="d1">1D</button>
-          <button class="gmm-tf-btn" data-gtf="w1">1S</button>
-          <button class="gmm-tf-btn" data-gtf="m1">1M</button>
+      <div class="gmm-hdr">
+        <div class="gmm-hdr-left">
+          <span class="gmm-hdr-title">Las principales Bolsas</span>
+          <span class="gmm-hdr-sub">Datos orientativos · ETFs reales cuando disponibles</span>
+        </div>
+        <div class="gmm-toggle-pill" id="gmmToggle">
+          <button class="gmm-tog active" data-mode="ses">En la sesión</button>
+          <button class="gmm-tog" data-mode="sem">En la semana</button>
         </div>
       </div>
 
-      <!-- Two-column body: 65% map | 35% ranking -->
       <div class="gmm-body">
-
-        <!-- LEFT: SVG world map + overlaid data blocks -->
-        <div class="gmm-left">
-          <div class="gmm-left-inner">
-            <svg class="gmm-svg" viewBox="0 0 900 480" preserveAspectRatio="none">
-              <!-- Ocean background -->
-              <rect width="900" height="480" fill="#c8dde8"/>
-              <!-- Equator and latitude guidelines (editorial) -->
-              <line x1="0" y1="240" x2="900" y2="240" stroke="#a8c8d8" stroke-width="1" stroke-dasharray="6,6"/>
-              <line x1="0" y1="160" x2="900" y2="160" stroke="#b5cdd8" stroke-width="0.4"/>
-              <line x1="0" y1="320" x2="900" y2="320" stroke="#b5cdd8" stroke-width="0.4"/>
-              <line x1="0" y1="80"  x2="900" y2="80"  stroke="#b5cdd8" stroke-width="0.3"/>
-              <line x1="0" y1="400" x2="900" y2="400" stroke="#b5cdd8" stroke-width="0.3"/>
-              <!-- Continents: beige/paper tone with editorial styling -->
-              <g fill="#ccc4ae" stroke="#a89e88" stroke-width="0.8" stroke-linejoin="round">
-                <!-- NORTH AMERICA -->
-                <path d="M42,72 L65,52 L98,40 L140,34 L180,36 L215,44 L242,58 L262,75
-                         L272,98 L272,122 L265,145 L252,165 L238,184 L222,202 L205,220
-                         L188,235 L170,244 L152,248 L135,245 L118,238 L102,225 L88,208
-                         L78,188 L68,168 L58,148 L48,125 L42,100 Z"/>
-                <!-- Alaska peninsula -->
-                <path d="M42,72 L25,78 L10,88 L8,102 L22,108 L38,102 Z"/>
-                <!-- Greenland -->
-                <path d="M210,18 L238,10 L265,16 L278,30 L275,48 L258,56 L234,56 L212,45 L205,30 Z"/>
-                <!-- Mexico / Central America -->
-                <path d="M152,248 L172,254 L185,265 L188,278 L180,288 L165,284 L155,272 Z"/>
-                <!-- Caribbean islands -->
-                <ellipse cx="248" cy="280" rx="13" ry="5"/>
-                <ellipse cx="268" cy="286" rx="8" ry="4"/>
-                <!-- SOUTH AMERICA -->
-                <path d="M182,280 L210,270 L240,272 L265,284 L282,306 L290,332 L292,360
-                         L286,388 L272,412 L250,430 L225,438 L200,432 L178,416 L162,393
-                         L152,366 L150,340 L155,314 L168,294 Z"/>
-                <!-- EUROPE main body -->
-                <path d="M380,110 L398,100 L418,93 L440,90 L460,94 L476,105 L484,120
-                         L485,138 L476,155 L460,168 L440,175 L420,175 L402,168 L388,155
-                         L378,138 L375,122 Z"/>
-                <!-- UK -->
-                <path d="M386,102 L398,88 L410,86 L416,96 L412,112 L400,118 L388,114 Z"/>
-                <!-- Ireland -->
-                <path d="M375,100 L383,94 L390,98 L388,110 L378,112 Z"/>
-                <!-- Iberian peninsula -->
-                <path d="M375,125 L392,118 L410,120 L420,132 L420,150 L410,162 L394,166
-                         L378,158 L368,142 L368,130 Z"/>
-                <!-- Scandinavia -->
-                <path d="M436,70 L448,55 L462,48 L478,54 L484,70 L480,88 L464,96 L448,94 L436,84 Z"/>
-                <!-- Finland / Baltic -->
-                <path d="M476,66 L490,58 L502,65 L504,80 L494,92 L478,92 Z"/>
-                <!-- Italy -->
-                <path d="M450,165 L460,162 L468,174 L466,192 L456,205 L448,200 L444,185 L446,170 Z"/>
-                <!-- Sicily -->
-                <ellipse cx="455" cy="210" rx="8" ry="5"/>
-                <!-- Greece -->
-                <path d="M474,165 L485,160 L492,168 L490,182 L480,188 L472,182 Z"/>
-                <!-- AFRICA -->
-                <path d="M375,178 L408,165 L440,162 L468,170 L488,188 L500,210 L504,238
-                         L500,268 L490,300 L472,328 L448,350 L420,362 L392,360 L366,342
-                         L348,318 L336,290 L330,260 L332,230 L340,202 L355,182 Z"/>
-                <!-- Madagascar -->
-                <path d="M504,308 L514,295 L522,302 L522,322 L514,335 L504,328 Z"/>
-                <!-- MIDDLE EAST / ARABIA -->
-                <path d="M490,172 L525,160 L556,164 L572,178 L572,198 L558,215 L534,222
-                         L508,218 L490,205 Z"/>
-                <!-- RUSSIA / CENTRAL ASIA (huge mass) -->
-                <path d="M486,118 L488,92 L496,70 L510,52 L538,38 L575,28 L622,20 L672,15
-                         L722,18 L768,26 L808,38 L835,52 L852,68 L852,85 L835,97 L802,105
-                         L768,108 L728,105 L688,100 L648,98 L610,100 L575,105 L546,112
-                         L518,120 L498,130 L488,128 Z"/>
-                <!-- CHINA / EAST ASIA -->
-                <path d="M620,105 L658,95 L695,93 L730,100 L758,115 L778,133 L782,155
-                         L770,175 L748,188 L722,194 L695,190 L668,178 L645,162 L628,148
-                         L618,130 L615,115 Z"/>
-                <!-- Korean peninsula -->
-                <path d="M762,138 L775,130 L785,136 L785,152 L775,162 L762,158 Z"/>
-                <!-- JAPAN — Honshu + Hokkaido -->
-                <path d="M795,122 L810,110 L825,112 L835,126 L830,145 L815,155 L800,150 L790,138 Z"/>
-                <path d="M828,105 L842,97 L855,103 L856,118 L843,126 L830,120 Z"/>
-                <ellipse cx="808" cy="158" rx="8" ry="5"/>
-                <!-- INDIA subcontinent -->
-                <path d="M580,165 L612,155 L642,162 L660,180 L665,205 L658,232 L640,252
-                         L615,262 L590,255 L574,238 L567,215 L570,192 L575,175 Z"/>
-                <!-- Sri Lanka -->
-                <ellipse cx="635" cy="268" rx="7" ry="4"/>
-                <!-- SE ASIA / Indochina -->
-                <path d="M680,185 L712,175 L740,180 L755,196 L752,215 L735,228 L710,232
-                         L685,220 L670,206 Z"/>
-                <!-- Philippines -->
-                <ellipse cx="782" cy="224" rx="10" ry="16"/>
-                <!-- Indonesia (elongated) -->
-                <ellipse cx="758" cy="248" rx="42" ry="15"/>
-                <ellipse cx="815" cy="258" rx="25" ry="10"/>
-                <!-- AUSTRALIA -->
-                <path d="M715,352 L758,336 L808,334 L848,348 L865,372 L868,402 L856,430
-                         L828,448 L792,455 L755,450 L720,435 L700,408 L695,378 L702,355 Z"/>
-                <!-- Tasmania -->
-                <ellipse cx="808" cy="458" rx="10" ry="6"/>
-                <!-- New Zealand -->
-                <path d="M870,410 L882,398 L892,405 L890,422 L878,432 L868,425 Z"/>
-                <ellipse cx="878" cy="442" rx="7" ry="10"/>
-              </g>
-
-              <!-- Financial center dots (dark crimson) -->
-              <g fill="#8b1a1a" stroke="#5c0000" stroke-width="0.8">
-                <!-- USA -->
-                <circle cx="262" cy="158" r="5.5"/>
-                <circle cx="148" cy="174" r="4"/>
-                <circle cx="228" cy="150" r="3.5"/>
-                <!-- Europe -->
-                <circle cx="406" cy="110" r="4"/>
-                <circle cx="422" cy="118" r="3.5"/>
-                <circle cx="418" cy="125" r="3"/>
-                <circle cx="396" cy="138" r="3"/>
-                <circle cx="455" cy="155" r="2.5"/>
-                <!-- East Asia -->
-                <circle cx="735" cy="155" r="4.5"/>
-                <circle cx="752" cy="176" r="3.5"/>
-                <circle cx="816" cy="132" r="4.5"/>
-                <circle cx="736" cy="196" r="3"/>
-                <!-- South Asia -->
-                <circle cx="614" cy="228" r="3.5"/>
-              </g>
-            </svg>
-
-            <!-- Index blocks overlaid editorially on map -->
-            <div class="gmm-block" style="left:2%;top:22%">
-              <div class="gmm-block-hdr">EE.UU</div>
-              <div id="gmmCard_usa"></div>
-            </div>
-            <div class="gmm-block" style="left:36%;top:2%">
-              <div class="gmm-block-hdr">Europa</div>
-              <div id="gmmCard_europe"></div>
-            </div>
-            <div class="gmm-block" style="right:1%;top:2%">
-              <div class="gmm-block-hdr">Jap&#243;n</div>
-              <div id="gmmCard_japan"></div>
-            </div>
-            <div class="gmm-block" style="right:1%;top:36%">
-              <div class="gmm-block-hdr">China / HK</div>
-              <div id="gmmCard_china"></div>
-            </div>
-            <div class="gmm-block" style="left:50%;top:53%">
-              <div class="gmm-block-hdr">India</div>
-              <div id="gmmCard_india"></div>
-            </div>
+        <div class="gmm-map-wrap">
+          <div class="gmm-map-frame" id="gmmMapFrame">
+            <img class="gmm-map-img" src="world-map.jpg" alt="World Map">
           </div>
+          <div class="gmm-map-footer">Fuente: Bloomberg · datos orientativos</div>
         </div>
-
-        <!-- RIGHT: Ranking panel -->
-        <div class="gmm-right">
-          <div class="gmm-rank-hdr">Valores Destacados</div>
-          <div class="gmm-rank-section">
-            <div class="gmm-rank-sub gmm-rank-sub-best">&#9650; Con mejor desempe&#241;o</div>
-            <div id="gmmBest"></div>
-          </div>
+        <div class="gmm-rank-panel">
+          <div class="gmm-rank-title">Rendimientos <span class="gmm-rank-title-sub">En %</span></div>
+          <div class="gmm-rank-sublabel">Con mejor desempeño</div>
+          <div id="gmmBest"></div>
           <div class="gmm-rank-sep"></div>
-          <div class="gmm-rank-section">
-            <div class="gmm-rank-sub gmm-rank-sub-worst">&#9660; Con peor desempe&#241;o</div>
-            <div id="gmmWorst"></div>
-          </div>
+          <div class="gmm-rank-sublabel">Con peor desempeño</div>
+          <div id="gmmWorst"></div>
         </div>
-
-      </div><!-- /gmm-body -->
+      </div>
     </section>
 
     <!-- ====== ETF SECTOR TABLES ====== -->
@@ -2381,122 +2202,108 @@ function setupCompanyModal() {
 }
 
 // ================================================================
-// GLOBAL MARKET MAP — editorial / Bloomberg style
+// GLOBAL MARKET MAP — image + positioned cards
 // ================================================================
-const GLOBAL_INDICES = [
-  { region: 'usa', indices: [
-    { name: 'S&P 500',    level: 7126,  etfProxy: 'SPY', mockPct: 1.20, mockW1: 4.54, mockM1: 8.92 },
-    { name: 'Nasdaq 100', level: 24468, etfProxy: 'QQQ', mockPct: 1.52, mockW1: 6.84, mockM1: 12.10 },
-    { name: 'Dow Jones',  level: 49447, etfProxy: null,  mockPct: 1.79, mockW1: 3.19, mockM1: 6.48 },
-  ]},
-  { region: 'europe', indices: [
-    { name: 'EuroStoxx', level: 5284,  etfProxy: null, mockPct: 2.10, mockW1: 3.85, mockM1: 6.92 },
-    { name: 'DAX',       level: 22847, etfProxy: null, mockPct: 2.27, mockW1: 4.12, mockM1: 7.55 },
-    { name: 'CAC 40',    level: 7894,  etfProxy: null, mockPct: 1.97, mockW1: 3.52, mockM1: 6.18 },
-  ]},
-  { region: 'china', indices: [
-    { name: 'Hang Seng', level: 23416, etfProxy: null, mockPct: 1.25, mockW1: 2.18, mockM1: 3.82 },
-    { name: 'CSI 300',   level: 3987,  etfProxy: null, mockPct: 0.62, mockW1: 1.42, mockM1: 2.68 },
-  ]},
-  { region: 'japan', indices: [
-    { name: 'Nikkei 225', level: 38204, etfProxy: null, mockPct: 0.85, mockW1: 1.95, mockM1: 3.45 },
-    { name: 'TOPIX',      level: 2764,  etfProxy: null, mockPct: 0.92, mockW1: 2.08, mockM1: 3.72 },
-  ]},
-  { region: 'india', indices: [
-    { name: 'Nifty 50', level: 22419, etfProxy: null, mockPct: 0.45, mockW1: 0.92, mockM1: 1.85 },
-    { name: 'Sensex',   level: 73847, etfProxy: null, mockPct: 0.52, mockW1: 1.05, mockM1: 2.10 },
-  ]},
+const MARKETS = [
+  { id:'eeuu', label:'EE UU', flag:'',
+    indices:[{ name:'S&P 500', etfProxy:'SPY', mockD1:1.2, mockW1:4.54 },{ name:'Dow Jones', etfProxy:null, mockD1:1.79, mockW1:3.19 },{ name:'Nasdaq', etfProxy:'QQQ', mockD1:1.52, mockW1:6.84 }],
+    labelPos:{x:1,y:30} },
+  { id:'ftse100', label:'FTSE 100 (R. Unido)', flag:String.fromCodePoint(0x1F1EC,0x1F1E7),
+    indices:[{ name:'', etfProxy:null, mockD1:0.73, mockW1:0.63 }],
+    labelPos:{x:29,y:4} },
+  { id:'dax', label:'DAX (Alemania)', flag:String.fromCodePoint(0x1F1E9,0x1F1EA),
+    indices:[{ name:'', etfProxy:null, mockD1:2.27, mockW1:3.77 }],
+    labelPos:{x:45,y:4} },
+  { id:'swiss', label:'Swiss MKT (Suiza)', flag:String.fromCodePoint(0x1F1E8,0x1F1ED),
+    indices:[{ name:'', etfProxy:null, mockD1:1.92, mockW1:1.85 }],
+    labelPos:{x:58,y:4} },
+  { id:'nikkei', label:'Nikkei (Japón)', flag:String.fromCodePoint(0x1F1EF,0x1F1F5),
+    indices:[{ name:'', etfProxy:null, mockD1:-1.75, mockW1:2.73 }],
+    labelPos:{x:74,y:24} },
+  { id:'ibex35', label:'Ibex 35 (España)', flag:String.fromCodePoint(0x1F1EA,0x1F1F8),
+    indices:[{ name:'', etfProxy:null, mockD1:2.18, mockW1:1.54 }],
+    labelPos:{x:38,y:50} },
+  { id:'eurostoxx', label:'Euro Stoxx 50', flag:String.fromCodePoint(0x1F1EA,0x1F1FA),
+    indices:[{ name:'', etfProxy:null, mockD1:2.1, mockW1:2.22 }],
+    labelPos:{x:31,y:70} },
+  { id:'cac40', label:'CAC 40 (Francia)', flag:String.fromCodePoint(0x1F1EB,0x1F1F7),
+    indices:[{ name:'', etfProxy:null, mockD1:1.97, mockW1:2.0 }],
+    labelPos:{x:43,y:74} },
+  { id:'ftse_mib', label:'FTSE Mib (Italia)', flag:String.fromCodePoint(0x1F1EE,0x1F1F9),
+    indices:[{ name:'', etfProxy:null, mockD1:1.75, mockW1:2.65 }],
+    labelPos:{x:55,y:78} },
+  { id:'hangseng', label:'China', flag:String.fromCodePoint(0x1F1E8,0x1F1F3),
+    indices:[{ name:'Hang Seng', etfProxy:null, mockD1:-0.89, mockW1:1.03 },{ name:'CSI 300', etfProxy:null, mockD1:-0.17, mockW1:1.99 }],
+    labelPos:{x:65,y:46} }
 ];
 
-let gmmCurrentTf = 'd1';
+let gmmMode = 'ses'; // 'ses'=sesion/d1 | 'sem'=semana/w1
 
-function gmmGetPct(idx, tf) {
+function gmmMarketPct(idx, mode) {
+  const tf = mode === 'ses' ? 'd1' : 'w1';
   if (idx.etfProxy) {
     const v = flowAllData[idx.etfProxy]?.changes?.[tf];
     if (v != null) return Number(v);
   }
-  if (tf === 'w1') return idx.mockW1 ?? null;
-  if (tf === 'm1') return idx.mockM1 ?? null;
-  return idx.mockPct ?? null;
-}
-
-function gmmFmtPct(v, cls) {
-  if (v == null || isNaN(v)) return `<span class="${cls} gmm-flat">—</span>`;
-  const colorCls = Math.abs(v) < 0.05 ? 'gmm-flat' : v > 0 ? 'gmm-pos' : 'gmm-neg';
-  return `<span class="${cls} ${colorCls}">${v > 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+  return mode === 'ses' ? idx.mockD1 : idx.mockW1;
 }
 
 function renderGlobalMarketMap() {
-  const tf = gmmCurrentTf;
-
-  // Fill regional index blocks (always d1 + w1 for overview context)
-  for (const region of GLOBAL_INDICES) {
-    const el = document.getElementById('gmmCard_' + region.region);
-    if (!el) continue;
-    el.innerHTML = region.indices.map(idx => {
-      const pd = gmmGetPct(idx, 'd1');
-      const pw = gmmGetPct(idx, 'w1');
-      const lv = idx.level ? idx.level.toLocaleString('es-ES') : '';
-      return `<div class="gmm-block-row">` +
-        `<span class="gmm-bn">${idx.name}</span>` +
-        `<span class="gmm-bv">${lv}</span>` +
-        gmmFmtPct(pd, 'gmm-bd') +
-        gmmFmtPct(pw, 'gmm-bw') +
-        `</div>`;
-    }).join('');
+  const frame = document.getElementById('gmmMapFrame');
+  if (frame) {
+    frame.querySelectorAll('.gmm-mcard').forEach(el => el.remove());
+    for (const m of MARKETS) {
+      const isMulti = m.indices.length > 1;
+      const card = document.createElement('div');
+      card.className = 'gmm-mcard';
+      card.style.left = m.labelPos.x + '%';
+      card.style.top  = m.labelPos.y + '%';
+      let html = `<div class="gmm-mcard-hdr">` +
+        `<span class="gmm-mcard-flag">${m.flag}</span>` +
+        `<span class="gmm-mcard-label">${m.label}</span></div>`;
+      for (const idx of m.indices) {
+        const pct = gmmMarketPct(idx, gmmMode);
+        const pos = pct >= 0;
+        const str = (pos ? '+' : '') + pct.toFixed(2) + '%';
+        html += `<div class="gmm-mcard-row">`;
+        if (isMulti && idx.name) html += `<span class="gmm-mcard-iname">${idx.name}</span>`;
+        html += `<span class="gmm-mpct ${pos ? 'gmm-pos' : 'gmm-neg'}">${str}</span></div>`;
+      }
+      card.innerHTML = html;
+      frame.appendChild(card);
+    }
   }
 
-  // Global bar: ACWI WORLD EM — large, prominent
-  const bar = document.getElementById('gmmGlobalBar');
-  if (bar) {
-    const items = [{label:'ACWI',sym:'ACWI'},{label:'WORLD',sym:'URTH'},{label:'EM',sym:'IEMG'}];
-    bar.innerHTML = items.map(it => {
-      const v = flowAllData[it.sym]?.changes?.[tf];
-      const pct = v != null ? Number(v) : null;
-      const colorCls = pct == null ? 'gmm-flat' : pct > 0 ? 'gmm-pos' : 'gmm-neg';
-      const pctStr = pct == null ? '—' : `${pct > 0 ? '+' : ''}${pct.toFixed(2)}%`;
-      return `<div class="gmm-global-item">` +
-        `<span class="gmm-global-sym">${it.label}</span>` +
-        `<span class="gmm-global-pct ${colorCls}">${pctStr}</span>` +
-        `</div>`;
-    }).join('');
-  }
-
-  // Ranking panel: top 8 best + 8 worst from MOCK_COMPANIES
+  // Ranking panel
+  const tf = gmmMode === 'ses' ? 'd1' : 'w1';
   const scored = MOCK_COMPANIES.map(co => {
     const v = getCoVar(co, tf);
     return { co, v: v != null ? Number(v) : null };
   }).filter(x => x.v != null).sort((a, b) => b.v - a.v);
-
   const maxAbs = Math.max(...scored.map(x => Math.abs(x.v)), 0.01);
-
-  const rankRow = (x) => {
-    const pct = x.v;
-    const barW = Math.min(100, Math.abs(pct) / maxAbs * 100).toFixed(1);
-    const colorCls = pct > 0 ? 'gmm-pos' : 'gmm-neg';
-    const barCls = pct > 0 ? 'gmm-bar-pos' : 'gmm-bar-neg';
+  const mkRow = (x) => {
+    const pct = x.v; const pos = pct >= 0;
+    const w = Math.min(100, Math.abs(pct) / maxAbs * 100).toFixed(1);
     return `<div class="gmm-rank-row">` +
       `<span class="gmm-rank-ticker">${x.co.ticker}</span>` +
-      `<div class="gmm-rank-bar-wrap"><div class="gmm-rank-bar ${barCls}" style="width:${barW}%"></div></div>` +
-      `<span class="gmm-rank-pct ${colorCls}">${pct > 0 ? '+' : ''}${pct.toFixed(2)}</span>` +
-      `</div>`;
+      `<div class="gmm-rank-bar-wrap"><div class="gmm-rank-bar ${pos?'gmm-bar-pos':'gmm-bar-neg'}" style="width:${w}%"></div></div>` +
+      `<span class="gmm-rank-val ${pos?'gmm-pos':'gmm-neg'}">${pos?'+':''}${pct.toFixed(2)}</span></div>`;
   };
-
-  const best = document.getElementById('gmmBest');
-  if (best) best.innerHTML = scored.slice(0, 8).map(rankRow).join('');
-  const worst = document.getElementById('gmmWorst');
-  if (worst) worst.innerHTML = [...scored].reverse().slice(0, 8).map(rankRow).join('');
+  const elB = document.getElementById('gmmBest');
+  const elW = document.getElementById('gmmWorst');
+  if (elB) elB.innerHTML = scored.slice(0, 10).map(mkRow).join('');
+  if (elW) elW.innerHTML = [...scored].reverse().slice(0, 10).map(mkRow).join('');
 }
 
 function setupGMM() {
-  const bar = document.getElementById('gmmTfBar');
-  if (!bar) return;
-  bar.addEventListener('click', e => {
-    const btn = e.target.closest('[data-gtf]');
+  const tog = document.getElementById('gmmToggle');
+  if (!tog) return;
+  tog.addEventListener('click', e => {
+    const btn = e.target.closest('[data-mode]');
     if (!btn) return;
-    bar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    tog.querySelectorAll('.gmm-tog').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    gmmCurrentTf = btn.dataset.gtf;
+    gmmMode = btn.dataset.mode;
     renderGlobalMarketMap();
   });
 }
